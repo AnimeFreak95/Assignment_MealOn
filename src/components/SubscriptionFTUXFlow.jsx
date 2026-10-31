@@ -10,44 +10,40 @@ import {
   Info,
   X,
   CreditCard,
-  Building2,
-  Calendar,
-  Lock,
   Gift,
   HelpCircle,
   CheckCircle2,
-  AlertCircle
+  Calendar,
+  Lock,
+  ArrowRight
 } from 'lucide-react';
-import { playPop, playSuccessChime, playCelebrationFanfare, playShieldBankChime } from '../utils/audioDelight';
+import { playPop, playSuccessChime, playCelebrationFanfare } from '../utils/audioDelight';
 
 const TIERS = [
   {
     id: 160,
     label: 'Comfort',
     price: 160,
-    subtext: 'Homestyle Tiffins, Dal Khichdi, Roti-Sabzi',
-    sampleDish: "Rajshree's Bajari Bhakri Meal • ₹155",
-    tag: 'Budget Friendly',
-    badgeColor: 'bg-slate-100 text-slate-700'
+    subtext: 'Homestyle • Dal Khichdi',
+    sampleDish: "Rajshree's Bhakri • ₹155",
+    tag: 'Budget',
   },
   {
     id: 250,
     label: 'Balanced',
     price: 250,
-    subtext: 'Corporate Thalis, Paneer Bowls, Wraps',
-    sampleDish: 'Paneer Tikka Quinoa Bowl • ₹230',
-    tag: '🔥 MOST POPULAR',
+    subtext: 'Corporate Thalis • Bowls',
+    sampleDish: 'Paneer Quinoa Bowl • ₹230',
+    tag: 'POPULAR',
     isPopular: true,
-    badgeColor: 'bg-[#FFF5F0] text-[#FF5A1F] border border-[#FF5A1F]/30'
   },
   {
     id: 320,
     label: 'Macro Pro',
     price: 320,
-    subtext: '30g+ Protein Bowls, Keto, Gourmet Salads',
-    sampleDish: 'Grilled Tofu & Edamame Bowl • ₹310',
+    subtext: '30g+ Protein • Keto Salads',
+    sampleDish: 'Tofu Edamame Bowl • ₹310',
     tag: '30g+ Protein',
-    badgeColor: 'bg-emerald-50 text-emerald-700 border border-emerald-200'
   }
 ];
 
@@ -56,50 +52,51 @@ const DURATIONS = [
     id: 5,
     days: 5,
     label: '5-Meal Pass',
-    sublabel: '1 Working Week',
+    sublabel: '1 Workweek',
     discountPct: 5,
     validityDays: 10,
-    discountBadge: 'SAVE 5% + FREE DELIVERY',
+    extraBufferDays: 5,
+    discountBadge: '5% OFF + FREE DELIVERY',
     tag: null
   },
   {
     id: 10,
     days: 10,
     label: '10-Meal Pass',
-    sublabel: '2 Working Weeks',
+    sublabel: '2 Workweeks',
     discountPct: 10,
     validityDays: 20,
-    discountBadge: 'SAVE 10% + FREE DELIVERY',
+    extraBufferDays: 10,
+    discountBadge: '10% OFF + FREE DELIVERY',
     tag: 'RECOMMENDED'
   },
   {
     id: 20,
     days: 20,
     label: '20-Meal Pass',
-    sublabel: '4 Working Weeks',
+    sublabel: '4 Workweeks',
     discountPct: 15,
     validityDays: 35,
-    discountBadge: 'SAVE 15% + FREE DELIVERY',
-    tag: '👑 MAX SAVINGS'
+    extraBufferDays: 15,
+    discountBadge: '15% OFF + FREE DELIVERY',
+    tag: 'MAX SAVINGS'
   }
 ];
 
 export default function SubscriptionFTUXFlow({ onCompleteActivation, onClose }) {
-  // Navigation: Stage 1 (Configurator) -> Stage 2 (Payment)
   const [stage, setStage] = useState(1);
   const [showFtuxInfo, setShowFtuxInfo] = useState(false);
 
   // Selections
-  const [selectedTier, setSelectedTier] = useState(250); // Default ₹250
-  const [selectedDuration, setSelectedDuration] = useState(10); // Default 10 Meals
+  const [selectedTier, setSelectedTier] = useState(250);
+  const [selectedDuration, setSelectedDuration] = useState(10);
   const [paymentOption, setPaymentOption] = useState('prepaid'); // 'prepaid' | 'mandate' | 'pluxee'
-  const [pluxeeLinked, setPluxeeLinked] = useState(true);
   const [pluxeeLoadFull, setPluxeeLoadFull] = useState(true);
 
   // Success Modal
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
-  // Calculations (with tabular numerals)
+  // Dynamic calculations
   const durationObj = DURATIONS.find((d) => d.days === selectedDuration) || DURATIONS[1];
   const tierObj = TIERS.find((t) => t.price === selectedTier) || TIERS[1];
 
@@ -153,7 +150,7 @@ export default function SubscriptionFTUXFlow({ onCompleteActivation, onClose }) 
 
   return (
     <div className="min-h-full bg-[#F8FAFC] flex flex-col relative text-slate-900 pb-28 font-sans selection:bg-[#FF5A1F] selection:text-white">
-      {/* Top Header: Step Indicator & FTUX Info Pill */}
+      {/* Top Header: Step Indicator & FAQ Toggle */}
       <div className="bg-white border-b border-slate-200/90 px-4 py-2.5 sticky top-0 z-30 flex items-center justify-between shadow-xs">
         <div className="flex items-center space-x-2">
           {stage === 2 && (
@@ -165,7 +162,7 @@ export default function SubscriptionFTUXFlow({ onCompleteActivation, onClose }) 
             </button>
           )}
           <div>
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[#FF5A1F]">
+            <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#FF5A1F]">
               {stage === 1 ? 'Step 1 of 2' : 'Step 2 of 2'}
             </span>
             <h2 className="text-xs font-extrabold text-slate-900 leading-tight">
@@ -174,17 +171,17 @@ export default function SubscriptionFTUXFlow({ onCompleteActivation, onClose }) 
           </div>
         </div>
 
-        {/* Right Info Drawer Toggle */}
-        <div className="flex items-center space-x-1.5">
+        {/* Right FAQ Link */}
+        <div className="flex items-center space-x-2">
           <button
             onClick={() => {
               playPop();
               setShowFtuxInfo(true);
             }}
-            className="flex items-center space-x-1 text-[10px] font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-1 rounded-full border border-slate-200 transition-colors"
+            className="flex items-center space-x-1 text-[10px] font-bold text-slate-600 hover:text-[#FF5A1F] bg-slate-100 px-2 py-1 rounded-full border border-slate-200 transition-colors"
           >
-            <Info className="w-3 h-3 text-[#FF5A1F]" />
-            <span>FTUX Info</span>
+            <HelpCircle className="w-3 h-3 text-[#FF5A1F]" />
+            <span>FAQ</span>
           </button>
 
           {onClose && (
@@ -198,53 +195,67 @@ export default function SubscriptionFTUXFlow({ onCompleteActivation, onClose }) 
         </div>
       </div>
 
-      {/* STAGE 1: FIRST-TIME USER EXPERIENCE & PASS CONFIGURATOR */}
+      {/* STAGE 1: PASS CONFIGURATOR */}
       {stage === 1 && (
-        <div className="px-4 py-3 space-y-3.5 animate-in fade-in duration-200">
-          {/* A. Compact FTUX Value Banner (Top Dark Card) */}
-          <div className="rounded-2xl p-3.5 bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#0F172A] text-white shadow-md border border-slate-700/80 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-28 h-28 bg-[#FF5A1F]/10 rounded-full blur-xl pointer-events-none" />
+        <div className="px-4 py-3 space-y-3 animate-in fade-in duration-200">
+          {/* A. DYNAMIC FTUX HERO CARD (Updates Live based on Selected Plan) */}
+          <div className="rounded-2xl p-3.5 bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#0F172A] text-white shadow-md border border-slate-700/80 relative overflow-hidden transition-all">
+            <div className="absolute top-0 right-0 w-28 h-28 bg-[#FF5A1F]/15 rounded-full blur-xl pointer-events-none" />
 
             <div className="flex items-center justify-between mb-1.5">
               <span className="text-[9px] font-extrabold bg-[#FF5A1F]/20 text-[#FF7B47] border border-[#FF5A1F]/40 px-2 py-0.5 rounded-full flex items-center shadow-xs">
-                ✨ NEW: FLEXIBLE SCHEDULED MEALS
+                ✨ {durationObj.label.toUpperCase()} CONFIGURATION
               </span>
-              <span className="text-[9px] text-slate-400 font-semibold">Zero Lock-In</span>
+              <span className="text-[10px] font-bold text-emerald-400">
+                Save ₹{totalPocketSavings}
+              </span>
             </div>
 
             <h1 className="text-sm font-extrabold text-white tracking-tight leading-snug">
-              Never Overpay or Lose a Skipped Meal
+              {selectedDuration} Lunches • {durationObj.validityDays} Calendar Days Buffer
             </h1>
 
-            {/* 3 Horizontal Pill Highlights */}
-            <div className="grid grid-cols-3 gap-1.5 mt-2.5 pt-2 border-t border-slate-800 text-[9px] font-bold text-slate-200">
-              <div className="bg-slate-800/80 p-1.5 rounded-lg border border-slate-700 text-center leading-tight">
-                <span className="block text-emerald-400">🛡️ Up to 35-Day</span> Validity Buffer
+            {/* Visual Flex Buffer Bar */}
+            <div className="mt-2 bg-slate-800/90 p-2 rounded-xl border border-slate-700 space-y-1.5">
+              <div className="flex items-center justify-between text-[9px] font-bold">
+                <span className="text-slate-300">🍽️ {selectedDuration} Meals Ordered</span>
+                <span className="text-emerald-400">🛡️ +{durationObj.extraBufferDays} Free Rollover Days</span>
               </div>
-              <div className="bg-slate-800/80 p-1.5 rounded-lg border border-slate-700 text-center leading-tight">
-                <span className="block text-amber-400">💰 Unused ₹</span> Rolls to Wallet
+              <div className="h-1.5 w-full bg-slate-700 rounded-full overflow-hidden flex">
+                <div
+                  className="bg-[#FF5A1F] h-full"
+                  style={{ width: `${(selectedDuration / durationObj.validityDays) * 100}%` }}
+                />
+                <div
+                  className="bg-[#10B981] h-full"
+                  style={{ width: `${(durationObj.extraBufferDays / durationObj.validityDays) * 100}%` }}
+                />
               </div>
-              <div className="bg-slate-800/80 p-1.5 rounded-lg border border-slate-700 text-center leading-tight">
-                <span className="block text-[#FF5A1F]">⏰ Free Skip</span> till 10 PM
+            </div>
+
+            {/* Dynamic Real-Time Plan Highlights */}
+            <div className="grid grid-cols-3 gap-1.5 mt-2 text-[9px] font-bold text-slate-200">
+              <div className="bg-slate-800/80 p-1.5 rounded-lg border border-slate-700 text-center truncate">
+                <span className="block text-emerald-400">🛡️ {durationObj.validityDays} Days</span> Safe Validity
+              </div>
+              <div className="bg-slate-800/80 p-1.5 rounded-lg border border-slate-700 text-center truncate">
+                <span className="block text-amber-400">🚚 ₹{deliverySaved} Free</span> Delivery Waived
+              </div>
+              <div className="bg-slate-800/80 p-1.5 rounded-lg border border-slate-700 text-center truncate">
+                <span className="block text-[#FF5A1F]">⏰ 10 PM Free</span> Skip Guarantee
               </div>
             </div>
           </div>
 
-          {/* B. Interactive Step 1: Select Daily Meal Allowance Tier */}
-          <div className="space-y-2">
+          {/* B. Step 1: Select Meal Allowance Tier (3-Column Segmented Visual) */}
+          <div className="space-y-1.5">
             <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-1.5">
-                <span className="w-5 h-5 rounded-full bg-[#FF5A1F] text-white text-[10px] font-extrabold flex items-center justify-center">
-                  1
-                </span>
-                <h3 className="text-xs font-extrabold text-slate-900 tracking-tight">
-                  Choose Daily Meal Allowance Cap
-                </h3>
-              </div>
-              <span className="text-[10px] font-semibold text-slate-500">Pick cuisine level</span>
+              <span className="text-[11px] font-extrabold text-slate-800 uppercase tracking-wider">
+                1. Daily Meal Allowance
+              </span>
+              <span className="text-[10px] text-slate-500 font-semibold">Max Cap</span>
             </div>
 
-            {/* 3-Column Segmented Card Selector */}
             <div className="grid grid-cols-3 gap-2">
               {TIERS.map((tier) => {
                 const isSelected = selectedTier === tier.price;
@@ -254,68 +265,55 @@ export default function SubscriptionFTUXFlow({ onCompleteActivation, onClose }) 
                     onClick={() => handleTierSelect(tier.price)}
                     className={`rounded-2xl p-2.5 cursor-pointer transition-all relative border flex flex-col justify-between cta-bounce ${
                       isSelected
-                        ? 'bg-[#FFF5F0]/80 border-2 border-[#FF5A1F] shadow-sm ring-2 ring-[#FF5A1F]/20 scale-[1.02]'
+                        ? 'bg-[#FFF5F0]/90 border-2 border-[#FF5A1F] shadow-sm ring-2 ring-[#FF5A1F]/20'
                         : 'bg-white border-slate-200 hover:border-slate-300'
                     }`}
                   >
-                    {/* Top pill badge */}
                     {tier.isPopular ? (
-                      <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[8px] font-extrabold bg-[#FF5A1F] text-white px-1.5 py-0.2 rounded-full whitespace-nowrap shadow-xs">
-                        POPULAR
+                      <span className="text-[8px] font-extrabold text-[#FF5A1F] bg-[#FFF5F0] border border-[#FF5A1F]/30 px-1.5 py-0.2 rounded-full self-start mb-1">
+                        MOST POPULAR
                       </span>
                     ) : (
-                      <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tight">
+                      <span className="text-[8px] font-bold text-slate-400 uppercase mb-1">
                         {tier.tag}
                       </span>
                     )}
 
-                    <div className="mt-1">
-                      <div className="text-xs font-extrabold text-slate-900 leading-tight">
+                    <div>
+                      <div className="text-xs font-extrabold text-slate-900">
                         {tier.label}
                       </div>
                       <div className="text-sm font-extrabold text-[#FF5A1F] mt-0.5 tabular-nums">
                         ₹{tier.price}
-                        <span className="text-[9px] font-medium text-slate-500">/meal</span>
+                        <span className="text-[9px] font-medium text-slate-500">/d</span>
                       </div>
                     </div>
 
-                    <p className="text-[9px] text-slate-500 mt-1 leading-snug line-clamp-2">
+                    <div className="text-[9px] text-slate-500 mt-1 font-medium truncate">
                       {tier.subtext}
-                    </p>
-
-                    <div className="mt-1.5 pt-1 border-t border-slate-100 text-[8px] font-semibold text-slate-600 truncate">
-                      {tier.sampleDish}
                     </div>
                   </div>
                 );
               })}
             </div>
 
-            {/* Inline Helper Banner */}
-            <div className="bg-[#FFFBEB] border border-amber-200/80 rounded-xl p-2 text-[10px] text-amber-900 flex items-start space-x-1.5">
-              <span className="text-xs shrink-0 select-none">💡</span>
-              <p className="leading-snug">
-                Pick a dish cheaper than your <strong>₹{selectedTier} cap</strong>? The remaining balance goes straight to your MealsOn Wallet!
-              </p>
+            {/* Visual Micro Pill Helper */}
+            <div className="bg-[#FFFBEB] border border-amber-200 rounded-xl px-2.5 py-1.5 text-[10px] text-amber-900 flex items-center justify-between">
+              <span>💡 Pick a meal under ₹{selectedTier}? Balance rolls to Wallet</span>
+              <span className="font-bold text-[#FF5A1F]">100% Retained</span>
             </div>
           </div>
 
-          {/* C. Interactive Step 2: Select Pass Duration */}
-          <div className="space-y-2">
+          {/* C. Step 2: Select Duration Cards */}
+          <div className="space-y-1.5">
             <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-1.5">
-                <span className="w-5 h-5 rounded-full bg-[#FF5A1F] text-white text-[10px] font-extrabold flex items-center justify-center">
-                  2
-                </span>
-                <h3 className="text-xs font-extrabold text-slate-900 tracking-tight">
-                  Select Pass Duration (5-Day Workweeks)
-                </h3>
-              </div>
-              <span className="text-[10px] font-semibold text-emerald-700 font-bold">Free Delivery</span>
+              <span className="text-[11px] font-extrabold text-slate-800 uppercase tracking-wider">
+                2. Pass Duration
+              </span>
+              <span className="text-[10px] font-bold text-emerald-700">₹0 Delivery</span>
             </div>
 
-            {/* 3 Vertical Selectable Radio Cards */}
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               {DURATIONS.map((dur) => {
                 const isSelected = selectedDuration === dur.days;
                 const baseVal = dur.days * selectedTier;
@@ -327,16 +325,15 @@ export default function SubscriptionFTUXFlow({ onCompleteActivation, onClose }) 
                   <div
                     key={dur.id}
                     onClick={() => handleDurationSelect(dur.days)}
-                    className={`rounded-2xl p-3 border cursor-pointer transition-all flex items-center justify-between cta-bounce ${
+                    className={`rounded-2xl p-2.5 px-3 border cursor-pointer transition-all flex items-center justify-between cta-bounce ${
                       isSelected
                         ? 'bg-white border-2 border-[#FF5A1F] shadow-sm ring-2 ring-[#FF5A1F]/15'
                         : 'bg-white border-slate-200 hover:border-slate-300'
                     }`}
                   >
-                    <div className="flex items-start space-x-2.5">
-                      {/* Custom Radio Circle */}
+                    <div className="flex items-center space-x-2.5">
                       <div
-                        className={`w-4 h-4 rounded-full mt-0.5 flex items-center justify-center border transition-all ${
+                        className={`w-4 h-4 rounded-full flex items-center justify-center border transition-all ${
                           isSelected
                             ? 'border-[#FF5A1F] bg-[#FF5A1F]'
                             : 'border-slate-300 bg-white'
@@ -350,9 +347,6 @@ export default function SubscriptionFTUXFlow({ onCompleteActivation, onClose }) 
                           <span className="text-xs font-extrabold text-slate-900">
                             {dur.label}
                           </span>
-                          <span className="text-[10px] text-slate-500">
-                            ({dur.sublabel})
-                          </span>
                           {dur.tag && (
                             <span className="text-[8px] font-extrabold bg-[#ECFDF5] text-[#10B981] border border-[#10B981]/30 px-1.5 py-0.2 rounded-full">
                               {dur.tag}
@@ -360,22 +354,16 @@ export default function SubscriptionFTUXFlow({ onCompleteActivation, onClose }) 
                           )}
                         </div>
 
-                        <div className="flex items-center space-x-1.5 mt-1">
-                          <span className="text-[9px] font-bold bg-[#ECFDF5] text-emerald-800 px-1.5 py-0.2 rounded">
+                        <div className="flex items-center space-x-1.5 mt-0.5 text-[9px]">
+                          <span className="font-bold text-emerald-700 bg-emerald-50 px-1 rounded">
                             {dur.discountBadge}
                           </span>
-                          <span className="text-[9px] font-medium text-slate-500">
-                            ⏳ {dur.validityDays}d Buffer
-                          </span>
+                          <span className="text-slate-400">• {dur.validityDays}d Buffer</span>
                         </div>
                       </div>
                     </div>
 
-                    {/* Price Readout */}
                     <div className="text-right">
-                      <div className="text-[10px] text-slate-400 line-through tabular-nums">
-                        ₹{baseVal}
-                      </div>
                       <div className="text-sm font-extrabold text-slate-900 tabular-nums">
                         ₹{finalPassPrice}
                       </div>
@@ -389,58 +377,63 @@ export default function SubscriptionFTUXFlow({ onCompleteActivation, onClose }) 
             </div>
           </div>
 
-          {/* D. Live Transparency & Savings Receipt Card (Auto-Updating) */}
-          <div className="bg-[#F0FDF4] border border-dashed border-[#BBF7D0] rounded-2xl p-3 text-xs text-slate-800 space-y-1.5 shadow-xs">
+          {/* D. Live Savings Receipt Card (Visual Design Language) */}
+          <div className="bg-[#F0FDF4] border border-dashed border-[#BBF7D0] rounded-2xl p-3 text-xs text-slate-800 space-y-1 shadow-xs">
             <div className="flex items-center justify-between text-[11px] text-slate-600">
-              <span>Base Meal Value ({selectedDuration} meals × ₹{selectedTier})</span>
-              <span className="font-semibold text-slate-900 tabular-nums">₹{baseCost}</span>
+              <span>{selectedDuration} Meals × ₹{selectedTier} Cap</span>
+              <span className="font-semibold tabular-nums">₹{baseCost}</span>
             </div>
 
             <div className="flex items-center justify-between text-[11px] text-emerald-700 font-semibold">
-              <span>Pass Discount ({durationObj.discountPct}%)</span>
-              <span className="tabular-nums">- ₹{discountAmount}</span>
+              <span>Pass Discount ({durationObj.discountPct}%) + Free Delivery</span>
+              <span className="tabular-nums font-bold">- ₹{totalPocketSavings}</span>
             </div>
 
-            <div className="flex items-center justify-between text-[11px] text-emerald-700 font-semibold">
-              <span>Scheduled Pass Delivery Fee ({selectedDuration} × ₹40)</span>
-              <span>₹0 <span className="text-[9px] text-slate-400 font-normal line-through">₹{deliverySaved}</span></span>
-            </div>
-
-            <div className="border-t border-[#BBF7D0] pt-1.5 flex items-center justify-between">
+            <div className="border-t border-[#BBF7D0] pt-1 mt-1 flex items-center justify-between">
               <span className="text-xs font-bold text-slate-900">Net Pass Price</span>
               <span className="text-base font-extrabold text-slate-950 tabular-nums">
                 ₹{netPrice}
               </span>
             </div>
 
-            {/* Total Savings Callout */}
-            <div className="bg-[#DCFCE7] text-emerald-950 font-extrabold text-[10px] p-1.5 rounded-lg flex items-center justify-between">
-              <span>🎉 You save ₹{totalPocketSavings} on this pass!</span>
-              <span className="bg-emerald-600 text-white text-[8px] font-bold px-1.5 py-0.5 rounded">
-                MAX VALUE
+            {/* Visual Prepaid Bonus Callout */}
+            <div className="bg-white/90 border border-[#10B981]/30 rounded-xl p-1.5 px-2 text-[10px] text-emerald-900 font-bold flex items-center justify-between mt-1">
+              <span className="flex items-center">
+                <Zap className="w-3.5 h-3.5 text-amber-500 fill-amber-500 mr-1" />
+                Prepaid Bonus Perk:
+              </span>
+              <span className="bg-[#ECFDF5] text-[#10B981] px-1.5 py-0.5 rounded font-extrabold">
+                +₹{bonusCredits} Extra Wallet Cash
               </span>
             </div>
+          </div>
 
-            {/* Bonus Prepaid Callout */}
-            <div className="text-[10px] text-emerald-800 font-bold flex items-center space-x-1 pt-0.5">
-              <Zap className="w-3 h-3 text-amber-500 fill-amber-500 shrink-0" />
-              <span>Pay upfront on next step to get <strong>+₹{bonusCredits}</strong> MealsOn Credits!</span>
-            </div>
+          {/* Small FAQ Anchor Link */}
+          <div className="text-center pt-0.5">
+            <button
+              onClick={() => {
+                playPop();
+                setShowFtuxInfo(true);
+              }}
+              className="text-[10px] font-bold text-slate-500 hover:text-[#FF5A1F] transition-colors inline-flex items-center space-x-1"
+            >
+              <span>Have questions about 10 PM cut-off or rollovers?</span>
+              <span className="text-[#FF5A1F] underline flex items-center">
+                View FAQ <ArrowRight className="w-2.5 h-2.5 ml-0.5" />
+              </span>
+            </button>
           </div>
         </div>
       )}
 
-      {/* STAGE 2: CONVERSION-OPTIMIZED PAYMENT SELECTION SCREEN */}
+      {/* STAGE 2: PAYMENT SELECTION (VISUAL SOLUTIONS, LESS TEXT) */}
       {stage === 2 && (
-        <div className="px-4 py-3 space-y-3.5 animate-in fade-in duration-200">
-          {/* Summary Header of Selected Pass */}
-          <div className="bg-white rounded-2xl p-3 border border-slate-200 flex items-center justify-between shadow-xs">
+        <div className="px-4 py-3 space-y-3 animate-in fade-in duration-200">
+          {/* Summary Strip */}
+          <div className="bg-white rounded-2xl p-2.5 px-3 border border-slate-200 flex items-center justify-between shadow-xs">
             <div>
-              <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
-                Active Pass Selection
-              </span>
               <div className="text-xs font-extrabold text-slate-900">
-                {selectedDuration} Meals Pass • ₹{selectedTier}/day Cap
+                {selectedDuration} Meals • ₹{selectedTier}/day Cap
               </div>
               <span className="text-[10px] text-emerald-700 font-bold">
                 {durationObj.validityDays} Calendar Days Buffer
@@ -449,47 +442,42 @@ export default function SubscriptionFTUXFlow({ onCompleteActivation, onClose }) 
 
             <button
               onClick={handleBackToConfig}
-              className="text-[10px] font-bold text-[#FF5A1F] hover:underline bg-[#FFF5F0] border border-[#FF5A1F]/30 px-2 py-1 rounded-lg"
+              className="text-[10px] font-bold text-[#FF5A1F] hover:underline bg-[#FFF5F0] border border-[#FF5A1F]/30 px-2 py-0.5 rounded-lg"
             >
-              ← Edit Pass
+              Edit
             </button>
           </div>
 
-          {/* Payment Option 1 (HERO FOCUS): Upfront Prepaid Pack */}
+          {/* Payment Option 1: Prepaid Pass (Visual Badges, Minimal Text) */}
           <div
             onClick={() => {
               playPop();
               setPaymentOption('prepaid');
             }}
-            className={`rounded-2xl p-3.5 border cursor-pointer transition-all relative ${
+            className={`rounded-2xl p-3 border cursor-pointer transition-all relative ${
               paymentOption === 'prepaid'
-                ? 'bg-[#ECFDF5]/50 border-2 border-[#10B981] shadow-md ring-2 ring-[#10B981]/20'
+                ? 'bg-[#ECFDF5]/60 border-2 border-[#10B981] shadow-md ring-2 ring-[#10B981]/20'
                 : 'bg-white border-slate-200 hover:border-slate-300'
             }`}
           >
-            {/* Top Right Floating Badge */}
-            <span className="absolute -top-2 right-3 text-[9px] font-extrabold bg-[#10B981] text-white px-2 py-0.5 rounded-full shadow-xs">
-              ⭐ RECOMMENDED • +5% EXTRA CREDITS
+            <span className="absolute -top-2 right-3 text-[8px] font-extrabold bg-[#10B981] text-white px-2 py-0.5 rounded-full shadow-xs">
+              RECOMMENDED • +5% BONUS
             </span>
 
-            <div className="flex items-start justify-between">
-              <div className="flex items-start space-x-2">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center space-x-2">
                 <div
-                  className={`w-4 h-4 rounded-full mt-0.5 flex items-center justify-center border ${
-                    paymentOption === 'prepaid'
-                      ? 'border-[#10B981] bg-[#10B981]'
-                      : 'border-slate-300 bg-white'
+                  className={`w-4 h-4 rounded-full flex items-center justify-center border ${
+                    paymentOption === 'prepaid' ? 'border-[#10B981] bg-[#10B981]' : 'border-slate-300 bg-white'
                   }`}
                 >
                   {paymentOption === 'prepaid' && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
                 </div>
                 <div>
-                  <h4 className="text-xs font-extrabold text-slate-900 leading-tight">
-                    Pay Upfront (Prepaid Pass)
+                  <h4 className="text-xs font-extrabold text-slate-900">
+                    Pay Upfront (Prepaid)
                   </h4>
-                  <p className="text-[10px] text-slate-500 mt-0.5">
-                    Pay ₹{netPrice} once via UPI, Cards, or NetBanking
-                  </p>
+                  <span className="text-[10px] text-slate-500">One-time payment</span>
                 </div>
               </div>
 
@@ -498,172 +486,159 @@ export default function SubscriptionFTUXFlow({ onCompleteActivation, onClose }) 
               </span>
             </div>
 
-            {/* Value Prop Box inside Card */}
-            <div className="mt-2.5 bg-white/80 border border-[#10B981]/30 rounded-xl p-2.5 text-[10px] text-slate-700 space-y-1.5">
-              <div className="flex items-start space-x-1.5 font-bold text-emerald-900">
-                <Gift className="w-3.5 h-3.5 text-[#10B981] shrink-0 mt-0.5" />
-                <span>Instant Bonus: Get <strong>+₹{bonusCredits} MealsOn Credits</strong> added to your in-app wallet immediately!</span>
+            {/* Visual 3-Pill Benefit Row (No Text Blocks!) */}
+            <div className="grid grid-cols-3 gap-1 text-[9px] text-center font-bold">
+              <div className="bg-white p-1.5 rounded-lg border border-[#10B981]/30 text-emerald-900">
+                🎁 +₹{bonusCredits} Cash
               </div>
-              <p className="text-slate-600 pl-5 leading-snug">
-                Use credits for drinks, sides, or upgrading dishes above your ₹{selectedTier} cap.
-              </p>
-              <div className="flex items-center space-x-1.5 text-emerald-800 font-semibold pl-5 pt-0.5">
-                <ShieldCheck className="w-3 h-3 text-[#10B981] shrink-0" />
-                <span>Protected by Pause Shield: 100% of unused meals safe for {durationObj.validityDays} days.</span>
+              <div className="bg-white p-1.5 rounded-lg border border-[#10B981]/30 text-emerald-900">
+                🛡️ {durationObj.validityDays}d Pause Safe
+              </div>
+              <div className="bg-white p-1.5 rounded-lg border border-[#10B981]/30 text-emerald-900">
+                ⚡ Instant UPI
               </div>
             </div>
 
-            {/* Quick Payment Sub-Pills */}
-            <div className="flex items-center gap-1.5 mt-2.5 pt-1.5 border-t border-emerald-100 overflow-x-auto hide-scrollbar">
-              {['GPay', 'PhonePe', 'Visa / Mastercard', 'CRED Pay'].map((pill) => (
-                <span
-                  key={pill}
-                  className="text-[9px] font-bold text-slate-600 bg-white px-2 py-0.5 rounded border border-slate-200"
-                >
-                  {pill}
+            {/* Quick Payment Rails */}
+            <div className="flex items-center gap-1 mt-2 pt-1.5 border-t border-emerald-100/80">
+              {['GPay', 'PhonePe', 'Card', 'CRED'].map((rail) => (
+                <span key={rail} className="text-[8px] font-bold text-slate-500 bg-white px-1.5 py-0.2 rounded border border-slate-200">
+                  {rail}
                 </span>
               ))}
             </div>
           </div>
 
-          {/* Payment Option 2: UPI AutoPay Mandate (10:00 PM Daily Cut-Off Deduction) */}
+          {/* Payment Option 2: UPI AutoPay Mandate (Visual Step Flow, No Paragraphs) */}
           <div
             onClick={() => {
               playPop();
               setPaymentOption('mandate');
             }}
-            className={`rounded-2xl p-3.5 border cursor-pointer transition-all relative ${
+            className={`rounded-2xl p-3 border cursor-pointer transition-all ${
               paymentOption === 'mandate'
-                ? 'bg-[#EEF2FF]/50 border-2 border-[#4F46E5] shadow-md ring-2 ring-[#4F46E5]/20'
+                ? 'bg-[#EEF2FF]/60 border-2 border-[#4F46E5] shadow-md ring-2 ring-[#4F46E5]/20'
                 : 'bg-white border-slate-200 hover:border-slate-300'
             }`}
           >
-            <div className="flex items-start justify-between">
-              <div className="flex items-start space-x-2">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center space-x-2">
                 <div
-                  className={`w-4 h-4 rounded-full mt-0.5 flex items-center justify-center border ${
-                    paymentOption === 'mandate'
-                      ? 'border-[#4F46E5] bg-[#4F46E5]'
-                      : 'border-slate-300 bg-white'
+                  className={`w-4 h-4 rounded-full flex items-center justify-center border ${
+                    paymentOption === 'mandate' ? 'border-[#4F46E5] bg-[#4F46E5]' : 'border-slate-300 bg-white'
                   }`}
                 >
                   {paymentOption === 'mandate' && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
                 </div>
                 <div>
-                  <h4 className="text-xs font-extrabold text-slate-900 leading-tight">
-                    UPI AutoPay Mandate (Pay-As-You-Eat)
+                  <h4 className="text-xs font-extrabold text-slate-900">
+                    UPI AutoPay (Pay-As-You-Eat)
                   </h4>
-                  <span className="text-[9px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 px-1.5 py-0.2 rounded inline-block mt-0.5">
-                    ₹0 Upfront Today • Keep {durationObj.discountPct}% Pass Discount
+                  <span className="text-[9px] font-bold text-indigo-700 bg-indigo-50 px-1 rounded">
+                    Keep {durationObj.discountPct}% Pass Discount
                   </span>
                 </div>
               </div>
 
-              <span className="text-xs font-extrabold text-indigo-900 tabular-nums">
+              <span className="text-xs font-extrabold text-indigo-900">
                 ₹0 Today
               </span>
             </div>
 
-            {/* Mandatory 10:00 PM Deduction Callout Box (Indigo/Amber Highlight) */}
-            <div className="mt-2.5 bg-white border border-indigo-200 rounded-xl p-2.5 text-[10px] text-slate-700 space-y-1">
-              <div className="flex items-start space-x-1.5 font-bold text-indigo-950">
-                <Clock className="w-3.5 h-3.5 text-[#4F46E5] shrink-0 mt-0.5" />
-                <span>⏰ How 10:00 PM Billing Works:</span>
+            {/* VISUAL 3-STEP FLOW: Communicates 10 PM billing with icons instead of long text! */}
+            <div className="bg-white border border-indigo-200/80 rounded-xl p-2 space-y-1.5">
+              <div className="text-[10px] font-extrabold text-indigo-950 flex items-center">
+                <Clock className="w-3.5 h-3.5 mr-1 text-[#4F46E5]" />
+                10:00 PM Deduction Timeline:
               </div>
-              <p className="text-slate-600 leading-relaxed pl-5">
-                You pay <strong>₹0 today</strong>. Money (<strong>₹{effectiveMealPrice}/meal</strong>) is automatically deducted from your UPI account at exactly <strong>10:00 PM</strong> the night before each scheduled delivery. <strong>If you skip a meal before 10:00 PM, ₹0 is deducted!</strong>
-              </p>
-              <p className="text-[9px] text-slate-400 italic pl-5 pt-0.5">
-                Note: +5% Bonus MealsOn Credits apply only to Upfront Prepaid packs.
-              </p>
+
+              <div className="grid grid-cols-3 gap-1 text-[9px] text-center">
+                <div className="bg-slate-50 p-1.5 rounded border border-slate-100">
+                  <span className="block font-bold text-slate-800">1. ₹0 Now</span>
+                  Setup Mandate
+                </div>
+                <div className="bg-indigo-50/80 p-1.5 rounded border border-indigo-100">
+                  <span className="block font-bold text-indigo-900">2. 10 PM Lock</span>
+                  ₹{effectiveMealPrice} deducted
+                </div>
+                <div className="bg-emerald-50/80 p-1.5 rounded border border-emerald-100">
+                  <span className="block font-bold text-emerald-900">3. Skip Free</span>
+                  ₹0 if skipped
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Payment Option 3: Corporate Meal Cards (Pluxee / Sodexo / Zaggle) */}
+          {/* Payment Option 3: Corporate Meal Card */}
           <div
             onClick={() => {
               playPop();
               setPaymentOption('pluxee');
             }}
-            className={`rounded-2xl p-3.5 border cursor-pointer transition-all ${
+            className={`rounded-2xl p-3 border cursor-pointer transition-all ${
               paymentOption === 'pluxee'
                 ? 'bg-amber-50/50 border-2 border-amber-500 shadow-md ring-2 ring-amber-500/20'
                 : 'bg-white border-slate-200 hover:border-slate-300'
             }`}
           >
-            <div className="flex items-start justify-between">
-              <div className="flex items-start space-x-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
                 <div
-                  className={`w-4 h-4 rounded-full mt-0.5 flex items-center justify-center border ${
-                    paymentOption === 'pluxee'
-                      ? 'border-amber-500 bg-amber-500'
-                      : 'border-slate-300 bg-white'
+                  className={`w-4 h-4 rounded-full flex items-center justify-center border ${
+                    paymentOption === 'pluxee' ? 'border-amber-500 bg-amber-500' : 'border-slate-300 bg-white'
                   }`}
                 >
                   {paymentOption === 'pluxee' && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
                 </div>
                 <div>
-                  <h4 className="text-xs font-extrabold text-slate-900 leading-tight">
-                    Pluxee (Sodexo) / Zaggle Meal Card
+                  <h4 className="text-xs font-extrabold text-slate-900">
+                    Pluxee (Sodexo) / Zaggle
                   </h4>
-                  <p className="text-[10px] text-slate-500 mt-0.5">
-                    Use your tax-free corporate food allowance
-                  </p>
+                  <span className="text-[9px] text-slate-500">Tax-Free Meal Allowance</span>
                 </div>
               </div>
 
-              <span className="text-[9px] font-bold text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded">
+              <span className="text-[8px] font-bold text-amber-800 bg-amber-100 px-1.5 py-0.2 rounded">
                 TAX FREE
               </span>
             </div>
 
-            {/* Interactive Connected Card View */}
+            {/* Linked Card Preview */}
             {paymentOption === 'pluxee' && (
-              <div className="mt-2.5 bg-white border border-amber-200 rounded-xl p-2.5 space-y-2 animate-in fade-in duration-150">
-                <div className="flex items-center justify-between text-[10px]">
-                  <span className="font-bold text-slate-800 flex items-center">
-                    <CreditCard className="w-3.5 h-3.5 mr-1 text-amber-600" />
-                    Pluxee Card •••• 4821
-                  </span>
-                  <span className="font-bold text-emerald-700">Balance: ₹6,450</span>
-                </div>
-
-                <div className="flex items-center justify-between pt-1 border-t border-slate-100 text-[10px]">
-                  <span className="text-slate-600">Load full ₹{netPrice} upfront:</span>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setPluxeeLoadFull(!pluxeeLoadFull);
-                      playPop();
-                    }}
-                    className={`w-9 h-5 rounded-full transition-colors relative p-0.5 ${
-                      pluxeeLoadFull ? 'bg-[#10B981]' : 'bg-slate-200'
-                    }`}
-                  >
-                    <div
-                      className={`w-4 h-4 rounded-full bg-white shadow-sm transition-transform ${
-                        pluxeeLoadFull ? 'translate-x-4' : 'translate-x-0'
-                      }`}
-                    />
-                  </button>
-                </div>
-                {pluxeeLoadFull && (
-                  <p className="text-[9px] text-emerald-800 font-semibold">
-                    🎉 +Get 5% (+₹{bonusCredits}) Bonus MealsOn Credits with full reload!
-                  </p>
-                )}
+              <div className="mt-2 bg-white border border-amber-200 rounded-xl p-2 flex items-center justify-between text-[10px]">
+                <span className="font-bold text-slate-800 flex items-center">
+                  <CreditCard className="w-3 h-3 mr-1 text-amber-600" />
+                  Pluxee •••• 4821
+                </span>
+                <span className="text-emerald-700 font-extrabold">Balance: ₹6,450</span>
               </div>
             )}
+          </div>
+
+          {/* Small FAQ Anchor Link */}
+          <div className="text-center pt-0.5">
+            <button
+              onClick={() => {
+                playPop();
+                setShowFtuxInfo(true);
+              }}
+              className="text-[10px] font-bold text-slate-500 hover:text-[#FF5A1F] transition-colors inline-flex items-center space-x-1"
+            >
+              <span>Have questions about billing?</span>
+              <span className="text-[#FF5A1F] underline flex items-center">
+                View FAQ <ArrowRight className="w-2.5 h-2.5 ml-0.5" />
+              </span>
+            </button>
           </div>
         </div>
       )}
 
       {/* STICKY BOTTOM CHECKOUT CTA */}
-      <div className="fixed bottom-0 left-0 right-0 max-w-[420px] mx-auto bg-white/95 backdrop-blur-md border-t border-slate-200 p-3 px-4 shadow-[0_-6px_20px_rgba(0,0,0,0.06)] z-20">
+      <div className="fixed bottom-0 left-0 right-0 max-w-[420px] mx-auto bg-white/95 backdrop-blur-md border-t border-slate-200 p-2.5 px-4 shadow-[0_-6px_20px_rgba(0,0,0,0.06)] z-20">
         {stage === 1 ? (
           <button
             onClick={handleGoToPayment}
-            className="w-full bg-[#FF5A1F] hover:bg-[#E04812] text-white font-bold text-xs py-2.5 px-4 rounded-xl shadow-md transition-all active:scale-[0.97] cta-bounce flex items-center justify-center space-x-1.5"
+            className="w-full bg-[#FF5A1F] hover:bg-[#E04812] text-white font-bold text-xs py-2 px-4 rounded-xl shadow-md transition-all active:scale-[0.97] cta-bounce flex items-center justify-center space-x-1.5"
           >
             <span>Continue to Payment • ₹{netPrice}</span>
             <ChevronRight className="w-4 h-4" />
@@ -671,7 +646,7 @@ export default function SubscriptionFTUXFlow({ onCompleteActivation, onClose }) 
         ) : (
           <button
             onClick={handleCompleteCheckout}
-            className={`w-full text-white font-bold text-xs py-2.5 px-4 rounded-xl shadow-md transition-all active:scale-[0.97] cta-bounce flex items-center justify-center space-x-1.5 ${
+            className={`w-full text-white font-bold text-xs py-2 px-4 rounded-xl shadow-md transition-all active:scale-[0.97] cta-bounce flex items-center justify-center space-x-1.5 ${
               paymentOption === 'prepaid'
                 ? 'bg-gradient-to-r from-[#10B981] to-[#059669]'
                 : paymentOption === 'mandate'
@@ -683,26 +658,26 @@ export default function SubscriptionFTUXFlow({ onCompleteActivation, onClose }) 
               <span>Pay ₹{netPrice} & Claim +₹{bonusCredits} Credits →</span>
             )}
             {paymentOption === 'mandate' && (
-              <span>Setup 10 PM UPI Mandate (₹0 Now) →</span>
+              <span>Setup 10 PM UPI Mandate (₹0 Today) →</span>
             )}
             {paymentOption === 'pluxee' && (
-              <span>Pay ₹{netPrice} via Pluxee Card →</span>
+              <span>Pay ₹{netPrice} via Pluxee →</span>
             )}
           </button>
         )}
       </div>
 
-      {/* FTUX INFO DRAWER (SLIDE-IN MODAL) */}
+      {/* FTUX & BILLING FAQ DRAWER (SLIDE-IN MODAL) */}
       {showFtuxInfo && (
         <div className="absolute inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-end justify-center animate-in fade-in duration-200">
-          <div className="w-full bg-white rounded-t-3xl p-5 shadow-2xl border-t border-slate-100 max-h-[85%] overflow-y-auto space-y-3.5 animate-in slide-in-from-bottom duration-300">
-            <div className="w-10 h-1 bg-slate-300 rounded-full mx-auto -mt-2 mb-2" />
+          <div className="w-full bg-white rounded-t-3xl p-4 shadow-2xl border-t border-slate-100 max-h-[85%] overflow-y-auto space-y-3 animate-in slide-in-from-bottom duration-250">
+            <div className="w-10 h-1 bg-slate-300 rounded-full mx-auto -mt-1 mb-1" />
 
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
-                <span className="text-xl">🥗</span>
-                <h3 className="text-sm font-extrabold text-slate-900">
-                  How Scheduled Meals Work
+                <span className="text-lg">❓</span>
+                <h3 className="text-xs font-extrabold text-slate-900">
+                  Scheduled Meals & Billing FAQ
                 </h3>
               </div>
               <button
@@ -713,43 +688,41 @@ export default function SubscriptionFTUXFlow({ onCompleteActivation, onClose }) 
               </button>
             </div>
 
-            <div className="space-y-2.5 text-xs text-slate-700">
+            {/* Clean Visual Q&A Cards */}
+            <div className="space-y-2 text-xs">
               <div className="bg-[#FFF5F0] border border-[#FF5A1F]/30 p-2.5 rounded-xl">
-                <h4 className="font-bold text-[#FF5A1F] flex items-center">
-                  <Sparkles className="w-3.5 h-3.5 mr-1" />
-                  1. Zero Decision Fatigue
+                <h4 className="font-bold text-[#FF5A1F] flex items-center text-[11px]">
+                  ⏰ What is the 10:00 PM cutoff?
                 </h4>
-                <p className="text-[11px] text-slate-600 mt-0.5 leading-snug">
-                  Meals are pre-curated based on your nutritional goal and rotated across top cloud kitchens so you never eat the same meal twice in a week.
+                <p className="text-[10px] text-slate-600 mt-0.5 leading-snug">
+                  Partner cloud kitchens marinate and prepare zero-waste fresh ingredients overnight. You can swap dishes or skip for free before 10 PM.
                 </p>
               </div>
 
-              <div className="bg-[#ECFDF5] border border-emerald-300 p-2.5 rounded-xl">
-                <h4 className="font-bold text-emerald-900 flex items-center">
-                  <ShieldCheck className="w-3.5 h-3.5 mr-1 text-[#10B981]" />
-                  2. 35-Day Flexible Pause Buffer
+              <div className="bg-[#ECFDF5] border border-emerald-200 p-2.5 rounded-xl">
+                <h4 className="font-bold text-emerald-900 flex items-center text-[11px]">
+                  🛡️ What happens when I skip a meal?
                 </h4>
-                <p className="text-[11px] text-slate-600 mt-0.5 leading-snug">
-                  Working from home? Going on vacation? Skip anytime before 10:00 PM. 100% of your money stays safe in your Pause Shield wallet.
+                <p className="text-[10px] text-slate-600 mt-0.5 leading-snug">
+                  100% of your meal value rolls over into your Pause Shield wallet. Your pass validity automatically extends by +1 day with zero fee.
                 </p>
               </div>
 
               <div className="bg-[#EEF2FF] border border-indigo-200 p-2.5 rounded-xl">
-                <h4 className="font-bold text-indigo-950 flex items-center">
-                  <Clock className="w-3.5 h-3.5 mr-1 text-[#4F46E5]" />
-                  3. 10:00 PM Zero-Waste Cutoff
+                <h4 className="font-bold text-indigo-950 flex items-center text-[11px]">
+                  💳 How does UPI AutoPay Mandate work?
                 </h4>
-                <p className="text-[11px] text-slate-600 mt-0.5 leading-snug">
-                  Kitchens purchase fresh produce based only on confirmed orders. No cold stored food, zero kitchen waste, 40% lower delivery costs.
+                <p className="text-[10px] text-slate-600 mt-0.5 leading-snug">
+                  You pay ₹0 today. Deduction happens at 10:00 PM only for confirmed meals. If skipped before 10 PM, ₹0 is debited.
                 </p>
               </div>
             </div>
 
             <button
               onClick={() => setShowFtuxInfo(false)}
-              className="w-full py-2.5 rounded-xl bg-slate-900 text-white font-bold text-xs shadow-md"
+              className="w-full py-2 rounded-xl bg-slate-900 text-white font-bold text-xs"
             >
-              Got It, Back to Customizer
+              Back to Pass Configurator
             </button>
           </div>
         </div>
@@ -758,11 +731,10 @@ export default function SubscriptionFTUXFlow({ onCompleteActivation, onClose }) 
       {/* SUCCESS & PASS ACTIVATED MODAL */}
       {showSuccessModal && (
         <div className="absolute inset-0 z-50 bg-slate-900/65 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="w-full max-w-[370px] bg-white rounded-3xl p-5 shadow-2xl border border-slate-100 text-center space-y-3 relative overflow-hidden animate-in zoom-in-95 duration-250">
-            {/* Top Accent Strip */}
+          <div className="w-full max-w-[360px] bg-white rounded-3xl p-5 shadow-2xl border border-slate-100 text-center space-y-3 relative overflow-hidden animate-in zoom-in-95 duration-250">
             <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-[#FF5A1F] via-[#10B981] to-[#4F46E5]" />
 
-            <div className="w-14 h-14 rounded-2xl bg-[#ECFDF5] border-2 border-[#10B981] flex items-center justify-center mx-auto text-2xl shadow-inner">
+            <div className="w-12 h-12 rounded-2xl bg-[#ECFDF5] border-2 border-[#10B981] flex items-center justify-center mx-auto text-2xl shadow-inner">
               🎉
             </div>
 
@@ -771,34 +743,17 @@ export default function SubscriptionFTUXFlow({ onCompleteActivation, onClose }) 
                 Pass Activated Successfully!
               </h3>
               <p className="text-xs text-slate-600 mt-0.5">
-                Your Scheduled Meals pass is now active.
+                {selectedDuration} Meals • {durationObj.validityDays} Days Buffer
               </p>
             </div>
 
-            {/* Active Pass Card Details */}
-            <div className="bg-[#F8FAFC] border border-slate-200 rounded-2xl p-3 text-left space-y-1.5">
-              <div className="flex items-center justify-between text-xs">
-                <span className="font-bold text-slate-800">
-                  {selectedDuration} Meals • ₹{selectedTier}/meal Cap
-                </span>
-                <span className="text-[10px] font-extrabold bg-[#10B981] text-white px-1.5 py-0.2 rounded">
-                  ACTIVE
-                </span>
-              </div>
-
-              <div className="text-[11px] text-slate-500">
-                Buffer Validity: <strong>{durationObj.validityDays} Calendar Days</strong>
-              </div>
-
-              <div className="pt-1.5 border-t border-slate-200 flex items-center justify-between text-xs">
-                <span className="text-slate-600">Wallet Balance:</span>
-                <span className="font-bold text-emerald-700">
-                  {selectedDuration} Meal Credits {paymentOption !== 'mandate' && `+ ₹${bonusCredits} Cash`}
-                </span>
-              </div>
+            <div className="bg-[#F8FAFC] border border-slate-200 rounded-xl p-2.5 text-xs flex items-center justify-between">
+              <span className="text-slate-600">Loaded into Wallet:</span>
+              <span className="font-extrabold text-emerald-700">
+                {selectedDuration} Credits {paymentOption !== 'mandate' && `+ ₹${bonusCredits}`}
+              </span>
             </div>
 
-            {/* Primary Action Button linking to AI Auto-Pilot */}
             <button
               onClick={handleProceedToAutoPilot}
               className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-[#FF5A1F] to-[#FF7B47] hover:from-[#E04812] hover:to-[#FF5A1F] text-white font-bold text-xs shadow-md transition-all active:scale-95 flex items-center justify-center space-x-1.5"
