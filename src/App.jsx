@@ -6,6 +6,8 @@ import Toast from './components/Toast';
 import { ConfettiCanvas, FloatingCreditBadge, WowDelightModal } from './components/DelightEffects';
 import { isSoundEnabled, setSoundEnabled, playPop, playCelebrationFanfare } from './utils/audioDelight';
 import SubscriptionFTUXFlow from './components/SubscriptionFTUXFlow';
+import GtmIntroBottomSheet from './components/GtmIntroBottomSheet';
+import GtmCampaignHub from './components/GtmCampaignHub';
 
 import AutoPilotTab from './tabs/AutoPilotTab';
 import RoutingTab from './tabs/RoutingTab';
@@ -24,15 +26,20 @@ import {
   Volume2,
   VolumeX,
   Ticket,
-  Smartphone
+  Layers,
+  ExternalLink,
+  Play
 } from 'lucide-react';
 
+const NOTION_GTM_URL = 'https://app.notion.com/p/MealsOn-Scheduled-Meals-GTM-Launch-Strategy-Acquisition-Assets-Impact-Framework-40a80bcda12981b59b11dced26e27395';
+
 export default function App() {
-  const [appMode, setAppMode] = useState('dashboard'); // 'dashboard' | 'ftux'
+  const [appMode, setAppMode] = useState('dashboard'); // 'dashboard' | 'ftux' | 'gtm'
   const [activeTab, setActiveTab] = useState('autopilot');
   const [credits, setCredits] = useState(14);
   const [playlist, setPlaylist] = useState(INITIAL_PLAYLIST);
   const [toast, setToast] = useState(null);
+  const [showIntroSheet, setShowIntroSheet] = useState(false);
 
   // Delight Effects State
   const [confettiActive, setConfettiActive] = useState(false);
@@ -86,6 +93,7 @@ export default function App() {
     setPlaylist(INITIAL_PLAYLIST);
     setActiveTab('autopilot');
     setAppMode('dashboard');
+    setShowIntroSheet(false);
     setConfettiActive(false);
     setFloatingCreditActive(false);
     setWowModal(null);
@@ -103,43 +111,82 @@ export default function App() {
           <div>
             <div className="flex items-center space-x-2">
               <h1 className="text-sm font-extrabold text-white tracking-tight">
-                MealsOn Scheduled Meals — Product Prototype
+                MealsOn Scheduled Meals — Product Prototype & GTM
               </h1>
               <span className="text-[10px] font-bold bg-[#FF5A1F]/20 text-[#FF5A1F] border border-[#FF5A1F]/40 px-2 py-0.5 rounded-full">
                 Entain PM Case
               </span>
             </div>
             <p className="text-[11px] text-slate-400">
-              FTUX subscription tier customizer, UPI 10 PM mandate checkout & interactive 5-day scheduled planner
+              Complete FTUX Pass Configurator, Multi-Channel GTM Acquisition Simulator & Notion Documentation
             </p>
           </div>
         </div>
 
-        {/* Quick Jump Buttons & Audio Controls */}
+        {/* Quick Jump Buttons & Controls */}
         <div className="flex items-center gap-1.5 flex-wrap justify-center">
-          {/* FTUX & Checkout Trigger */}
+          {/* Notion Page Direct Link */}
+          <a
+            href={NOTION_GTM_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[11px] font-bold px-2.5 py-1.5 rounded-lg bg-slate-800 text-amber-300 border border-amber-500/40 hover:bg-slate-700 flex items-center space-x-1"
+          >
+            <span>📄 Notion GTM</span>
+            <ExternalLink className="w-3 h-3" />
+          </a>
+
+          {/* Video Teaser Sheet Button */}
+          <button
+            onClick={() => {
+              playPop();
+              setShowIntroSheet(true);
+            }}
+            className="text-[11px] font-bold px-2.5 py-1.5 rounded-lg bg-amber-950/40 text-amber-300 border border-amber-600/40 hover:bg-amber-900/40 flex items-center space-x-1 cta-bounce"
+          >
+            <Play className="w-3 h-3 text-amber-400" />
+            <span>🎬 Video Teaser</span>
+          </button>
+
+          {/* GTM Simulator Mode */}
+          <button
+            onClick={() => {
+              playPop();
+              setAppMode('gtm');
+            }}
+            className={`text-[11px] font-bold px-2.5 py-1.5 rounded-lg transition-all flex items-center space-x-1 border cta-bounce ${
+              appMode === 'gtm'
+                ? 'bg-purple-600 text-white border-purple-500 shadow-sm'
+                : 'bg-purple-950/40 text-purple-300 border-purple-600/40 hover:bg-purple-900/40'
+            }`}
+          >
+            <Layers className="w-3 h-3" />
+            <span>📣 GTM Hub</span>
+          </button>
+
+          {/* FTUX & Pass Checkout Mode */}
           <button
             onClick={() => {
               playPop();
               setAppMode('ftux');
             }}
-            className={`text-[11px] font-bold px-3 py-1.5 rounded-lg transition-all flex items-center space-x-1.5 border cta-bounce ${
+            className={`text-[11px] font-bold px-2.5 py-1.5 rounded-lg transition-all flex items-center space-x-1 border cta-bounce ${
               appMode === 'ftux'
                 ? 'bg-gradient-to-r from-[#FF5A1F] to-[#FF7B47] text-white border-[#FF5A1F] shadow-sm'
                 : 'bg-emerald-950/40 text-emerald-300 border-emerald-600/40 hover:bg-emerald-900/40'
             }`}
           >
-            <Ticket className="w-3.5 h-3.5" />
-            <span>🎟️ FTUX & Pass Checkout</span>
+            <Ticket className="w-3 h-3" />
+            <span>🎟️ Pass Flow</span>
           </button>
 
           {/* 5 Core Feature Tabs */}
           {[
-            { id: 'autopilot', label: '1. Auto-Pilot', icon: Sparkles },
-            { id: 'routing', label: '2. Routing', icon: MapPin },
-            { id: 'cutoff', label: '3. 8PM Cut-Off', icon: Clock },
-            { id: 'wallet', label: '4. Wallet', icon: ShieldCheck },
-            { id: 'streaks', label: '5. Streaks & Pods', icon: Flame },
+            { id: 'autopilot', label: 'Auto-Pilot', icon: Sparkles },
+            { id: 'routing', label: 'Routing', icon: MapPin },
+            { id: 'cutoff', label: '8PM Cut-Off', icon: Clock },
+            { id: 'wallet', label: 'Wallet', icon: ShieldCheck },
+            { id: 'streaks', label: 'Streaks', icon: Flame },
           ].map((item) => (
             <button
               key={item.id}
@@ -148,7 +195,7 @@ export default function App() {
                 setAppMode('dashboard');
                 setActiveTab(item.id);
               }}
-              className={`text-[11px] font-bold px-2.5 py-1.5 rounded-lg transition-all flex items-center space-x-1 border cta-bounce ${
+              className={`text-[11px] font-bold px-2 py-1.5 rounded-lg transition-all flex items-center space-x-1 border cta-bounce ${
                 appMode === 'dashboard' && activeTab === item.id
                   ? 'bg-[#FF5A1F] text-white border-[#FF5A1F] shadow-sm'
                   : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700 hover:text-white'
@@ -185,7 +232,6 @@ export default function App() {
 
       {/* Main Centered Mobile Device Frame (420px x 880px) */}
       <div className="relative">
-        {/* Glow behind device */}
         <div className="absolute -inset-1 bg-gradient-to-tr from-[#FF5A1F]/20 via-[#10B981]/15 to-[#4F46E5]/15 rounded-[38px] blur-xl opacity-75 pointer-events-none" />
 
         <div className="relative w-full max-w-[420px] w-[390px] sm:w-[420px] h-[880px] bg-[#F8FAFC] rounded-[36px] border-[8px] border-[#1E293B] shadow-2xl overflow-hidden flex flex-col text-slate-900 select-none">
@@ -195,7 +241,7 @@ export default function App() {
             onComplete={() => setConfettiActive(false)}
           />
 
-          {/* Floating +1 Credit Badge targeting header */}
+          {/* Floating +1 Credit Badge */}
           <FloatingCreditBadge
             active={floatingCreditActive}
             onComplete={() => setFloatingCreditActive(false)}
@@ -206,6 +252,17 @@ export default function App() {
             modalData={wowModal}
             onClose={() => setWowModal(null)}
           />
+
+          {/* Video / GIF Intro Bottom Sheet Modal */}
+          {showIntroSheet && (
+            <GtmIntroBottomSheet
+              onClaimPass={() => {
+                setShowIntroSheet(false);
+                setAppMode('ftux');
+              }}
+              onClose={() => setShowIntroSheet(false)}
+            />
+          )}
 
           {/* Top Notch / Camera pill */}
           <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-24 h-4 bg-[#1E293B] rounded-full z-50 flex items-center justify-center">
@@ -218,8 +275,17 @@ export default function App() {
           {/* Toast Notification Container */}
           <Toast toast={toast} onClose={() => setToast(null)} />
 
-          {/* IF FTUX MODE: RENDER SUBSCRIPTION FTUX FLOW */}
-          {appMode === 'ftux' ? (
+          {/* VIEW MODE 1: GTM CAMPAIGN HUB */}
+          {appMode === 'gtm' ? (
+            <main className="flex-1 overflow-y-auto bg-[#F8FAFC] hide-scrollbar relative">
+              <GtmCampaignHub
+                onTriggerFtux={() => setAppMode('ftux')}
+                onTriggerIntroSheet={() => setShowIntroSheet(true)}
+                onClose={() => setAppMode('dashboard')}
+              />
+            </main>
+          ) : appMode === 'ftux' ? (
+            /* VIEW MODE 2: SUBSCRIPTION FTUX FLOW */
             <main className="flex-1 overflow-y-auto bg-[#F8FAFC] hide-scrollbar relative">
               <SubscriptionFTUXFlow
                 onCompleteActivation={handleCompleteActivation}
@@ -227,9 +293,8 @@ export default function App() {
               />
             </main>
           ) : (
-            /* IF DASHBOARD MODE: RENDER 5 INTERACTIVE TABS */
+            /* VIEW MODE 3: 5-TAB SCHEDULED PLANNER */
             <>
-              {/* MealsOn Brand Header with Shared Credits Pill */}
               <Header
                 credits={credits}
                 onNavigateTab={(tab) => {
@@ -241,7 +306,6 @@ export default function App() {
                 onOpenFtux={() => setAppMode('ftux')}
               />
 
-              {/* Scrollable App Body Canvas (#F8FAFC) */}
               <main className="flex-1 overflow-y-auto bg-[#F8FAFC] hide-scrollbar relative">
                 {activeTab === 'autopilot' && (
                   <AutoPilotTab
@@ -291,7 +355,6 @@ export default function App() {
                 )}
               </main>
 
-              {/* Sticky Bottom Navigation Bar with 5 Tabs */}
               <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
             </>
           )}
@@ -299,9 +362,9 @@ export default function App() {
       </div>
 
       {/* Presenter Footer Helper */}
-      <div className="mt-4 text-center text-xs text-slate-400 max-w-[620px]">
+      <div className="mt-4 text-center text-xs text-slate-400 max-w-[640px]">
         <p className="leading-relaxed">
-          <strong className="text-slate-200">Interactive Flow:</strong> Use <span className="text-[#FF5A1F] font-bold">"🎟️ FTUX & Pass Checkout"</span> to test the 2-stage tier customizer & 10 PM UPI mandate. Completing activation auto-routes into the 5-Day Scheduled Auto-Pilot planner.
+          <strong className="text-slate-200">GTM Simulator Active:</strong> Test Push, WhatsApp & SMS acquisition triggers with direct CTAs into the pass customizer. View full strategy on <a href={NOTION_GTM_URL} target="_blank" rel="noopener noreferrer" className="text-amber-400 underline font-semibold">Notion GTM Page</a>.
         </p>
       </div>
     </div>
