@@ -4,7 +4,8 @@ import Header from './components/Header';
 import BottomNav from './components/BottomNav';
 import Toast from './components/Toast';
 import { ConfettiCanvas, FloatingCreditBadge, WowDelightModal } from './components/DelightEffects';
-import { setSoundEnabled, playPop } from './utils/audioDelight';
+import { isSoundEnabled, setSoundEnabled, playPop, playCelebrationFanfare } from './utils/audioDelight';
+import SubscriptionFTUXFlow from './components/SubscriptionFTUXFlow';
 
 import AutoPilotTab from './tabs/AutoPilotTab';
 import RoutingTab from './tabs/RoutingTab';
@@ -21,25 +22,16 @@ import {
   Flame,
   RotateCcw,
   Volume2,
-  VolumeX
+  VolumeX,
+  Ticket,
+  Smartphone
 } from 'lucide-react';
 
-const getNextCutoffDeadline = () => {
-  const deadline = new Date();
-  deadline.setHours(22, 0, 0, 0);
-  if (deadline <= new Date()) deadline.setDate(deadline.getDate() + 1);
-  return deadline.getTime();
-};
-
 export default function App() {
+  const [appMode, setAppMode] = useState('dashboard'); // 'dashboard' | 'ftux'
   const [activeTab, setActiveTab] = useState('autopilot');
   const [credits, setCredits] = useState(14);
-  const [autoRolloverActive, setAutoRolloverActive] = useState(true);
-  const [cutoffDeadline, setCutoffDeadline] = useState(getNextCutoffDeadline);
-  const [cutoffStatus, setCutoffStatus] = useState('pending');
-  const [cutoffCreditBanked, setCutoffCreditBanked] = useState(false);
   const [playlist, setPlaylist] = useState(INITIAL_PLAYLIST);
-  const [prototypeResetKey, setPrototypeResetKey] = useState(0);
   const [toast, setToast] = useState(null);
 
   // Delight Effects State
@@ -76,15 +68,24 @@ export default function App() {
     setActiveTab('routing');
   };
 
+  const handleCompleteActivation = (passData) => {
+    setCredits(passData.meals);
+    setAppMode('dashboard');
+    setActiveTab('autopilot');
+    triggerConfetti();
+    playCelebrationFanfare();
+    showToast(
+      'Pass Activated! 🎉',
+      `${passData.meals} Meal Credits loaded (${passData.validityDays}d buffer). Now curating your playlist!`,
+      'success'
+    );
+  };
+
   const resetAllState = () => {
     setCredits(14);
-    setAutoRolloverActive(true);
-    setCutoffStatus('pending');
-    setCutoffCreditBanked(false);
-    setCutoffDeadline(getNextCutoffDeadline());
     setPlaylist(INITIAL_PLAYLIST);
-    setPrototypeResetKey((prev) => prev + 1);
     setActiveTab('autopilot');
+    setAppMode('dashboard');
     setConfettiActive(false);
     setFloatingCreditActive(false);
     setWowModal(null);
@@ -109,13 +110,30 @@ export default function App() {
               </span>
             </div>
             <p className="text-[11px] text-slate-400">
-              Cohesive interactive mobile experience with delight feedback, 10 PM zero-waste cut-off & Pause Shield rollovers
+              FTUX subscription tier customizer, UPI 10 PM mandate checkout & interactive 5-day scheduled planner
             </p>
           </div>
         </div>
 
         {/* Quick Jump Buttons & Audio Controls */}
         <div className="flex items-center gap-1.5 flex-wrap justify-center">
+          {/* FTUX & Checkout Trigger */}
+          <button
+            onClick={() => {
+              playPop();
+              setAppMode('ftux');
+            }}
+            className={`text-[11px] font-bold px-3 py-1.5 rounded-lg transition-all flex items-center space-x-1.5 border cta-bounce ${
+              appMode === 'ftux'
+                ? 'bg-gradient-to-r from-[#FF5A1F] to-[#FF7B47] text-white border-[#FF5A1F] shadow-sm'
+                : 'bg-emerald-950/40 text-emerald-300 border-emerald-600/40 hover:bg-emerald-900/40'
+            }`}
+          >
+            <Ticket className="w-3.5 h-3.5" />
+            <span>🎟️ FTUX & Pass Checkout</span>
+          </button>
+
+          {/* 5 Core Feature Tabs */}
           {[
             { id: 'autopilot', label: '1. Auto-Pilot', icon: Sparkles },
             { id: 'routing', label: '2. Routing', icon: MapPin },
@@ -127,10 +145,11 @@ export default function App() {
               key={item.id}
               onClick={() => {
                 playPop();
+                setAppMode('dashboard');
                 setActiveTab(item.id);
               }}
               className={`text-[11px] font-bold px-2.5 py-1.5 rounded-lg transition-all flex items-center space-x-1 border cta-bounce ${
-                activeTab === item.id
+                appMode === 'dashboard' && activeTab === item.id
                   ? 'bg-[#FF5A1F] text-white border-[#FF5A1F] shadow-sm'
                   : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700 hover:text-white'
               }`}
@@ -164,16 +183,12 @@ export default function App() {
         </div>
       </div>
 
-      {/* Main Centered Mobile Device Frame */}
+      {/* Main Centered Mobile Device Frame (420px x 880px) */}
       <div className="relative">
         {/* Glow behind device */}
-        <div className="absolute -inset-1 bg-gradient-to-tr from-[#FF5A1F]/20 via-[#10B981]/15 to-[#FF5A1F]/20 rounded-[38px] blur-xl opacity-75 pointer-events-none" />
+        <div className="absolute -inset-1 bg-gradient-to-tr from-[#FF5A1F]/20 via-[#10B981]/15 to-[#4F46E5]/15 rounded-[38px] blur-xl opacity-75 pointer-events-none" />
 
-        {/* 
-          Device Viewport:
-          max-width: 420px, height: 860px, rounded-3xl, 8px border in #1E293B, subtle drop shadow
-        */}
-        <div className="relative w-[calc(100vw-1rem)] max-w-[390px] sm:w-[420px] sm:max-w-[420px] h-[860px] bg-[#F8FAFC] rounded-[36px] border-[8px] border-[#1E293B] shadow-2xl overflow-hidden flex flex-col text-slate-900 select-none">
+        <div className="relative w-full max-w-[420px] w-[390px] sm:w-[420px] h-[880px] bg-[#F8FAFC] rounded-[36px] border-[8px] border-[#1E293B] shadow-2xl overflow-hidden flex flex-col text-slate-900 select-none">
           {/* Confetti Canvas Overlay */}
           <ConfettiCanvas
             active={confettiActive}
@@ -200,88 +215,93 @@ export default function App() {
           {/* Sticky Top Status Bar */}
           <StatusBar />
 
-          {/* MealsOn Brand Header with Shared Credits Pill */}
-          <Header
-            credits={credits}
-            onNavigateTab={setActiveTab}
-            notificationCount={1}
-            onBellClick={() => setActiveTab('cutoff')}
-          />
-
           {/* Toast Notification Container */}
           <Toast toast={toast} onClose={() => setToast(null)} />
 
-          {/* Scrollable App Body Canvas (#F8FAFC) */}
-          <main className="flex-1 overflow-y-auto bg-[#F8FAFC] hide-scrollbar relative">
-            <div hidden={activeTab !== 'autopilot'}>
-              <AutoPilotTab
-                key={prototypeResetKey}
-                playlist={playlist}
-                setPlaylist={setPlaylist}
-                onLockInPlaylist={handleLockInPlaylist}
-                triggerConfetti={triggerConfetti}
-                onNotify={showToast}
+          {/* IF FTUX MODE: RENDER SUBSCRIPTION FTUX FLOW */}
+          {appMode === 'ftux' ? (
+            <main className="flex-1 overflow-y-auto bg-[#F8FAFC] hide-scrollbar relative">
+              <SubscriptionFTUXFlow
+                onCompleteActivation={handleCompleteActivation}
+                onClose={() => setAppMode('dashboard')}
               />
-            </div>
-
-            <div hidden={activeTab !== 'routing'}>
-              <RoutingTab
-                key={prototypeResetKey}
-                playlist={playlist}
-                setPlaylist={setPlaylist}
-                onNotify={showToast}
-              />
-            </div>
-
-            <div hidden={activeTab !== 'cutoff'}>
-              <CutOffTab
-                key={prototypeResetKey}
-                playlist={playlist}
-                setPlaylist={setPlaylist}
+            </main>
+          ) : (
+            /* IF DASHBOARD MODE: RENDER 5 INTERACTIVE TABS */
+            <>
+              {/* MealsOn Brand Header with Shared Credits Pill */}
+              <Header
                 credits={credits}
-                setCredits={setCredits}
-                autoRolloverActive={autoRolloverActive}
-                cutoffDeadline={cutoffDeadline}
-                tomorrowStatus={cutoffStatus}
-                setTomorrowStatus={setCutoffStatus}
-                creditBanked={cutoffCreditBanked}
-                setCreditBanked={setCutoffCreditBanked}
-                onNotify={showToast}
-                triggerConfetti={triggerConfetti}
-                triggerFloatingCredit={triggerFloatingCredit}
+                onNavigateTab={(tab) => {
+                  setAppMode('dashboard');
+                  setActiveTab(tab);
+                }}
+                notificationCount={1}
+                onBellClick={() => setActiveTab('cutoff')}
+                onOpenFtux={() => setAppMode('ftux')}
               />
-            </div>
 
-            <div hidden={activeTab !== 'wallet'}>
-              <WalletTab
-                key={prototypeResetKey}
-                credits={credits}
-                autoRolloverActive={autoRolloverActive}
-                setAutoRolloverActive={setAutoRolloverActive}
-                onNotify={showToast}
-                triggerConfetti={triggerConfetti}
-              />
-            </div>
+              {/* Scrollable App Body Canvas (#F8FAFC) */}
+              <main className="flex-1 overflow-y-auto bg-[#F8FAFC] hide-scrollbar relative">
+                {activeTab === 'autopilot' && (
+                  <AutoPilotTab
+                    playlist={playlist}
+                    setPlaylist={setPlaylist}
+                    onLockInPlaylist={handleLockInPlaylist}
+                    triggerConfetti={triggerConfetti}
+                    onNotify={showToast}
+                  />
+                )}
 
-            <div hidden={activeTab !== 'streaks'}>
-              <StreaksTab
-                key={prototypeResetKey}
-                onNotify={showToast}
-                triggerConfetti={triggerConfetti}
-                onOpenWowModal={setWowModal}
-              />
-            </div>
-          </main>
+                {activeTab === 'routing' && (
+                  <RoutingTab
+                    playlist={playlist}
+                    setPlaylist={setPlaylist}
+                    onNotify={showToast}
+                  />
+                )}
 
-          {/* Sticky Bottom Navigation Bar with 5 Tabs */}
-          <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
+                {activeTab === 'cutoff' && (
+                  <CutOffTab
+                    playlist={playlist}
+                    setPlaylist={setPlaylist}
+                    credits={credits}
+                    setCredits={setCredits}
+                    onNotify={showToast}
+                    triggerConfetti={triggerConfetti}
+                    triggerFloatingCredit={triggerFloatingCredit}
+                  />
+                )}
+
+                {activeTab === 'wallet' && (
+                  <WalletTab
+                    credits={credits}
+                    setCredits={setCredits}
+                    onNotify={showToast}
+                    triggerConfetti={triggerConfetti}
+                  />
+                )}
+
+                {activeTab === 'streaks' && (
+                  <StreaksTab
+                    onNotify={showToast}
+                    triggerConfetti={triggerConfetti}
+                    onOpenWowModal={setWowModal}
+                  />
+                )}
+              </main>
+
+              {/* Sticky Bottom Navigation Bar with 5 Tabs */}
+              <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
+            </>
+          )}
         </div>
       </div>
 
       {/* Presenter Footer Helper */}
-      <div className="mt-4 text-center text-xs text-slate-400 max-w-[600px]">
+      <div className="mt-4 text-center text-xs text-slate-400 max-w-[620px]">
         <p className="leading-relaxed">
-          <strong className="text-slate-200">Interactive Delight Active:</strong> Food-delivery style audio-haptic chimes, floating +1 Credit rollover animation, confetti bursts, 10 PM zero-waste kitchen cut-off FAQ on Tab 3, and 63% last-mile pod batching economics.
+          <strong className="text-slate-200">Interactive Flow:</strong> Use <span className="text-[#FF5A1F] font-bold">"🎟️ FTUX & Pass Checkout"</span> to test the 2-stage tier customizer & 10 PM UPI mandate. Completing activation auto-routes into the 5-Day Scheduled Auto-Pilot planner.
         </p>
       </div>
     </div>
