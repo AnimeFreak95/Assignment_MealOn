@@ -3,7 +3,6 @@ import {
   Bell,
   MessageSquare,
   Smartphone,
-  ExternalLink,
   Sparkles,
   ArrowRight,
   ShieldCheck,
@@ -16,8 +15,6 @@ import {
   Play
 } from 'lucide-react';
 import { playPop, playSuccessChime } from '../utils/audioDelight';
-
-const NOTION_GTM_URL = 'https://app.notion.com/p/MealsOn-Scheduled-Meals-GTM-Launch-Strategy-Acquisition-Assets-Impact-Framework-40a80bcda12981b59b11dced26e27395';
 
 export default function GtmCampaignHub({ onTriggerFtux, onTriggerIntroSheet, onClose }) {
   const [activeChannel, setActiveChannel] = useState('push'); // 'push' | 'whatsapp' | 'sms' | 'userflow' | 'kpis'
@@ -41,16 +38,6 @@ export default function GtmCampaignHub({ onTriggerFtux, onTriggerIntroSheet, onC
         </div>
 
         <div className="flex items-center space-x-1.5">
-          <a
-            href={NOTION_GTM_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center space-x-1 text-[10px] font-bold bg-[#FFF5F0] text-[#FF5A1F] border border-[#FF5A1F]/30 px-2 py-1 rounded-full hover:bg-[#FFE6DC] transition-colors"
-          >
-            <span>Notion GTM Page</span>
-            <ExternalLink className="w-2.5 h-2.5" />
-          </a>
-
           {onClose && (
             <button
               onClick={onClose}
@@ -383,24 +370,6 @@ export default function GtmCampaignHub({ onTriggerFtux, onTriggerIntroSheet, onC
                 <p className="text-[9px] text-slate-500">Zero-waste 10 PM night lock-in</p>
               </div>
             </div>
-
-            {/* Direct Notion Link Card */}
-            <a
-              href={NOTION_GTM_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-[#0F172A] text-white p-3 rounded-2xl border border-slate-800 flex items-center justify-between hover:bg-slate-800 transition-colors block"
-            >
-              <div>
-                <span className="text-[9px] font-extrabold text-amber-400 uppercase">
-                  Full PM Documentation on Notion
-                </span>
-                <div className="text-xs font-bold text-white mt-0.5 flex items-center">
-                  <span>Read Exhaustive GTM Strategy & Experiment Plan</span>
-                  <ExternalLink className="w-3 h-3 ml-1 text-[#FF5A1F]" />
-                </div>
-              </div>
-            </a>
           </div>
         )}
       </div>

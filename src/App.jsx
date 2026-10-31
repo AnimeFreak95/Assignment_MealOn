@@ -27,11 +27,8 @@ import {
   VolumeX,
   Ticket,
   Layers,
-  ExternalLink,
   Play
 } from 'lucide-react';
-
-const NOTION_GTM_URL = 'https://app.notion.com/p/MealsOn-Scheduled-Meals-GTM-Launch-Strategy-Acquisition-Assets-Impact-Framework-40a80bcda12981b59b11dced26e27395';
 
 export default function App() {
   const [appMode, setAppMode] = useState('dashboard'); // 'dashboard' | 'ftux' | 'gtm'
@@ -118,24 +115,13 @@ export default function App() {
               </span>
             </div>
             <p className="text-[11px] text-slate-400">
-              Complete FTUX Pass Configurator, Multi-Channel GTM Acquisition Simulator & Notion Documentation
+              Complete FTUX Pass Configurator, Multi-Channel GTM Acquisition Simulator & Interactive Flow
             </p>
           </div>
         </div>
 
         {/* Quick Jump Buttons & Controls */}
         <div className="flex items-center gap-1.5 flex-wrap justify-center">
-          {/* Notion Page Direct Link */}
-          <a
-            href={NOTION_GTM_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-[11px] font-bold px-2.5 py-1.5 rounded-lg bg-slate-800 text-amber-300 border border-amber-500/40 hover:bg-slate-700 flex items-center space-x-1"
-          >
-            <span>📄 Notion GTM</span>
-            <ExternalLink className="w-3 h-3" />
-          </a>
-
           {/* Video Teaser Sheet Button */}
           <button
             onClick={() => {
@@ -364,7 +350,7 @@ export default function App() {
       {/* Presenter Footer Helper */}
       <div className="mt-4 text-center text-xs text-slate-400 max-w-[640px]">
         <p className="leading-relaxed">
-          <strong className="text-slate-200">GTM Simulator Active:</strong> Test Push, WhatsApp & SMS acquisition triggers with direct CTAs into the pass customizer. View full strategy on <a href={NOTION_GTM_URL} target="_blank" rel="noopener noreferrer" className="text-amber-400 underline font-semibold">Notion GTM Page</a>.
+          <strong className="text-slate-200">GTM Simulator Active:</strong> Test Push, WhatsApp & SMS acquisition triggers with direct CTAs into the pass customizer.
         </p>
       </div>
     </div>

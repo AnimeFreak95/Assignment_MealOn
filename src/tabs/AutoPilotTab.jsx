@@ -1,5 +1,16 @@
 import React, { useState } from 'react';
-import { Sparkles, RefreshCw, Star, Check, Flame, ChevronRight, ChefHat } from 'lucide-react';
+import {
+  Sparkles,
+  RefreshCw,
+  Star,
+  Check,
+  Flame,
+  ChevronRight,
+  ChefHat,
+  GripVertical,
+  SlidersHorizontal,
+  ArrowRightLeft
+} from 'lucide-react';
 import { playPop, playSuccessChime, playCelebrationFanfare } from '../utils/audioDelight';
 
 const FILTER_CHIPS = [
@@ -24,6 +35,12 @@ export default function AutoPilotTab({
   const [isLoading, setIsLoading] = useState(false);
   const [swappingDay, setSwappingDay] = useState(null);
   const [justSwappedDay, setJustSwappedDay] = useState(null);
+
+  // Drag-and-Drop & Shift Slider State
+  const [draggedDayIndex, setDraggedDayIndex] = useState(null);
+  const [dragOverDayIndex, setDragOverDayIndex] = useState(null);
+  const [activeShiftDay, setActiveShiftDay] = useState(null);
+  const [shiftSliderVal, setShiftSliderVal] = useState(0);
 
   // Toggle filter chip and update prompt
   const toggleChip = (chipId) => {
@@ -77,6 +94,48 @@ export default function AutoPilotTab({
       playSuccessChime();
       setTimeout(() => setJustSwappedDay(null), 1400);
     }, 160);
+  };
+
+  // Shift/Swap entire meal between two days (e.g. Tuesday -> Monday)
+  const handleShiftMeal = (sourceIdx, targetIdx) => {
+    if (sourceIdx === targetIdx || sourceIdx == null || targetIdx == null) return;
+    const sourceDay = playlist[sourceIdx]?.day;
+    const targetDay = playlist[targetIdx]?.day;
+
+    setPlaylist((prev) => {
+      const next = [...prev];
+      const source = next[sourceIdx];
+      const target = next[targetIdx];
+
+      // Swap the meal data (options & current selection) while preserving the day/slot structure
+      const newSource = {
+        ...source,
+        options: target.options,
+        currentIdx: target.currentIdx,
+      };
+      const newTarget = {
+        ...target,
+        options: source.options,
+        currentIdx: source.currentIdx,
+      };
+
+      next[sourceIdx] = newSource;
+      next[targetIdx] = newTarget;
+      return next;
+    });
+
+    playSuccessChime();
+    setJustSwappedDay(targetIdx);
+    setActiveShiftDay(null);
+    setTimeout(() => setJustSwappedDay(null), 1600);
+
+    if (onNotify) {
+      onNotify(
+        'Meal Shifted! 🔄',
+        `Shifted ${sourceDay}'s meal to ${targetDay}.`,
+        'success'
+      );
+    }
   };
 
   const handleLockIn = () => {
@@ -178,6 +237,16 @@ export default function AutoPilotTab({
           </span>
         </div>
 
+        {/* Tip Pill for Drag & Shift */}
+        <div className="flex items-center justify-between bg-amber-50/80 border border-amber-200/90 px-2.5 py-1.5 rounded-xl text-[10px] text-amber-900 shadow-2xs">
+          <div className="flex items-center space-x-1.5">
+            <GripVertical className="w-3.5 h-3.5 text-amber-700 shrink-0" />
+            <span>
+              <strong>Shift Meals:</strong> Drag cards or use the <strong>Shift slider ⠿</strong> on the right to swap days (e.g. Tue ➔ Mon)
+            </span>
+          </div>
+        </div>
+
         {isLoading ? (
           // Shimmer loading state
           <div className="space-y-2.5">
@@ -203,27 +272,80 @@ export default function AutoPilotTab({
             const currentMeal = dayItem.options[dayItem.currentIdx];
             const isFading = swappingDay === idx;
             const isJustSwapped = justSwappedDay === idx;
+            const isDragging = draggedDayIndex === idx;
+            const isDragOver = dragOverDayIndex === idx && draggedDayIndex !== idx;
 
             return (
               <div
                 key={dayItem.day}
-                className={`bg-white rounded-2xl p-3 border transition-all hover:border-[#FF5A1F]/30 relative ${
-                  isFading
+                draggable={true}
+                onDragStart={(e) => {
+                  setDraggedDayIndex(idx);
+                  e.dataTransfer.effectAllowed = 'move';
+                  e.dataTransfer.setData('text/plain', String(idx));
+                }}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  e.dataTransfer.dropEffect = 'move';
+                  if (dragOverDayIndex !== idx) {
+                    setDragOverDayIndex(idx);
+                  }
+                }}
+                onDragLeave={() => {
+                  if (dragOverDayIndex === idx) {
+                    setDragOverDayIndex(null);
+                  }
+                }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  const source =
+                    draggedDayIndex !== null
+                      ? draggedDayIndex
+                      : parseInt(e.dataTransfer.getData('text/plain'), 10);
+                  if (!isNaN(source) && source !== idx) {
+                    handleShiftMeal(source, idx);
+                  }
+                  setDraggedDayIndex(null);
+                  setDragOverDayIndex(null);
+                }}
+                onDragEnd={() => {
+                  setDraggedDayIndex(null);
+                  setDragOverDayIndex(null);
+                }}
+                className={`bg-white rounded-2xl p-3 border transition-all relative ${
+                  isDragging
+                    ? 'opacity-40 border-dashed border-[#FF5A1F] scale-[0.98]'
+                    : isDragOver
+                    ? 'border-[#FF5A1F] ring-2 ring-[#FF5A1F]/30 bg-[#FFF5F0]/70 scale-[1.01] shadow-md'
+                    : isFading
                     ? 'opacity-40 scale-[0.99]'
                     : isJustSwapped
                     ? 'border-[#FF5A1F] ring-2 ring-[#FF5A1F]/20 shadow-md'
-                    : 'border-slate-200/90 shadow-sm opacity-100 scale-100'
+                    : 'border-slate-200/90 shadow-sm opacity-100 scale-100 hover:border-[#FF5A1F]/40'
                 }`}
               >
-                {/* Micro delight pop badge on swap */}
-                {isJustSwapped && (
-                  <div className="absolute -top-2 right-3 bg-[#FF5A1F] text-white text-[9px] font-extrabold px-2 py-0.5 rounded-full shadow-md flex items-center space-x-1 animate-in zoom-in-75">
-                    <ChefHat className="w-3 h-3" />
-                    <span>Swapped! 🔄</span>
+                {/* Drag-over dropzone overlay */}
+                {isDragOver && (
+                  <div className="absolute inset-0 bg-[#FFF5F0]/95 rounded-2xl border-2 border-dashed border-[#FF5A1F] flex flex-col items-center justify-center z-20 p-2 animate-in fade-in">
+                    <ArrowRightLeft className="w-5 h-5 text-[#FF5A1F] animate-bounce mb-1" />
+                    <span className="text-xs font-extrabold text-[#FF5A1F]">
+                      Drop here to swap with {playlist[draggedDayIndex]?.day}!
+                    </span>
+                    <span className="text-[10px] text-slate-600 font-medium">
+                      {playlist[draggedDayIndex]?.options[playlist[draggedDayIndex]?.currentIdx]?.name}
+                    </span>
                   </div>
                 )}
 
-                {/* Day Badge & Price */}
+                {/* Micro delight pop badge on swap */}
+                {isJustSwapped && (
+                  <div className="absolute -top-2 right-3 bg-[#FF5A1F] text-white text-[9px] font-extrabold px-2 py-0.5 rounded-full shadow-md flex items-center space-x-1 animate-in zoom-in-75 z-10">
+                    <ChefHat className="w-3 h-3" />
+                    <span>Shifted! 🔄</span>
+                  </div>
+                )}
+
+                {/* Day Badge, Price & Drag Handle */}
                 <div className="flex items-center justify-between mb-1.5">
                   <div className="flex items-center space-x-1.5">
                     <span className="text-[10px] font-extrabold text-slate-800 bg-slate-100 px-2 py-0.5 rounded-md">
@@ -234,10 +356,149 @@ export default function AutoPilotTab({
                     </span>
                   </div>
 
-                  <span className="text-xs font-extrabold text-[#FF5A1F]">
-                    ₹{currentMeal.price}
-                  </span>
+                  <div className="flex items-center space-x-2">
+                    <span className="text-xs font-extrabold text-[#FF5A1F]">
+                      ₹{currentMeal.price}
+                    </span>
+
+                    {/* Drag & Drop Shift Slider Handle at Right Corner */}
+                    <button
+                      type="button"
+                      title="Drag to swap or tap to open Day Shifter Slider"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        playPop();
+                        if (activeShiftDay === idx) {
+                          setActiveShiftDay(null);
+                        } else {
+                          setActiveShiftDay(idx);
+                          // Default target is previous day (e.g. Tuesday -> Monday) or next day
+                          setShiftSliderVal(idx === 0 ? 1 : idx - 1);
+                        }
+                      }}
+                      className={`p-1 px-1.5 rounded-lg border flex items-center space-x-1 transition-all cursor-grab active:cursor-grabbing cta-bounce ${
+                        activeShiftDay === idx
+                          ? 'bg-[#FF5A1F] text-white border-[#FF5A1F] shadow-xs ring-1 ring-[#FF5A1F]'
+                          : 'bg-slate-50 hover:bg-slate-100 text-slate-600 border-slate-200'
+                      }`}
+                    >
+                      <GripVertical className="w-3.5 h-3.5 text-slate-400" />
+                      <SlidersHorizontal className="w-2.5 h-2.5 text-[#FF5A1F] group-hover:text-white" />
+                      <span className="text-[9px] font-extrabold">Shift</span>
+                    </button>
+                  </div>
                 </div>
+
+                {/* In-Card Day Shifter Slider & 1-Tap Swapper */}
+                {activeShiftDay === idx && (
+                  <div className="my-2.5 p-2.5 bg-gradient-to-r from-[#FFF5F0] to-[#FFF1EB] rounded-xl border border-[#FF5A1F]/30 animate-in fade-in slide-in-from-top-1 shadow-inner">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <div className="flex items-center space-x-1">
+                        <ArrowRightLeft className="w-3 h-3 text-[#FF5A1F]" />
+                        <span className="text-[10px] font-extrabold text-slate-900">
+                          Shift {dayItem.day}'s Meal to another day:
+                        </span>
+                      </div>
+                      <span className="text-[9px] font-bold text-[#FF5A1F] bg-white border border-[#FF5A1F]/30 px-1.5 py-0.5 rounded-md">
+                        Drag or Tap
+                      </span>
+                    </div>
+
+                    {/* Interactive Slider */}
+                    <div className="space-y-1 pt-1">
+                      <div className="flex items-center justify-between text-[9px] font-bold text-slate-500 px-1">
+                        {playlist.map((d, dIdx) => (
+                          <span
+                            key={d.day}
+                            className={shiftSliderVal === dIdx ? 'text-[#FF5A1F] font-extrabold' : ''}
+                          >
+                            {d.dayCode || d.day.slice(0, 3)}
+                          </span>
+                        ))}
+                      </div>
+                      <input
+                        type="range"
+                        min="0"
+                        max="4"
+                        step="1"
+                        value={shiftSliderVal}
+                        onChange={(e) => {
+                          playPop();
+                          setShiftSliderVal(parseInt(e.target.value, 10));
+                        }}
+                        className="w-full accent-[#FF5A1F] h-1.5 bg-slate-200 rounded-lg cursor-pointer"
+                      />
+                    </div>
+
+                    {/* Target Day Preview & Quick CTA */}
+                    <div className="mt-2 pt-2 border-t border-[#FF5A1F]/20 flex items-center justify-between">
+                      <div className="text-[10px] text-slate-700">
+                        Shift to: <strong className="text-slate-950 font-bold">{playlist[shiftSliderVal]?.day}</strong>
+                        <span className="text-[9px] text-slate-500 block truncate max-w-[150px]">
+                          Swaps with: {playlist[shiftSliderVal]?.options[playlist[shiftSliderVal]?.currentIdx]?.name}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center space-x-1.5">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActiveShiftDay(null);
+                          }}
+                          className="text-[10px] font-bold text-slate-500 hover:text-slate-700 px-2 py-1 rounded-lg"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="button"
+                          disabled={shiftSliderVal === idx}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleShiftMeal(idx, shiftSliderVal);
+                          }}
+                          className={`text-[10px] font-bold px-2.5 py-1 rounded-lg transition-all cta-bounce flex items-center space-x-1 shadow-xs ${
+                            shiftSliderVal === idx
+                              ? 'bg-slate-200 text-slate-400 border border-slate-300 cursor-not-allowed'
+                              : 'bg-[#FF5A1F] hover:bg-[#E04812] text-white'
+                          }`}
+                        >
+                          <span>Shift to {playlist[shiftSliderVal]?.dayCode || playlist[shiftSliderVal]?.day.slice(0, 3)} ➔</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Quick 1-Tap Day Buttons */}
+                    <div className="grid grid-cols-5 gap-1 mt-2">
+                      {playlist.map((targetDay, tIdx) => {
+                        const isSelf = tIdx === idx;
+                        const isSelected = shiftSliderVal === tIdx;
+                        return (
+                          <button
+                            key={targetDay.day}
+                            type="button"
+                            disabled={isSelf}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              playPop();
+                              setShiftSliderVal(tIdx);
+                              handleShiftMeal(idx, tIdx);
+                            }}
+                            className={`py-1 rounded-md text-[9px] font-bold border transition-all text-center ${
+                              isSelf
+                                ? 'bg-slate-100 text-slate-300 border-slate-200 cursor-not-allowed'
+                                : isSelected
+                                ? 'bg-[#FF5A1F] text-white border-[#FF5A1F] shadow-xs'
+                                : 'bg-white hover:bg-slate-50 text-slate-700 border-slate-200'
+                            }`}
+                          >
+                            {targetDay.dayCode || targetDay.day.slice(0, 3)}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
 
                 {/* Dish Name & Kitchen Rating (Text trimmed for elegance) */}
                 <div className="flex items-center justify-between">
