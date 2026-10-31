@@ -4,7 +4,7 @@ import Header from './components/Header';
 import BottomNav from './components/BottomNav';
 import Toast from './components/Toast';
 import { ConfettiCanvas, FloatingCreditBadge, WowDelightModal } from './components/DelightEffects';
-import { isSoundEnabled, setSoundEnabled, playPop } from './utils/audioDelight';
+import { setSoundEnabled, playPop } from './utils/audioDelight';
 
 import AutoPilotTab from './tabs/AutoPilotTab';
 import RoutingTab from './tabs/RoutingTab';
@@ -19,18 +19,27 @@ import {
   Clock,
   ShieldCheck,
   Flame,
-  Info,
   RotateCcw,
-  Smartphone,
-  ExternalLink,
   Volume2,
   VolumeX
 } from 'lucide-react';
 
+const getNextCutoffDeadline = () => {
+  const deadline = new Date();
+  deadline.setHours(22, 0, 0, 0);
+  if (deadline <= new Date()) deadline.setDate(deadline.getDate() + 1);
+  return deadline.getTime();
+};
+
 export default function App() {
   const [activeTab, setActiveTab] = useState('autopilot');
   const [credits, setCredits] = useState(14);
+  const [autoRolloverActive, setAutoRolloverActive] = useState(true);
+  const [cutoffDeadline, setCutoffDeadline] = useState(getNextCutoffDeadline);
+  const [cutoffStatus, setCutoffStatus] = useState('pending');
+  const [cutoffCreditBanked, setCutoffCreditBanked] = useState(false);
   const [playlist, setPlaylist] = useState(INITIAL_PLAYLIST);
+  const [prototypeResetKey, setPrototypeResetKey] = useState(0);
   const [toast, setToast] = useState(null);
 
   // Delight Effects State
@@ -69,7 +78,12 @@ export default function App() {
 
   const resetAllState = () => {
     setCredits(14);
+    setAutoRolloverActive(true);
+    setCutoffStatus('pending');
+    setCutoffCreditBanked(false);
+    setCutoffDeadline(getNextCutoffDeadline());
     setPlaylist(INITIAL_PLAYLIST);
+    setPrototypeResetKey((prev) => prev + 1);
     setActiveTab('autopilot');
     setConfettiActive(false);
     setFloatingCreditActive(false);
@@ -159,7 +173,7 @@ export default function App() {
           Device Viewport:
           max-width: 420px, height: 860px, rounded-3xl, 8px border in #1E293B, subtle drop shadow
         */}
-        <div className="relative w-full max-w-[420px] w-[390px] sm:w-[420px] h-[860px] bg-[#F8FAFC] rounded-[36px] border-[8px] border-[#1E293B] shadow-2xl overflow-hidden flex flex-col text-slate-900 select-none">
+        <div className="relative w-[calc(100vw-1rem)] max-w-[390px] sm:w-[420px] sm:max-w-[420px] h-[860px] bg-[#F8FAFC] rounded-[36px] border-[8px] border-[#1E293B] shadow-2xl overflow-hidden flex flex-col text-slate-900 select-none">
           {/* Confetti Canvas Overlay */}
           <ConfettiCanvas
             active={confettiActive}
@@ -199,52 +213,64 @@ export default function App() {
 
           {/* Scrollable App Body Canvas (#F8FAFC) */}
           <main className="flex-1 overflow-y-auto bg-[#F8FAFC] hide-scrollbar relative">
-            {activeTab === 'autopilot' && (
+            <div hidden={activeTab !== 'autopilot'}>
               <AutoPilotTab
+                key={prototypeResetKey}
                 playlist={playlist}
                 setPlaylist={setPlaylist}
                 onLockInPlaylist={handleLockInPlaylist}
                 triggerConfetti={triggerConfetti}
                 onNotify={showToast}
               />
-            )}
+            </div>
 
-            {activeTab === 'routing' && (
+            <div hidden={activeTab !== 'routing'}>
               <RoutingTab
+                key={prototypeResetKey}
                 playlist={playlist}
                 setPlaylist={setPlaylist}
                 onNotify={showToast}
               />
-            )}
+            </div>
 
-            {activeTab === 'cutoff' && (
+            <div hidden={activeTab !== 'cutoff'}>
               <CutOffTab
+                key={prototypeResetKey}
                 playlist={playlist}
                 setPlaylist={setPlaylist}
                 credits={credits}
                 setCredits={setCredits}
+                autoRolloverActive={autoRolloverActive}
+                cutoffDeadline={cutoffDeadline}
+                tomorrowStatus={cutoffStatus}
+                setTomorrowStatus={setCutoffStatus}
+                creditBanked={cutoffCreditBanked}
+                setCreditBanked={setCutoffCreditBanked}
                 onNotify={showToast}
                 triggerConfetti={triggerConfetti}
                 triggerFloatingCredit={triggerFloatingCredit}
               />
-            )}
+            </div>
 
-            {activeTab === 'wallet' && (
+            <div hidden={activeTab !== 'wallet'}>
               <WalletTab
+                key={prototypeResetKey}
                 credits={credits}
-                setCredits={setCredits}
+                autoRolloverActive={autoRolloverActive}
+                setAutoRolloverActive={setAutoRolloverActive}
                 onNotify={showToast}
                 triggerConfetti={triggerConfetti}
               />
-            )}
+            </div>
 
-            {activeTab === 'streaks' && (
+            <div hidden={activeTab !== 'streaks'}>
               <StreaksTab
+                key={prototypeResetKey}
                 onNotify={showToast}
                 triggerConfetti={triggerConfetti}
                 onOpenWowModal={setWowModal}
               />
-            )}
+            </div>
           </main>
 
           {/* Sticky Bottom Navigation Bar with 5 Tabs */}
@@ -255,7 +281,7 @@ export default function App() {
       {/* Presenter Footer Helper */}
       <div className="mt-4 text-center text-xs text-slate-400 max-w-[600px]">
         <p className="leading-relaxed">
-          <strong className="text-slate-200">Interactive Delight Active:</strong> Food-delivery style audio-haptic chimes, floating +1 Credit rollover animation, confetti bursts, 10 PM zero-waste kitchen cut-off FAQ on Tab 3, and 62% last-mile pod batching economics.
+          <strong className="text-slate-200">Interactive Delight Active:</strong> Food-delivery style audio-haptic chimes, floating +1 Credit rollover animation, confetti bursts, 10 PM zero-waste kitchen cut-off FAQ on Tab 3, and 63% last-mile pod batching economics.
         </p>
       </div>
     </div>

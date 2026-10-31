@@ -40,15 +40,16 @@ Subscription and scheduled meal programs typically face three major failure poin
 
 ### 4. 🛡️ Pause Shield & Rollover Credits Wallet (Tab 4: "Wallet")
 - **Dynamic Credit Balance & SVG Progress Ring:** Live global credit count in an emerald gradient hero card.
-- **10-Day Horizon Timeline:** Visual status displaying Delivered, Shielded, Scheduled, and +2 Free Rollover Days.
+- **Dynamic Plan Horizon Timeline:** Visual status for Delivered, Shielded, Travel Pause, Scheduled, and +2 Free Rollover Days; its length tracks the selected pause.
 - **Simulate Travel / Vacation Pause Slider:** 1-to-5 day pause slider that shifts the timeline and extends subscription validity in real time.
+- **Rollover Control:** Choose automatic rollover or claim a skipped-meal credit manually from the cut-off screen.
 - **45-Day Flexible Pass Guarantee:** Explains zero-expiry penalty rules.
 
 ### 5. 🔥 5-Day Habit Streaks & Office Pod Drops (Tab 5: "Streaks & Pods")
 - **Weekly Habit Streak Tracker:** 5-node Mon–Fri progress tracker.
 - **Demo Mode Simulation:** "Simulate Friday Delivery Completion" button that triggers celebratory fanfare, full-screen confetti, and lets the user pick their unlocked free treat (*☕ Free Cold Brew* or *🍫 High-Protein Almond Brownie*).
 - **Office Pod Consolidated Delivery Engine:** Batches deliveries for Cyber Park Tower B colleagues at 1:00 PM wave.
-- **PM Unit Economics View:** Shows how batching 12 orders into 1 fleet drop slashes last-mile delivery costs by **62%** (from ₹65 to ₹24/order).
+- **PM Unit Economics View:** Shows how batching 12 orders into 1 fleet drop slashes last-mile delivery costs by **63%** (from ₹65 to ₹24/order).
 
 ---
 
