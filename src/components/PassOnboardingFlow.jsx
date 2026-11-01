@@ -17,9 +17,37 @@ import {
   Lock,
   ArrowRight,
   Receipt,
-  Play
+  Play,
+  MapPin,
+  Building2,
+  Home,
+  AlertTriangle
 } from 'lucide-react';
 import { playPop, playSuccessChime, playCelebrationFanfare } from '../utils/audioDelight';
+import { SAVED_LOCATIONS } from '../data/mockData';
+
+const HOME_OPTIONS = [
+  {
+    id: 'green_valley',
+    name: 'Green Valley Apt',
+    address: 'Flat 402, Tower 4, Park Lane, Sector 50',
+    distanceKm: 4.2,
+    defaultSlot: '1:30 PM – 2:00 PM',
+    type: 'Residence (In-Cluster)',
+    isEligible: true,
+    tag: 'RECOMMENDED • IN-CLUSTER'
+  },
+  {
+    id: 'whitefield',
+    name: 'Whitefield High Gardens',
+    address: 'Tower C, Phase 2, Outer Ring Road Expy',
+    distanceKm: 11.8,
+    defaultSlot: '1:30 PM – 2:00 PM',
+    type: 'Suburban Outlier',
+    isEligible: false,
+    tag: 'OUT OF GEOFENCE (>7 KM)'
+  }
+];
 
 const TIERS = [
   {
@@ -96,6 +124,10 @@ export default function SubscriptionFTUXFlow({ onCompleteActivation, onOpenIntro
   const [paymentOption, setPaymentOption] = useState('prepaid'); // 'prepaid' | 'mandate' | 'pluxee'
   const [pluxeeLoadFull, setPluxeeLoadFull] = useState(true);
 
+  // Home Address Selection for Stage 3
+  const [selectedHomeId, setSelectedHomeId] = useState('green_valley');
+  const selectedHome = HOME_OPTIONS.find((h) => h.id === selectedHomeId) || HOME_OPTIONS[0];
+
   // Success Modal
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
@@ -127,9 +159,10 @@ export default function SubscriptionFTUXFlow({ onCompleteActivation, onOpenIntro
     setStage(2);
   };
 
-  const handleBackToConfig = () => {
+  const handleBackStage = () => {
     playPop();
-    setStage(1);
+    if (stage === 3) setStage(2);
+    else if (stage === 2) setStage(1);
   };
 
   const handleCompleteCheckout = () => {
@@ -137,9 +170,27 @@ export default function SubscriptionFTUXFlow({ onCompleteActivation, onOpenIntro
     setShowSuccessModal(true);
   };
 
-  const handleProceedToAutoPilot = () => {
+  const handleContinueToLocations = () => {
     playSuccessChime();
     setShowSuccessModal(false);
+    setStage(3);
+  };
+
+  const handleConfirmLocationsAndFinish = () => {
+    playCelebrationFanfare();
+    const finalLocations = {
+      office: SAVED_LOCATIONS.office,
+      home: {
+        id: 'home',
+        label: '🏠 Home',
+        name: selectedHome.name,
+        address: selectedHome.address,
+        defaultSlot: selectedHome.defaultSlot,
+        type: 'Residence',
+        distanceKm: selectedHome.distanceKm,
+        isEligible: selectedHome.isEligible
+      }
+    };
     if (onCompleteActivation) {
       onCompleteActivation({
         meals: selectedDuration,
@@ -147,7 +198,8 @@ export default function SubscriptionFTUXFlow({ onCompleteActivation, onOpenIntro
         netPrice,
         bonusCredits: paymentOption === 'mandate' ? 0 : bonusCredits,
         validityDays: durationObj.validityDays,
-        paymentOption
+        paymentOption,
+        locations: finalLocations
       });
     }
   };
@@ -157,9 +209,9 @@ export default function SubscriptionFTUXFlow({ onCompleteActivation, onOpenIntro
       {/* Top Header: Step Indicator & FAQ Toggle */}
       <div className="bg-white border-b border-slate-200/90 px-4 py-2.5 sticky top-0 z-30 flex items-center justify-between shadow-xs">
         <div className="flex items-center space-x-2">
-          {stage === 2 && (
+          {stage > 1 && (
             <button
-              onClick={handleBackToConfig}
+              onClick={handleBackStage}
               className="p-1 -ml-1 text-slate-500 hover:text-slate-800 rounded-lg hover:bg-slate-100 transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
@@ -167,10 +219,14 @@ export default function SubscriptionFTUXFlow({ onCompleteActivation, onOpenIntro
           )}
           <div>
             <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#FF5A1F]">
-              {stage === 1 ? 'Step 1 of 2' : 'Step 2 of 2'}
+              {stage === 1 ? 'Step 1 of 3' : stage === 2 ? 'Step 2 of 3' : 'Step 3 of 3'}
             </span>
             <h2 className="text-xs font-extrabold text-slate-900 leading-tight">
-              {stage === 1 ? 'Customize Your Pass' : 'Payment & Activation'}
+              {stage === 1
+                ? 'Customize Your Pass'
+                : stage === 2
+                ? 'Payment & Activation'
+                : 'Delivery Hubs & Hybrid Geofence'}
             </h2>
           </div>
         </div>
@@ -745,6 +801,233 @@ export default function SubscriptionFTUXFlow({ onCompleteActivation, onOpenIntro
         </div>
       )}
 
+      {/* STAGE 3: LOCATION HUBS & HYBRID GEOFENCE SETUP */}
+      {stage === 3 && (
+        <div className="px-4 py-3 space-y-3.5 animate-in fade-in duration-200">
+          {/* A. Hero Context Card */}
+          <div className="rounded-2xl p-3.5 bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#0F172A] text-white shadow-md border border-slate-700/80 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-28 h-28 bg-emerald-500/10 rounded-full blur-xl pointer-events-none" />
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-[9px] font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full flex items-center shadow-xs">
+                📍 3-2 HYBRID DELIVERY HUBS
+              </span>
+              <span className="text-[10px] font-bold text-slate-300">
+                100% ₹0 Delivery
+              </span>
+            </div>
+            <h1 className="text-sm font-extrabold text-white tracking-tight leading-snug">
+              Set Your Workplace & WFH Locations
+            </h1>
+            <p className="text-[11px] text-slate-300 mt-1 leading-relaxed">
+              MealsOn batches meals to your Office Pod on work days and to your Home on remote days with ₹0 courier fee.
+            </p>
+          </div>
+
+          {/* B. Primary Office Location Card (Office Pod) */}
+          <div className="bg-white rounded-2xl p-3.5 border border-slate-200/90 shadow-sm space-y-2.5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <div className="w-7 h-7 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center font-bold">
+                  <Building2 className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-xs font-extrabold text-slate-900 leading-tight">
+                    🏢 Primary Office Location (Pod Drop)
+                  </h3>
+                  <span className="text-[10px] text-slate-500">Corporate Workplace Drop</span>
+                </div>
+              </div>
+              <span className="text-[9px] font-extrabold bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full flex items-center">
+                <Check className="w-3 h-3 mr-0.5" /> Verified Pod
+              </span>
+            </div>
+
+            <div className="bg-slate-50 rounded-xl p-2.5 border border-slate-100 space-y-1.5 text-xs">
+              <div className="font-extrabold text-slate-900 flex items-center justify-between">
+                <span>Cyber Park Tower B</span>
+                <span className="text-[10px] font-bold text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded">
+                  1:00 PM – 1:30 PM Wave
+                </span>
+              </div>
+              <p className="text-[10px] text-slate-600">
+                4th Floor, Tech Hub, Sector 62 • Tower Smart Lockers
+              </p>
+              <div className="pt-1.5 border-t border-slate-200/70 flex items-center justify-between text-[10px] text-slate-500">
+                <span>Logistics model: Consolidated milk-run drop</span>
+                <span className="font-bold text-emerald-700">₹0 Delivery Fee</span>
+              </div>
+            </div>
+          </div>
+
+          {/* C. Primary Residence / Home Location with Geofence Verification */}
+          <div className="bg-white rounded-2xl p-3.5 border border-slate-200/90 shadow-sm space-y-2.5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <div className="w-7 h-7 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold">
+                  <Home className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-xs font-extrabold text-slate-900 leading-tight">
+                    🏠 Primary Residence (Home / WFH)
+                  </h3>
+                  <span className="text-[10px] text-slate-500">Verify address for hybrid switching eligibility</span>
+                </div>
+              </div>
+              <span className="text-[9px] font-bold text-slate-400">
+                Tap to compare
+              </span>
+            </div>
+
+            {/* Address Option Selector */}
+            <div className="space-y-2">
+              {HOME_OPTIONS.map((opt) => {
+                const isSelected = selectedHomeId === opt.id;
+                return (
+                  <div
+                    key={opt.id}
+                    onClick={() => {
+                      playPop();
+                      setSelectedHomeId(opt.id);
+                    }}
+                    className={`p-2.5 rounded-xl border transition-all cursor-pointer ${
+                      isSelected
+                        ? opt.isEligible
+                          ? 'bg-emerald-50/50 border-2 border-emerald-500 shadow-sm'
+                          : 'bg-rose-50/50 border-2 border-rose-500 shadow-sm'
+                        : 'bg-white border-slate-200 hover:border-slate-300'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="space-y-0.5">
+                        <div className="flex items-center space-x-1.5">
+                          <span className="text-xs font-extrabold text-slate-900">
+                            {opt.name}
+                          </span>
+                          <span
+                            className={`text-[8.5px] font-extrabold px-1.5 py-0.2 rounded ${
+                              opt.isEligible
+                                ? 'bg-emerald-100 text-emerald-800'
+                                : 'bg-rose-100 text-rose-800'
+                            }`}
+                          >
+                            {opt.tag}
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-slate-600 leading-tight">
+                          {opt.address}
+                        </p>
+                      </div>
+
+                      <div className="text-right shrink-0">
+                        <span className="text-xs font-black text-slate-900">
+                          {opt.distanceKm} km
+                        </span>
+                        <span className="block text-[8px] text-slate-400 uppercase">
+                          from kitchen
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Serviceability Banner */}
+                    <div
+                      className={`mt-2 p-1.5 rounded-lg text-[10px] font-medium flex items-center justify-between ${
+                        opt.isEligible
+                          ? 'bg-emerald-100/70 text-emerald-900'
+                          : 'bg-rose-100/70 text-rose-900'
+                      }`}
+                    >
+                      <span className="flex items-center font-bold">
+                        {opt.isEligible ? (
+                          <>
+                            <CheckCircle2 className="w-3.5 h-3.5 mr-1 text-emerald-700 shrink-0" />
+                            ✅ Switching Allowed • ₹0 Free Delivery
+                          </>
+                        ) : (
+                          <>
+                            <AlertTriangle className="w-3.5 h-3.5 mr-1 text-rose-700 shrink-0" />
+                            ❌ Free Switching Ineligible (&gt; 7 km)
+                          </>
+                        )}
+                      </span>
+                      <span className="text-[9px] font-extrabold">
+                        {opt.isEligible ? '≤ 7 km Geofence' : 'Out of Cluster'}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Deep-Dive Serviceability Explanation */}
+            {selectedHome.isEligible ? (
+              <div className="bg-emerald-50/70 border border-emerald-200/80 rounded-xl p-2.5 text-[10px] text-emerald-950 space-y-1">
+                <span className="font-extrabold flex items-center text-emerald-900">
+                  <ShieldCheck className="w-3.5 h-3.5 mr-1 text-emerald-700 shrink-0" />
+                  Why switching is possible here:
+                </span>
+                <p className="leading-snug text-emerald-800">
+                  Green Valley Apt (4.2 km) is inside the 7 km kitchen cluster limit. The exact same partner cloud kitchens prepare both Office and Home meals in morning off-peak batch runs (9:00–11:30 AM), preserving bulk procurement and enabling 100% free delivery.
+                </p>
+              </div>
+            ) : (
+              <div className="bg-rose-50 border border-rose-200 rounded-xl p-2.5 text-[10px] text-rose-950 space-y-1">
+                <span className="font-extrabold flex items-center text-rose-900">
+                  <AlertTriangle className="w-3.5 h-3.5 mr-1 text-rose-700 shrink-0" />
+                  Why free switching is restricted here:
+                </span>
+                <p className="leading-snug text-rose-800">
+                  Whitefield (11.8 km) exceeds the 7 km kitchen geofence. Point-to-point courier dispatch costs ₹55–₹70 per drop. On remote WFH days, you can utilize 100% credit rollover in your Pause Shield wallet or opt for a nominal ₹29 suburban routing fee.
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* D. Hybrid Policy & Guardrails Card */}
+          <div className="bg-white rounded-2xl p-3.5 border border-slate-200/90 shadow-sm space-y-2.5">
+            <div className="flex items-center space-x-2">
+              <div className="w-6 h-6 rounded-lg bg-indigo-50 text-indigo-700 flex items-center justify-center shrink-0">
+                <ShieldCheck className="w-3.5 h-3.5" />
+              </div>
+              <h3 className="text-xs font-extrabold text-slate-900">
+                Hybrid Switching Policy & Operational Rules
+              </h3>
+            </div>
+
+            <div className="bg-slate-50 rounded-xl p-2.5 space-y-2 text-[10px] text-slate-700">
+              <div className="flex items-start space-x-2">
+                <MapPin className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                <div>
+                  <strong className="text-slate-900">1. 7 km Kitchen-Cluster Limit:</strong>
+                  <span className="text-slate-600 block mt-0.5 leading-snug">
+                    Home address must be within 7 km of the office kitchen hub. This guarantees your meals cook in the morning batch roster for ₹0 delivery.
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex items-start space-x-2 pt-1.5 border-t border-slate-200/80">
+                <Clock className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+                <div>
+                  <strong className="text-slate-900">2. Strict 10:00 PM Night-Before Routing Lock:</strong>
+                  <span className="text-slate-600 block mt-0.5 leading-snug">
+                    You can switch tomorrow's lunch destination with 1 tap before 10 PM. <strong>Same-day morning flips are disabled</strong> to protect locked delivery manifests and prevent courier delays.
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex items-start space-x-2 pt-1.5 border-t border-slate-200/80">
+                <Clock className="w-3.5 h-3.5 text-indigo-600 shrink-0 mt-0.5" />
+                <div>
+                  <strong className="text-slate-900">3. Structured 30-Min Delivery Waves:</strong>
+                  <span className="text-slate-600 block mt-0.5 leading-snug">
+                    Office Pod drops: <strong>1:00 PM – 1:30 PM</strong> (Tower Lockers) • Home drops: <strong>1:30 PM – 2:00 PM</strong> (Doorstep handover).
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* STICKY BOTTOM CHECKOUT CTA DOCKED AT BOTTOM OF PHONE */}
       <div className="sticky bottom-0 left-0 right-0 w-full bg-white/95 backdrop-blur-md border-t border-slate-200 p-3 px-4 shadow-[0_-4px_16px_rgba(0,0,0,0.08)] z-20 mt-auto">
         {stage === 1 ? (
@@ -755,7 +1038,7 @@ export default function SubscriptionFTUXFlow({ onCompleteActivation, onOpenIntro
             <span>Continue to Payment • ₹{netPrice}</span>
             <ChevronRight className="w-4 h-4" />
           </button>
-        ) : (
+        ) : stage === 2 ? (
           <button
             onClick={handleCompleteCheckout}
             className={`w-full text-white font-extrabold text-xs py-3 px-4 rounded-xl shadow-md transition-all active:scale-[0.98] cta-bounce flex items-center justify-center space-x-1.5 cursor-pointer ${
@@ -775,6 +1058,14 @@ export default function SubscriptionFTUXFlow({ onCompleteActivation, onOpenIntro
             {paymentOption === 'pluxee' && (
               <span>Pay ₹{netPrice} via Pluxee →</span>
             )}
+          </button>
+        ) : (
+          <button
+            onClick={handleConfirmLocationsAndFinish}
+            className="w-full bg-gradient-to-r from-[#FF5A1F] to-[#FF7B47] hover:from-[#E04812] hover:to-[#FF5A1F] text-white font-extrabold text-xs py-3 px-4 rounded-xl shadow-md transition-all active:scale-[0.98] cta-bounce flex items-center justify-center space-x-1.5 cursor-pointer"
+          >
+            <Sparkles className="w-4 h-4" />
+            <span>Confirm Hubs & Build My AI Playlist ✨ ➔</span>
           </button>
         )}
       </div>
@@ -870,12 +1161,20 @@ export default function SubscriptionFTUXFlow({ onCompleteActivation, onOpenIntro
               </span>
             </div>
 
+            <div className="bg-indigo-50 border border-indigo-200 rounded-xl p-2.5 text-left text-[11px] text-indigo-900 space-y-1">
+              <span className="font-bold flex items-center">
+                <MapPin className="w-3.5 h-3.5 mr-1 text-indigo-600" /> Next: Set Delivery Hubs
+              </span>
+              <p className="text-[10px] text-indigo-700 leading-tight">
+                Configure your Office Pod and Home location with 7 km geofence verification for ₹0 hybrid switching.
+              </p>
+            </div>
+
             <button
-              onClick={handleProceedToAutoPilot}
-              className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-[#FF5A1F] to-[#FF7B47] hover:from-[#E04812] hover:to-[#FF5A1F] text-white font-bold text-xs shadow-md transition-all active:scale-95 flex items-center justify-center space-x-1.5"
+              onClick={handleContinueToLocations}
+              className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-[#FF5A1F] to-[#FF7B47] hover:from-[#E04812] hover:to-[#FF5A1F] text-white font-bold text-xs shadow-md transition-all active:scale-95 flex items-center justify-center space-x-1.5 cursor-pointer"
             >
-              <Sparkles className="w-4 h-4" />
-              <span>Build My AI Weekly Meal Playlist ✨</span>
+              <span>Setup Delivery Hubs (Step 3 of 3) →</span>
             </button>
           </div>
         </div>

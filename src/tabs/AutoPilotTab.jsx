@@ -49,8 +49,11 @@ export default function AutoPilotTab({
   onLockInPlaylist,
   triggerConfetti,
   onNotify,
-  paymentMode = 'prepaid'
+  paymentMode = 'prepaid',
+  savedLocations = SAVED_LOCATIONS
 }) {
+  const activeLocations = savedLocations || SAVED_LOCATIONS;
+
   // Planner Mode: 'ai' vs 'vault'
   const [plannerMode, setPlannerMode] = useState('ai');
   const [vaultIds, setVaultIds] = useState(INITIAL_VAULT_IDS);
@@ -205,7 +208,7 @@ export default function AutoPilotTab({
       const next = [...prev];
       const currentLoc = next[index].location;
       const newLoc = currentLoc === 'office' ? 'home' : 'office';
-      const defaultSlot = SAVED_LOCATIONS[newLoc]?.defaultSlot || (newLoc === 'office' ? '1:00 PM – 1:30 PM' : '1:30 PM – 2:00 PM');
+      const defaultSlot = activeLocations[newLoc]?.defaultSlot || (newLoc === 'office' ? '1:00 PM – 1:30 PM' : '1:30 PM – 2:00 PM');
       next[index] = {
         ...next[index],
         location: newLoc,
@@ -214,7 +217,7 @@ export default function AutoPilotTab({
       return next;
     });
 
-    const targetLocName = playlist[index].location === 'office' ? 'Green Valley Apt (Home)' : 'Cyber Park Tower B (Office)';
+    const targetLocName = playlist[index].location === 'office' ? `${activeLocations.home?.name || 'Green Valley Apt'} (Home)` : `${activeLocations.office?.name || 'Cyber Park Tower B'} (Office)`;
     if (onNotify) {
       onNotify('Location Updated 📍', `${playlist[index].day} lunch flipped to ${targetLocName}.`, 'info');
     }
@@ -451,7 +454,7 @@ export default function AutoPilotTab({
         } else if (pattern === 'office') {
           targetLoc = 'office';
         }
-        const defaultSlot = SAVED_LOCATIONS[targetLoc]?.defaultSlot || (targetLoc === 'office' ? '1:00 PM – 1:30 PM' : '1:30 PM – 2:00 PM');
+        const defaultSlot = activeLocations[targetLoc]?.defaultSlot || (targetLoc === 'office' ? '1:00 PM – 1:30 PM' : '1:30 PM – 2:00 PM');
         return {
           ...day,
           location: targetLoc,
@@ -902,7 +905,7 @@ export default function AutoPilotTab({
                           ) : (
                             <Building2 className="w-3.5 h-3.5 text-orange-600 group-hover:scale-110 transition-transform" />
                           )}
-                          <span className="font-extrabold">{isHome ? 'Green Valley Apt' : 'Cyber Park Tower B'}</span>
+                          <span className="font-extrabold">{isHome ? (activeLocations.home?.name || 'Green Valley Apt') : (activeLocations.office?.name || 'Cyber Park Tower B')}</span>
                         </span>
 
                         {/* Interactive Flip Tag with icon */}
@@ -1566,7 +1569,7 @@ export default function AutoPilotTab({
                   >
                     <Home className={`w-4 h-4 shrink-0 ${playlist[selectedCalendarDay].location === 'home' ? 'text-emerald-600' : 'text-slate-400'}`} />
                     <div className="min-w-0">
-                      <span className="text-[11px] block truncate font-bold">🏠 Green Valley</span>
+                      <span className="text-[11px] block truncate font-bold">🏠 {activeLocations.home?.name || 'Green Valley'}</span>
                       <span className="text-[9px] text-slate-500 block">Residence</span>
                     </div>
                   </button>
@@ -1577,7 +1580,7 @@ export default function AutoPilotTab({
                   <div className="flex items-center justify-between text-[9px] font-extrabold">
                     <span className="flex items-center text-emerald-800">
                       <ShieldCheck className="w-3 h-3 mr-1 text-emerald-600" />
-                      Cluster Geofence: 4.2 km (≤ 7 km Limit)
+                      Cluster Geofence: {activeLocations.home?.distanceKm || 4.2} km (≤ 7 km Limit)
                     </span>
                     <span className="text-emerald-700 bg-emerald-100/90 px-1.5 py-0.2 rounded font-bold">
                       ₹0 Delivery

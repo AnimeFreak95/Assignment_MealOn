@@ -15,7 +15,7 @@ import CutOffTab from './tabs/CutOffTab';
 import WalletTab from './tabs/WalletTab';
 import StreaksTab from './tabs/StreaksTab';
 
-import { INITIAL_PLAYLIST } from './data/mockData';
+import { INITIAL_PLAYLIST, SAVED_LOCATIONS } from './data/mockData';
 import {
   Sparkles,
   MapPin,
@@ -36,6 +36,7 @@ export default function App() {
   const [credits, setCredits] = useState(14);
   const [paymentMode, setPaymentMode] = useState('prepaid'); // 'prepaid' | 'mandate'
   const [playlist, setPlaylist] = useState(INITIAL_PLAYLIST);
+  const [savedLocations, setSavedLocations] = useState(SAVED_LOCATIONS);
   const [toast, setToast] = useState(null);
   const [showIntroSheet, setShowIntroSheet] = useState(false);
 
@@ -77,13 +78,16 @@ export default function App() {
     if (passData.paymentOption) {
       setPaymentMode(passData.paymentOption === 'mandate' ? 'mandate' : 'prepaid');
     }
+    if (passData.locations) {
+      setSavedLocations(passData.locations);
+    }
     setAppMode('dashboard');
     setActiveTab('autopilot');
     triggerConfetti();
     playCelebrationFanfare();
     showToast(
-      'Pass Activated! 🎉',
-      `${passData.paymentOption === 'mandate' ? `${passData.meals} meals activated` : `${passData.meals} Meal Credits loaded`} (${passData.validityDays}d buffer). Now curating your playlist!`,
+      'Pass & Hubs Activated! 🎉',
+      `${passData.paymentOption === 'mandate' ? `${passData.meals} meals activated` : `${passData.meals} Meal Credits loaded`} (${passData.validityDays}d buffer) • Locations verified within kitchen cluster.`,
       'success'
     );
   };
@@ -92,6 +96,7 @@ export default function App() {
     setCredits(14);
     setPaymentMode('prepaid');
     setPlaylist(INITIAL_PLAYLIST);
+    setSavedLocations(SAVED_LOCATIONS);
     setActiveTab('autopilot');
     setAppMode('dashboard');
     setShowIntroSheet(false);
@@ -336,6 +341,7 @@ export default function App() {
                     triggerConfetti={triggerConfetti}
                     onNotify={showToast}
                     paymentMode={paymentMode}
+                    savedLocations={savedLocations}
                   />
                 )}
 
