@@ -349,6 +349,7 @@ export default function App() {
                     triggerConfetti={triggerConfetti}
                     triggerFloatingCredit={triggerFloatingCredit}
                     paymentMode={paymentMode}
+                    onNavigateTab={setActiveTab}
                   />
                 )}
 

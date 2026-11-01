@@ -14,7 +14,9 @@ import {
   HelpCircle,
   Sparkles,
   Leaf,
-  ChefHat
+  ChefHat,
+  Wallet,
+  X
 } from 'lucide-react';
 import { CUTOFF_ALTERNATIVES } from '../data/mockData';
 import { playPop, playSuccessChime, playShieldBankChime } from '../utils/audioDelight';
@@ -27,7 +29,8 @@ export default function CutOffTab({
   onNotify,
   triggerConfetti,
   triggerFloatingCredit,
-  paymentMode = 'prepaid'
+  paymentMode = 'prepaid',
+  onNavigateTab
 }) {
   const [viewMode, setViewMode] = useState('inapp'); // 'inapp' | 'whatsapp'
   const [demoTimePreset, setDemoTimePreset] = useState('open'); // 'open' | 'urgent' | 'locked'
@@ -113,14 +116,28 @@ export default function CutOffTab({
     }
   };
 
-  // Step 1: Open Skip Confirmation Bar instead of 1-click skipping
+  // State for undo toast
+  const [showUndoToast, setShowUndoToast] = useState(false);
+
+  // Restore lunch (Undo skip)
+  const handleUndoSkip = () => {
+    if (secondsRemaining === 0) return; // Undo not allowed after 10 PM lock
+    playSuccessChime();
+    setTomorrowStatus('confirmed');
+    setShowUndoToast(false);
+    if (paymentMode === 'prepaid') {
+      setCredits((prev) => Math.max(0, prev - 1));
+    }
+  };
+
+  // Step 1: Open Skip Confirmation Sheet
   const handleInitiateSkip = () => {
     playPop();
     setShowSwapCarousel(false);
     setShowSkipConfirmation(true);
   };
 
-  // Step 2: Finalize Skip with explicit user confirmation
+  // Step 2: Finalize Skip with user confirmation
   const handleConfirmSkip = () => {
     playShieldBankChime();
     setTomorrowStatus('skipped');
@@ -128,23 +145,9 @@ export default function CutOffTab({
     if (paymentMode === 'prepaid') {
       setCredits((prev) => prev + 1);
       if (triggerFloatingCredit) triggerFloatingCredit();
-      if (onNotify) {
-        onNotify(
-          '₹190 Banked to Balance! 🛡️',
-          'Prepaid meal preserved in MealsOn Balance • Valid 60 days on renewal.',
-          'warning'
-        );
-      }
-    } else {
-      // Mandate mode: ₹0 charged, 10 PM auto-debit canceled
-      if (onNotify) {
-        onNotify(
-          '10 PM Debit Canceled! ⚡',
-          '₹0 charged to your bank. No wallet credit issued since payment is per-meal.',
-          'info'
-        );
-      }
     }
+    // Show Toast with Undo
+    setShowUndoToast(true);
   };
 
   return (
@@ -332,8 +335,8 @@ export default function CutOffTab({
                 <RefreshCw className="w-2.5 h-2.5 mr-0.5" /> Swapped
               </span>
             ) : tomorrowStatus === 'skipped' ? (
-              <span className="text-[9px] font-extrabold bg-slate-600 text-white px-2 py-0.5 rounded-full flex items-center">
-                <SkipForward className="w-2.5 h-2.5 mr-0.5" /> Skipped
+              <span className="text-[9px] font-extrabold bg-slate-800 text-white px-2 py-0.5 rounded-full flex items-center shadow-2xs">
+                Banked ₹{tomorrowMeal.price}
               </span>
             ) : (
               <span className="text-[9px] font-extrabold bg-[#10B981] text-white px-2 py-0.5 rounded-full flex items-center shadow-2xs">
@@ -423,117 +426,23 @@ export default function CutOffTab({
           </div>
         )}
 
-        {/* Interactive Confirmation Bar (Transparent Pre-Skip Breakdown) */}
-        {showSkipConfirmation && tomorrowStatus !== 'skipped' && (
-          <div className="bg-gradient-to-br from-amber-50 via-orange-50 to-amber-100/70 border-2 border-amber-400/80 rounded-2xl p-3 space-y-2.5 shadow-md animate-in fade-in slide-in-from-top-2 duration-200">
-            {/* Header with Title and Dismiss */}
-            <div className="flex items-center justify-between pb-1.5 border-b border-amber-200/70">
-              <div className="flex items-center space-x-1.5">
-                <span className="text-sm">🛡️</span>
-                <span className="text-xs font-black text-amber-950">
-                  Confirm Skip: {tomorrowMeal.name}
-                </span>
-              </div>
-              <button
-                onClick={() => {
-                  playPop();
-                  setShowSkipConfirmation(false);
-                }}
-                className="text-[10px] font-bold text-slate-500 hover:text-slate-800 bg-white/70 hover:bg-white rounded-md px-1.5 py-0.5 border border-slate-200 transition-colors"
-              >
-                ✕ Cancel
-              </button>
-            </div>
-
-            {/* Information Grid: What happens when you skip */}
-            <div className="grid grid-cols-2 gap-2 text-[10px]">
-              <div className="bg-white/90 rounded-xl p-2 border border-amber-200/60 shadow-2xs">
-                <span className="font-extrabold text-amber-900 block flex items-center">
-                  💵 Financial Action
-                </span>
-                <p className="text-slate-700 mt-0.5 leading-snug">
-                  {paymentMode === 'prepaid' ? (
-                    <>
-                      <strong>+₹190</strong> added to MealsOn Balance immediately.
-                    </>
-                  ) : (
-                    <>
-                      <strong>₹0 Charged</strong>. 10 PM UPI debit is canceled.
-                    </>
-                  )}
-                </p>
-              </div>
-
-              <div className="bg-white/90 rounded-xl p-2 border border-amber-200/60 shadow-2xs">
-                <span className="font-extrabold text-amber-900 block flex items-center">
-                  ⏳ Cut-Off Deadline
-                </span>
-                <p className="text-slate-700 mt-0.5 leading-snug">
-                  Locks at <strong>10:00 PM</strong> tonight. Kitchen prep starts at 6 AM.
-                </p>
-              </div>
-
-              <div className="bg-white/90 rounded-xl p-2 border border-amber-200/60 shadow-2xs">
-                <span className="font-extrabold text-amber-900 block flex items-center">
-                  🔄 Rollover Policy
-                </span>
-                <p className="text-slate-700 mt-0.5 leading-snug">
-                  {paymentMode === 'prepaid'
-                    ? 'Valid 60 days on pass renewal (up to 25% off invoice).'
-                    : 'No credit balance since payment is per-meal.'}
-                </p>
-              </div>
-
-              <div className="bg-white/90 rounded-xl p-2 border border-amber-200/60 shadow-2xs">
-                <span className="font-extrabold text-amber-900 block flex items-center">
-                  🔁 Can I Undo?
-                </span>
-                <p className="text-slate-700 mt-0.5 leading-snug">
-                  You can restore or swap until <strong>10:00 PM</strong> tonight.
-                </p>
-              </div>
-            </div>
-
-            {/* Action Bar inside Confirmation */}
-            <div className="flex items-center space-x-2 pt-0.5">
-              <button
-                onClick={() => {
-                  playPop();
-                  setShowSkipConfirmation(false);
-                }}
-                className="flex-1 py-2 rounded-xl border border-slate-300 bg-white text-slate-700 font-bold text-xs hover:bg-slate-50 transition-all active:scale-[0.97]"
-              >
-                Keep My Lunch
-              </button>
-
-              <button
-                onClick={handleConfirmSkip}
-                className="flex-1 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-black text-xs shadow-sm transition-all active:scale-[0.97] flex items-center justify-center space-x-1 cta-bounce"
-              >
-                <SkipForward className="w-3.5 h-3.5" />
-                <span>
-                  {paymentMode === 'prepaid' ? 'Confirm & Bank ₹190' : 'Confirm & Pay ₹0'}
-                </span>
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Skipped Banner */}
+        {/* Skipped Status Banner */}
         {tomorrowStatus === 'skipped' && (
-          <div className={`rounded-xl p-2.5 text-xs border animate-in fade-in duration-200 ${
-            paymentMode === 'prepaid'
-              ? 'bg-[#ECFDF5] border-[#10B981] text-emerald-900'
-              : 'bg-blue-50 border-blue-300 text-blue-900'
-          }`}>
-            <div className="flex items-center space-x-1.5 font-bold">
-              <ShieldCheck className={`w-4 h-4 shrink-0 ${paymentMode === 'prepaid' ? 'text-[#10B981]' : 'text-blue-600'}`} />
-              <span>
-                {paymentMode === 'prepaid'
-                  ? '₹190 Saved in MealsOn Balance • Valid 60 days on pass renewal'
-                  : '10:00 PM Auto-Debit Canceled • ₹0 charged to bank (No credit needed)'}
+          <div className="bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 animate-in fade-in duration-200 flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+              <span className="font-medium text-slate-700">
+                ₹{tomorrowMeal.price} added to balance
               </span>
             </div>
+            {secondsRemaining > 0 && (
+              <button
+                onClick={handleUndoSkip}
+                className="text-[11px] font-bold text-[#FF5A1F] hover:underline px-2 py-0.5 active:scale-95 transition-all"
+              >
+                Undo
+              </button>
+            )}
           </div>
         )}
 
@@ -610,6 +519,129 @@ export default function CutOffTab({
           </div>
         )}
       </div>
+      {/* D-UX7: Short Bottom Sheet Skip Confirmation */}
+      {showSkipConfirmation && tomorrowStatus !== 'skipped' && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="skip-sheet-title"
+          className="fixed inset-0 z-50 flex items-end justify-center bg-slate-900/60 backdrop-blur-2xs transition-all"
+          onClick={() => {
+            playPop();
+            setShowSkipConfirmation(false);
+          }}
+        >
+          <div
+            className="w-full max-w-[420px] bg-white rounded-t-3xl p-5 shadow-2xl border-t border-slate-200 space-y-4 pb-[calc(1.25rem+env(safe-area-inset-bottom,0px))] animate-in slide-in-from-bottom duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* 1. Header row */}
+            <div className="flex items-center justify-between">
+              <h3 id="skip-sheet-title" className="text-base font-bold text-slate-900">
+                Skip tomorrow's lunch?
+              </h3>
+              <button
+                type="button"
+                aria-label="Close"
+                onClick={() => {
+                  playPop();
+                  setShowSkipConfirmation(false);
+                }}
+                className="w-11 h-11 flex items-center justify-center text-slate-400 hover:text-slate-700 rounded-full hover:bg-slate-100 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* 2. Meal row */}
+            <div className="bg-slate-50 border border-slate-200/80 rounded-xl px-3.5 py-2.5 flex items-center justify-between">
+              <span className="text-xs font-bold text-slate-800 truncate pr-2">
+                {tomorrowMeal.name}
+              </span>
+              <span className="text-xs font-extrabold text-[#C2410C] shrink-0">
+                ₹{tomorrowMeal.price}
+              </span>
+            </div>
+
+            {/* 3. Outcome & Undo Lines */}
+            <div className="space-y-2 text-xs">
+              <div className="flex items-center space-x-2 text-slate-800">
+                <Wallet className="w-4 h-4 text-[#047857] shrink-0" />
+                <span className="font-medium">
+                  ₹{tomorrowMeal.price} goes to your MealsOn balance right away.
+                </span>
+              </div>
+
+              <div className="flex items-center space-x-2 text-slate-500">
+                <Clock className="w-4 h-4 text-slate-400 shrink-0" />
+                <span>You can undo this until 10 PM tonight.</span>
+              </div>
+            </div>
+
+            {/* 5. Primary button & 6. Text button */}
+            <div className="space-y-2 pt-1">
+              <button
+                type="button"
+                onClick={handleConfirmSkip}
+                className="w-full min-h-[48px] py-3 px-4 rounded-xl bg-[#C2410C] hover:bg-[#9A3412] text-white font-bold text-sm shadow-md transition-all active:scale-[0.98] flex items-center justify-center cta-bounce"
+              >
+                Skip and bank ₹{tomorrowMeal.price}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  playPop();
+                  setShowSkipConfirmation(false);
+                }}
+                className="w-full min-h-[44px] py-2 text-center text-xs font-semibold text-slate-600 hover:text-slate-900 transition-colors"
+              >
+                Keep my lunch
+              </button>
+            </div>
+
+            {/* 7. Optional rollover link */}
+            {onNavigateTab && (
+              <div className="text-center pt-0.5">
+                <button
+                  type="button"
+                  onClick={() => {
+                    playPop();
+                    setShowSkipConfirmation(false);
+                    onNavigateTab('wallet');
+                  }}
+                  className="text-[11px] font-medium text-slate-400 hover:text-slate-700 underline"
+                >
+                  How rollover works
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* D-UX7: Toast Notification with Undo */}
+      {showUndoToast && (
+        <div
+          role="status"
+          className="fixed bottom-20 left-4 right-4 z-50 max-w-[390px] mx-auto animate-in slide-in-from-bottom-2 duration-200"
+        >
+          <div className="bg-slate-900 text-white px-4 py-3 rounded-2xl shadow-xl flex items-center justify-between border border-slate-700">
+            <span className="text-xs font-semibold">
+              ₹{tomorrowMeal.price} added to balance
+            </span>
+            {secondsRemaining > 0 && (
+              <button
+                type="button"
+                onClick={handleUndoSkip}
+                className="text-xs font-extrabold text-[#FF5A1F] hover:text-[#FFA07A] ml-3 px-2 py-1 rounded transition-colors active:scale-95"
+              >
+                Undo
+              </button>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
