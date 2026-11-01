@@ -655,6 +655,7 @@ export default function AutoPilotTab({
                   <textarea
                     value={promptText}
                     onChange={(e) => setPromptText(e.target.value)}
+                    onFocus={(e) => e.target.scrollIntoView({ behavior: 'smooth', block: 'center' })}
                     rows={2}
                     className="w-full text-xs text-slate-800 bg-transparent focus:outline-none resize-none font-medium leading-relaxed placeholder-slate-400"
                     placeholder="Describe your dietary goals..."
