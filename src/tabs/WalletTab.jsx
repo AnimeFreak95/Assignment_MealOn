@@ -54,7 +54,7 @@ export default function WalletTab({ credits, setCredits, onNotify, triggerConfet
         <div className="flex items-center justify-between mb-2">
           <span className="text-[10px] font-extrabold uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 px-2 py-0.5 rounded-full flex items-center shadow-xs">
             <ShieldCheck className="w-3 h-3 mr-1 text-[#10B981]" />
-            45-Day Flexible Pass
+            Flexible Pass Guarantee
           </span>
 
           <span className="text-[10px] font-medium text-emerald-200/70">
@@ -65,10 +65,10 @@ export default function WalletTab({ credits, setCredits, onNotify, triggerConfet
         <div className="flex items-center justify-between">
           <div>
             <div className="text-[10px] font-semibold text-emerald-200/90 uppercase tracking-tight">
-              Pause Shield Balance
+              MealsOn Balance (Remaining Meals)
             </div>
             <div className="text-3xl font-extrabold text-white tracking-tight mt-0.5">
-              {credits} <span className="text-sm font-semibold text-emerald-300">Credits</span>
+              {credits} <span className="text-sm font-semibold text-emerald-300">Meals</span>
             </div>
             <p className="text-[11px] text-slate-300 mt-0.5">
               Worth <strong>₹{credits * 190}</strong> in meal rollovers
@@ -296,8 +296,8 @@ export default function WalletTab({ credits, setCredits, onNotify, triggerConfet
           {expandedFaq && (
             <div className="grid grid-cols-2 gap-1.5 pt-1 text-[10px] animate-in fade-in duration-150">
               <div className="bg-slate-50 p-2 rounded-lg border border-slate-200 text-slate-700">
-                <span className="font-bold text-emerald-800 block">✓ 45-Day Window</span>
-                Banked credits never expire during your pass.
+                <span className="font-bold text-emerald-800 block">✓ Dynamic Buffer Window</span>
+                Banked meals never expire during your pass.
               </div>
               <div className="bg-slate-50 p-2 rounded-lg border border-slate-200 text-slate-700">
                 <span className="font-bold text-emerald-800 block">✓ Instant Pause</span>

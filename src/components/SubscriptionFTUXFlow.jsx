@@ -766,7 +766,7 @@ export default function SubscriptionFTUXFlow({ onCompleteActivation, onOpenIntro
             }`}
           >
             {paymentOption === 'prepaid' && (
-              <span>Pay ₹{netPrice} & Claim +₹{bonusCredits} Credits →</span>
+              <span>Pay ₹{netPrice} & Claim +₹{bonusCredits} Bonus Cash →</span>
             )}
             {paymentOption === 'mandate' && (
               <span>Setup 10 PM UPI Mandate (₹0 Today) →</span>

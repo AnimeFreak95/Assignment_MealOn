@@ -54,12 +54,12 @@ export default function Header({
         {/* Pause Shield: XX Credits */}
         <button
           onClick={() => onNavigateTab('wallet')}
-          title="Open Pause Shield Wallet"
+          title="Open MealsOn Balance"
           className="flex items-center space-x-1 bg-[#ECFDF5] hover:bg-[#D1FAE5] text-[#10B981] px-2 py-1 rounded-full border border-[#10B981]/25 transition-all shadow-xs group"
         >
           <ShieldCheck className="w-3 h-3 text-[#10B981] group-hover:scale-110 transition-transform" />
           <span className="text-[10px] font-bold tracking-tight">
-            Shield: <strong className="font-extrabold text-[#065F46]">{credits}</strong>
+            Meals: <strong className="font-extrabold text-[#065F46]">{credits}</strong>
           </span>
         </button>
 
