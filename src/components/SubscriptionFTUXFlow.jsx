@@ -16,7 +16,8 @@ import {
   Calendar,
   Lock,
   ArrowRight,
-  Receipt
+  Receipt,
+  Play
 } from 'lucide-react';
 import { playPop, playSuccessChime, playCelebrationFanfare } from '../utils/audioDelight';
 
@@ -84,7 +85,7 @@ const DURATIONS = [
   }
 ];
 
-export default function SubscriptionFTUXFlow({ onCompleteActivation, onClose }) {
+export default function SubscriptionFTUXFlow({ onCompleteActivation, onOpenIntroSheet, onClose }) {
   const [stage, setStage] = useState(1);
   const [showFtuxInfo, setShowFtuxInfo] = useState(false);
 
@@ -173,8 +174,21 @@ export default function SubscriptionFTUXFlow({ onCompleteActivation, onClose }) 
           </div>
         </div>
 
-        {/* Right FAQ Link */}
-        <div className="flex items-center space-x-2">
+        {/* Right FAQ & 15s Story Link */}
+        <div className="flex items-center space-x-1.5">
+          {onOpenIntroSheet && (
+            <button
+              onClick={() => {
+                playPop();
+                onOpenIntroSheet();
+              }}
+              className="flex items-center space-x-1 text-[10px] font-bold text-amber-900 bg-amber-50 hover:bg-amber-100 px-2 py-1 rounded-full border border-amber-200 transition-colors"
+            >
+              <Play className="w-2.5 h-2.5 fill-current text-amber-600" />
+              <span>15s Story</span>
+            </button>
+          )}
+
           <button
             onClick={() => {
               playPop();

@@ -1,12 +1,13 @@
 import React from 'react';
-import { ShieldCheck, Bell, Sparkles, Ticket } from 'lucide-react';
+import { ShieldCheck, Bell, Sparkles, Ticket, Play } from 'lucide-react';
 
 export default function Header({
   credits,
   onNavigateTab,
   notificationCount = 1,
   onBellClick,
-  onOpenFtux
+  onOpenFtux,
+  onOpenIntroSheet
 }) {
   return (
     <header className="px-3.5 py-2.5 bg-white border-b border-slate-200/80 sticky top-[28px] z-30 flex items-center justify-between shadow-xs">
@@ -26,8 +27,19 @@ export default function Header({
         </div>
       </div>
 
-      {/* Right Controls: Pass FTUX + Pause Shield Pill + Bell */}
+      {/* Right Controls: Story Reel + Pass FTUX + Pause Shield Pill + Bell */}
       <div className="flex items-center space-x-1.5">
+        {onOpenIntroSheet && (
+          <button
+            onClick={onOpenIntroSheet}
+            title="Watch 15s Story / Video Preview"
+            className="flex items-center space-x-1 bg-amber-50 hover:bg-amber-100 text-amber-900 px-2 py-1 rounded-full border border-amber-200 transition-all text-[10px] font-bold"
+          >
+            <Play className="w-2.5 h-2.5 fill-current text-amber-600" />
+            <span>Story</span>
+          </button>
+        )}
+
         {onOpenFtux && (
           <button
             onClick={onOpenFtux}

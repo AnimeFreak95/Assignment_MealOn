@@ -275,6 +275,7 @@ export default function App() {
             <main className="flex-1 overflow-y-auto bg-[#F8FAFC] hide-scrollbar relative">
               <SubscriptionFTUXFlow
                 onCompleteActivation={handleCompleteActivation}
+                onOpenIntroSheet={() => setShowIntroSheet(true)}
                 onClose={() => setAppMode('dashboard')}
               />
             </main>
@@ -290,6 +291,7 @@ export default function App() {
                 notificationCount={1}
                 onBellClick={() => setActiveTab('cutoff')}
                 onOpenFtux={() => setAppMode('ftux')}
+                onOpenIntroSheet={() => setShowIntroSheet(true)}
               />
 
               <main className="flex-1 overflow-y-auto bg-[#F8FAFC] hide-scrollbar relative">
