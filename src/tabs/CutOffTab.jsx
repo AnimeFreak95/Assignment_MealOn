@@ -275,7 +275,7 @@ export default function CutOffTab({
                   className="py-2.5 px-2 min-h-[44px] rounded-lg border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-900 font-bold text-[11px] transition-all active:scale-95 text-center flex items-center justify-center space-x-1"
                 >
                   <span>⏭️</span>
-                  <span>{paymentMode === 'prepaid' ? 'Skip (Preserve)' : 'Skip (₹0)'}</span>
+                  <span>{paymentMode === 'prepaid' ? 'Skip & Bank' : 'Skip (₹0)'}</span>
                 </button>
               </div>
               <p className="text-[9px] text-slate-500 text-center italic">
@@ -423,7 +423,7 @@ export default function CutOffTab({
                 }`}
               >
                 <SkipForward className="w-3.5 h-3.5" />
-                <span>{tomorrowStatus === 'skipped' ? 'Meal Skipped' : paymentMode === 'prepaid' ? 'Skip (Preserve)' : 'Skip & Pay ₹0'}</span>
+                <span>{tomorrowStatus === 'skipped' ? 'Meal Skipped' : paymentMode === 'prepaid' ? 'Skip & Bank' : 'Skip & Pay ₹0'}</span>
               </button>
             </div>
 
