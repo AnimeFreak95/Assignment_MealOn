@@ -548,7 +548,7 @@ export default function AutoPilotTab({
         </div>
 
         {viewLayout === 'cards' ? (
-          <div className="space-y-3.5">
+          <div className="space-y-3.5 pb-28">
             {/* Interactive Mini Week Date Strip */}
             <div className="bg-white rounded-2xl p-2 border border-slate-200/90 shadow-2xs flex items-center justify-between gap-1 overflow-x-auto hide-scrollbar">
               {playlist.map((dayItem, idx) => {
@@ -1153,7 +1153,7 @@ export default function AutoPilotTab({
         /* ======================================================== */
         /* 📅 FULL MULTI-WEEK CALENDAR VIEW & HYBRID ROUTING HUB     */
         /* ======================================================== */
-        <div className="space-y-3.5 animate-in fade-in duration-200">
+        <div className="space-y-3.5 pb-28 animate-in fade-in duration-200">
           {/* 1. Pass Runway & Buffer Horizon Banner */}
           <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl p-4 text-white shadow-lg space-y-3">
             <div className="flex items-center justify-between">
@@ -1942,7 +1942,7 @@ export default function AutoPilotTab({
       })()}
 
       {/* Sticky Bottom Footer Docked Directly Above BottomNav */}
-      <div className="sticky bottom-0 -mx-4 mt-6 bg-white/95 backdrop-blur-md border-t border-slate-200/90 p-3 px-4 shadow-[0_-4px_16px_rgba(0,0,0,0.06)] z-20">
+      <div className="sticky bottom-0 -mx-4 mt-6 bg-white/95 backdrop-blur-md border-t border-slate-200/90 p-3 px-4 pb-4 sm:pb-3 pb-[max(0.75rem,env(safe-area-inset-bottom,12px))] shadow-[0_-4px_20px_rgba(0,0,0,0.08)] z-20">
         <div className="flex items-center justify-between mb-2">
           <div className="text-[11px] font-semibold text-slate-600">
             {activeMealsCount} of 5 Lunches • Avg <strong className="text-slate-900 font-bold">{avgProtein}g</strong> Protein

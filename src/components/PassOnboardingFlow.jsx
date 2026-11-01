@@ -279,7 +279,7 @@ export default function SubscriptionFTUXFlow({ onCompleteActivation, onOpenIntro
 
       {/* STAGE 1: PASS CONFIGURATOR */}
       {stage === 1 && (
-        <div className="px-4 py-3.5 space-y-4 animate-in fade-in duration-200">
+        <div className="px-4 py-3.5 space-y-4 pb-28 animate-in fade-in duration-200">
           {/* Summary Card (replaces dark hero) */}
           <div className="bg-white rounded-2xl p-3.5 border border-slate-200 shadow-xs space-y-2.5">
             <div className="flex items-center justify-between">
@@ -575,15 +575,15 @@ export default function SubscriptionFTUXFlow({ onCompleteActivation, onOpenIntro
 
       {/* STAGE 2: PAYMENT SELECTION (VISUAL SOLUTIONS, LESS TEXT) */}
       {stage === 2 && (
-        <div className="px-4 py-3 space-y-3 animate-in fade-in duration-200">
+        <div className="px-4 py-3 space-y-3 pb-28 animate-in fade-in duration-200">
           {/* Summary Strip */}
           <div className="bg-white rounded-2xl p-2.5 px-3 border border-slate-200 flex items-center justify-between shadow-xs">
             <div>
               <div className="text-xs font-extrabold text-slate-900">
-                {selectedDuration} Meals • {tierObj.label} (₹{selectedTier}/d Cap)
+                {selectedDuration} Meals • {tierObj.label} (₹{formatINR(selectedTier)}/meal)
               </div>
               <span className="text-[10px] text-emerald-700 font-bold">
-                {durationObj.validityDays} Calendar Days Buffer
+                valid for {durationObj.validityDays} days
               </span>
             </div>
 
@@ -629,14 +629,14 @@ export default function SubscriptionFTUXFlow({ onCompleteActivation, onOpenIntro
               </div>
 
               <span className="text-xs font-extrabold text-slate-900 tabular-nums">
-                ₹{netPrice}
+                ₹{formatINR(netPrice)}
               </span>
             </div>
 
             {/* Visual 3-Pill Benefit Row (No Text Blocks!) */}
             <div className="grid grid-cols-3 gap-1 text-[9px] text-center font-bold">
               <div className="bg-white p-1.5 rounded-lg border border-[#10B981]/30 text-emerald-900">
-                🎁 +₹{bonusCredits} Cash
+                🎁 +₹{formatINR(bonusCredits)} Cash
               </div>
               <div className="bg-white p-1.5 rounded-lg border border-[#10B981]/30 text-emerald-900">
                 🛡️ {durationObj.validityDays}d Pause Safe
@@ -706,7 +706,7 @@ export default function SubscriptionFTUXFlow({ onCompleteActivation, onOpenIntro
                 </div>
                 <div className="bg-indigo-50/80 p-1.5 rounded border border-indigo-100">
                   <span className="block font-bold text-indigo-900">2. 10 PM Lock</span>
-                  ₹{effectiveMealPrice} deducted
+                  ₹{formatINR(effectiveMealPrice)} deducted
                 </div>
                 <div className="bg-emerald-50/80 p-1.5 rounded border border-emerald-100">
                   <span className="block font-bold text-emerald-900">3. Skip Free</span>
@@ -782,7 +782,7 @@ export default function SubscriptionFTUXFlow({ onCompleteActivation, onOpenIntro
 
       {/* STAGE 3: LOCATION HUBS & HYBRID GEOFENCE SETUP */}
       {stage === 3 && (
-        <div className="px-4 py-3 space-y-3 animate-in fade-in duration-200">
+        <div className="px-4 py-3 space-y-3 pb-28 animate-in fade-in duration-200">
           {/* A. Compact Glanceable Hero */}
           <div className="bg-gradient-to-r from-slate-900 to-slate-800 rounded-2xl p-3 text-white flex items-center justify-between shadow-xs border border-slate-700/80">
             <div>
@@ -980,7 +980,7 @@ export default function SubscriptionFTUXFlow({ onCompleteActivation, onOpenIntro
       )}
 
       {/* STICKY BOTTOM CHECKOUT CTA DOCKED AT BOTTOM OF PHONE */}
-      <div className="sticky bottom-0 left-0 right-0 w-full bg-white/95 backdrop-blur-md border-t border-slate-200 p-3 px-4 shadow-[0_-4px_16px_rgba(0,0,0,0.06)] z-20 mt-auto">
+      <div className="sticky bottom-0 left-0 right-0 w-full bg-white/95 backdrop-blur-md border-t border-slate-200 p-3 px-4 pb-6 sm:pb-3.5 pb-[max(1.5rem,env(safe-area-inset-bottom,20px))] shadow-[0_-4px_16px_rgba(0,0,0,0.06)] z-20 mt-auto">
         {stage === 1 ? (
           <div className="space-y-1.5">
             {/* Live summary line */}

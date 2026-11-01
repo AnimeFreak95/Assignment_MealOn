@@ -10,7 +10,7 @@ const TABS = [
 
 export default function BottomNav({ activeTab, setActiveTab }) {
   return (
-    <nav className="bg-white/95 backdrop-blur-md border-t border-slate-200/90 px-2 py-1 pb-[max(0.375rem,env(safe-area-inset-bottom))] sticky bottom-0 z-30 flex items-center justify-between shadow-[0_-4px_12px_rgba(0,0,0,0.04)]">
+    <nav className="bg-white/95 backdrop-blur-md border-t border-slate-200/90 px-2 py-1 pb-2.5 sm:pb-1.5 pb-[max(0.625rem,env(safe-area-inset-bottom,10px))] sticky bottom-0 z-30 flex items-center justify-between shadow-[0_-4px_12px_rgba(0,0,0,0.04)]">
       {TABS.map((tab) => {
         const Icon = tab.icon;
         const isActive = activeTab === tab.id;

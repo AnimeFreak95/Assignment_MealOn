@@ -649,7 +649,7 @@ export default function CutOffTab({
       {showUndoToast && (
         <div
           role="status"
-          className="fixed bottom-20 left-4 right-4 z-50 max-w-[390px] mx-auto animate-in slide-in-from-bottom-2 duration-200"
+          className="fixed bottom-[calc(5rem+env(safe-area-inset-bottom,0px))] left-4 right-4 z-50 max-w-[390px] mx-auto animate-in slide-in-from-bottom-2 duration-200"
         >
           <div className="bg-slate-900 text-white px-4 py-3 rounded-2xl shadow-xl flex items-center justify-between border border-slate-700">
             <span className="text-xs font-semibold">
