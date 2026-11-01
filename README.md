@@ -25,7 +25,7 @@ Subscription and scheduled meal programs typically face three major failure poin
 - **Live Savings Receipt:** Dashed receipt card computing base value, progressive pass discount, waived delivery fees (₹40/meal saved), net pass price, and instant +5% prepaid bonus callout.
 
 ### 2. Stage 2: Conversion-Optimized Checkout
-- **Upfront Prepaid Pass (Hero Focus):** +5% bonus wallet credits, Pause Shield protection, quick GPay/PhonePe/Card pills.
+- **Upfront Prepaid Pass (Hero Focus):** +5% bonus wallet meals, Pause Shield protection, quick GPay/PhonePe/Card pills.
 - **UPI AutoPay Mandate (10:00 PM Deduction):** ₹0 upfront today with explicit 10:00 PM night-before deduction transparency (₹0 deducted if skipped before 10 PM).
 - **Corporate Meal Cards (Pluxee / Sodexo / Zaggle):** Linked tax-free corporate food card balance with 1-tap full reload toggle.
 - **Success & Pass Activation Modal:** Confirms active pass and seamlessly transitions to the 5-day AI Auto-Pilot menu generator.
@@ -45,21 +45,21 @@ Subscription and scheduled meal programs typically face three major failure poin
 - **Dynamic Route Summary:** Live split bar showing office vs. home distribution.
 - **Smart Calendar Sync:** Auto-detects calendar events (e.g. *"WFH - Sprint Planning"*) on Thursday, automatically flipping delivery to Home with an "Undo" control.
 
-### 3. ⏰ 8 PM Smart Cut-Off Drawer (Tab 3: "8PM Cut-Off")
+### 3. ⏰ Smart Cut-Off Drawer & 10 PM Lock (Tab 3: "Cut-Off")
 - **Simulated Notification Channels:** Preview both **In-App Bottom Sheet** and **WhatsApp Interactive Message** views.
 - **Live Ticking 10 PM Countdown:** Real-time countdown timer to the kitchen lock-in cut-off.
 - **3 Core Action Paths:**
   1. `✅ Keep Meal (Confirmed)` — Locks meal with green confirmation badge and kitchen notification.
   2. `🔄 1-Tap Swap Dish` — Inline carousel with 3 equal-value replacement meals.
   3. `⏭️ Skip & Bank Credit` — 100% rollover protection: banks credit into the Pause Shield wallet and extends subscription end-date +1 day.
-- **Zero-Waste Kitchen FAQ:** Embedded breakdown explaining how 10 PM order locking eliminates 28% food waste and guarantees fresh cooking.
+- **Zero-Waste Kitchen FAQ:** Embedded breakdown explaining how 10 PM order locking reduces food waste from 28% to <3% and guarantees fresh cooking.
 
-### 4. 🛡️ Pause Shield & Rollover Credits Wallet (Tab 4: "Wallet")
+### 4. 🛡️ Pause Shield & Rollover Meals Wallet (Tab 4: "Wallet")
 - **Dynamic Credit Balance & SVG Progress Ring:** Live global credit count in an emerald gradient hero card.
 - **Dynamic Plan Horizon Timeline:** Visual status for Delivered, Shielded, Travel Pause, Scheduled, and +2 Free Rollover Days; its length tracks the selected pause.
 - **Simulate Travel / Vacation Pause Slider:** 1-to-5 day pause slider that shifts the timeline and extends subscription validity in real time.
 - **Rollover Control:** Choose automatic rollover or claim a skipped-meal credit manually from the cut-off screen.
-- **45-Day Flexible Pass Guarantee:** Explains zero-expiry penalty rules.
+- **Flexible Pass Buffer Guarantee:** Explains zero-expiry penalty rules.
 
 ### 5. 🌱 Loyalty & Habit Gamification: Healthy Week Tree & Impact Ledger (Tab: "Loyalty")
 - **Healthy Week Habit Tree:** 5-stage Mon–Fri living tree animation (Sprout 🌱 ➜ Leaves 🍃 ➜ Sapling 🌿 ➜ Canopy 🌸 ➜ Golden Bloom 🌳✨).
