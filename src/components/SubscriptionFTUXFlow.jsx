@@ -152,7 +152,7 @@ export default function SubscriptionFTUXFlow({ onCompleteActivation, onOpenIntro
   };
 
   return (
-    <div className="min-h-full bg-[#F8FAFC] flex flex-col relative text-slate-900 pb-28 font-sans selection:bg-[#FF5A1F] selection:text-white">
+    <div className="min-h-full bg-[#F8FAFC] flex flex-col relative text-slate-900 pb-0 font-sans selection:bg-[#FF5A1F] selection:text-white">
       {/* Top Header: Step Indicator & FAQ Toggle */}
       <div className="bg-white border-b border-slate-200/90 px-4 py-2.5 sticky top-0 z-30 flex items-center justify-between shadow-xs">
         <div className="flex items-center space-x-2">
@@ -744,12 +744,12 @@ export default function SubscriptionFTUXFlow({ onCompleteActivation, onOpenIntro
         </div>
       )}
 
-      {/* STICKY BOTTOM CHECKOUT CTA */}
-      <div className="fixed bottom-0 left-0 right-0 max-w-[420px] mx-auto bg-white/95 backdrop-blur-md border-t border-slate-200 p-2.5 px-4 shadow-[0_-6px_20px_rgba(0,0,0,0.06)] z-20">
+      {/* STICKY BOTTOM CHECKOUT CTA DOCKED AT BOTTOM OF PHONE */}
+      <div className="sticky bottom-0 left-0 right-0 w-full bg-white/95 backdrop-blur-md border-t border-slate-200 p-3 px-4 shadow-[0_-4px_16px_rgba(0,0,0,0.08)] z-20 mt-auto">
         {stage === 1 ? (
           <button
             onClick={handleGoToPayment}
-            className="w-full bg-[#FF5A1F] hover:bg-[#E04812] text-white font-bold text-xs py-2 px-4 rounded-xl shadow-md transition-all active:scale-[0.97] cta-bounce flex items-center justify-center space-x-1.5"
+            className="w-full bg-[#FF5A1F] hover:bg-[#E04812] text-white font-extrabold text-xs py-3 px-4 rounded-xl shadow-md transition-all active:scale-[0.98] cta-bounce flex items-center justify-center space-x-1.5 cursor-pointer"
           >
             <span>Continue to Payment • ₹{netPrice}</span>
             <ChevronRight className="w-4 h-4" />
@@ -757,7 +757,7 @@ export default function SubscriptionFTUXFlow({ onCompleteActivation, onOpenIntro
         ) : (
           <button
             onClick={handleCompleteCheckout}
-            className={`w-full text-white font-bold text-xs py-2 px-4 rounded-xl shadow-md transition-all active:scale-[0.97] cta-bounce flex items-center justify-center space-x-1.5 ${
+            className={`w-full text-white font-extrabold text-xs py-3 px-4 rounded-xl shadow-md transition-all active:scale-[0.98] cta-bounce flex items-center justify-center space-x-1.5 cursor-pointer ${
               paymentOption === 'prepaid'
                 ? 'bg-gradient-to-r from-[#10B981] to-[#059669]'
                 : paymentOption === 'mandate'

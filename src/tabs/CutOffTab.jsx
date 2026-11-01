@@ -111,7 +111,7 @@ export default function CutOffTab({
     if (onNotify) {
       onNotify(
         'Credit Banked! 🛡️',
-        '₹190 added to Pause Shield. Plan extended +1 day.',
+        '₹190 preserved in your MealsOn Balance • Valid across your 20-day pass buffer.',
         'warning'
       );
     }

@@ -198,9 +198,9 @@ export default function WalletTab({ credits, setCredits, onNotify, triggerConfet
           </div>
 
           <div className="bg-white p-2 rounded-lg border border-slate-200 text-xs flex items-center justify-between">
-            <span className="text-[10px] font-medium text-slate-600">Extended Until:</span>
+            <span className="text-[10px] font-medium text-slate-600">Buffer Valid Until:</span>
             <span className="text-xs font-extrabold text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded">
-              {extendedDateStr} (+{vacationDays}d)
+              {extendedDateStr} (+{vacationDays}d Pause Shield)
             </span>
           </div>
         </div>
