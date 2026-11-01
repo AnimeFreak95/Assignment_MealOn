@@ -36,7 +36,7 @@ export default function WalletTab({
     day: 'numeric'
   });
 
-  // Compute 60-day rolling cash expiry from Notion BID (Jan 1, 2027 based on Nov 2 base)
+  // Compute 60-day rolling cash expiry (Jan 1, 2027 based on Nov 2 base)
   const cashExpiryDate = new Date();
   cashExpiryDate.setDate(cashExpiryDate.getDate() + 60);
   const cashExpiryStr = cashExpiryDate.toLocaleDateString('en-US', {
@@ -183,7 +183,7 @@ export default function WalletTab({
         </div>
       </div>
 
-      {/* 3. WALLET CASH ACCOUNT: Verified 60-Day Rolling Expiry & 25% Burn Cap from BID */}
+      {/* 3. WALLET CASH ACCOUNT: 60-Day Rolling Expiry & 25% Offset Cap */}
       <div className="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-sm space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2.5">
@@ -211,7 +211,7 @@ export default function WalletTab({
           </button>
         </div>
 
-        {/* Accurate BID Expiry Notice (Correcting "Never Expires" to 60-Day Rolling Expiry) */}
+        {/* Wallet Cash Expiry Notice */}
         <div className="bg-amber-50/80 border border-amber-200/80 rounded-xl p-2.5 space-y-1.5 text-xs text-amber-950">
           <div className="flex items-center justify-between">
             <span className="font-extrabold text-[11px] text-amber-900 flex items-center gap-1">
@@ -223,7 +223,7 @@ export default function WalletTab({
             </span>
           </div>
           <p className="text-[10px] text-amber-800 leading-relaxed font-medium">
-            As per BID policy, wallet balance expires in <strong>60 days</strong> but resets upon pass renewal. Offsets up to <strong>25%</strong> of your next pass invoice.
+            Your wallet balance is valid for <strong>60 days</strong> and refreshes every time you renew your pass. Automatically discounts up to <strong>25%</strong> of your next pass.
           </p>
         </div>
 
@@ -241,7 +241,7 @@ export default function WalletTab({
         </div>
       </div>
 
-      {/* 4. HOW SKIPS & QUOTA WORK (Notion BID Section 2 & 6 Flow) */}
+      {/* 4. HOW SKIPS & QUOTA WORK */}
       <div className="bg-slate-50/80 rounded-2xl p-4 border border-slate-200/90 space-y-3">
         <h3 className="text-xs font-black text-slate-900 flex items-center gap-1.5">
           <BadgeCheck className="w-4 h-4 text-emerald-600" />
@@ -337,7 +337,7 @@ export default function WalletTab({
         </div>
       </div>
 
-      {/* 6. NOTION BID FACT-CHECK & FAQ ACCORDION */}
+      {/* 6. CONCISE FAQ ACCORDION */}
       <div className="bg-white rounded-2xl p-3.5 border border-slate-200/90 shadow-xs space-y-2">
         <button
           type="button"
@@ -349,7 +349,7 @@ export default function WalletTab({
         >
           <span className="flex items-center">
             <HelpCircle className="w-3.5 h-3.5 mr-1.5 text-slate-400" />
-            Wallet Policy & Fact-Check Details
+            Frequently Asked Questions
           </span>
           {expandedFaq ? <ChevronUp className="w-3.5 h-3.5 text-slate-400" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-400" />}
         </button>
@@ -357,27 +357,22 @@ export default function WalletTab({
         {expandedFaq && (
           <div className="pt-2.5 space-y-2.5 text-[10px] text-slate-600 animate-in fade-in duration-150 border-t border-slate-100">
             <div>
-              <strong className="text-slate-800 block text-[11px]">Why does wallet cash expire in 60 days?</strong>
+              <strong className="text-slate-800 block text-[11px]">How long is wallet cash valid?</strong>
               <p className="mt-0.5 text-slate-500 leading-relaxed">
-                As detailed in the BID, indefinite cash balances create balance sheet debt liabilities and RBI escrow issues. A 60-day rolling window provides maximum subscriber flexibility while resetting whenever you renew your pass.
+                Your wallet balance is active for 60 days. Every time you renew your pass, your entire balance refreshes for another 60 days.
               </p>
             </div>
             <div>
-              <strong className="text-slate-800 block text-[11px]">What is the 25% invoice offset cap?</strong>
+              <strong className="text-slate-800 block text-[11px]">How much can be used on the next pass?</strong>
               <p className="mt-0.5 text-slate-500 leading-relaxed">
-                To guarantee that kitchen procurement and delivery logistics remain funded, wallet cash can offset up to 25% of any renewal invoice. Remaining balance rolls forward into a fresh 60-day window.
+                Wallet cash automatically applies at checkout to cover up to 25% of your renewal total. Any remaining balance stays in your account for future orders.
               </p>
             </div>
-            <div className="pt-1">
-              <a
-                href="https://app.notion.com/p/5-Pause-Shield-Rollover-Wallet-Engine-40b80bcda12981a58fe1dbf4408af5dc"
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-1 text-[10px] font-bold text-[#FF5A1F] hover:underline"
-              >
-                <span>View Full BID Specification in Notion</span>
-                <ExternalLink className="w-3 h-3" />
-              </a>
+            <div>
+              <strong className="text-slate-800 block text-[11px]">Can meals be paused for travel?</strong>
+              <p className="mt-0.5 text-slate-500 leading-relaxed">
+                Simply tap "Skip" on the days you will be away before the 10:00 PM cutoff. Your meal stays safe in your pack.
+              </p>
             </div>
           </div>
         )}
