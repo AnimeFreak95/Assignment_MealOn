@@ -23,28 +23,28 @@ import { playPop, playSuccessChime, playCelebrationFanfare } from '../utils/audi
 const TIERS = [
   {
     id: 160,
-    label: 'Comfort',
+    label: 'Rasoi',
     price: 160,
     subtext: 'Homestyle • Dal Khichdi',
     sampleDish: "Rajshree's Bhakri • ₹155",
-    tag: 'Budget',
+    tag: 'HOMESTYLE',
   },
   {
     id: 250,
-    label: 'Balanced',
+    label: 'Bistro',
     price: 250,
     subtext: 'Corporate Thalis • Bowls',
     sampleDish: 'Paneer Quinoa Bowl • ₹230',
-    tag: 'POPULAR',
+    tag: 'MOST POPULAR',
     isPopular: true,
   },
   {
     id: 320,
-    label: 'Macro Pro',
+    label: "Chef's Table",
     price: 320,
-    subtext: '30g+ Protein • Keto Salads',
-    sampleDish: 'Tofu Edamame Bowl • ₹310',
-    tag: '30g+ Protein',
+    subtext: 'Artisanal • Pan-Asian • Craft',
+    sampleDish: 'Zen Teriyaki Soba • ₹310',
+    tag: 'SIGNATURE',
   }
 ];
 
@@ -530,7 +530,7 @@ export default function SubscriptionFTUXFlow({ onCompleteActivation, onClose }) 
           <div className="bg-white rounded-2xl p-2.5 px-3 border border-slate-200 flex items-center justify-between shadow-xs">
             <div>
               <div className="text-xs font-extrabold text-slate-900">
-                {selectedDuration} Meals • ₹{selectedTier}/day Cap
+                {selectedDuration} Meals • {tierObj.label} (₹{selectedTier}/d Cap)
               </div>
               <span className="text-[10px] text-emerald-700 font-bold">
                 {durationObj.validityDays} Calendar Days Buffer
