@@ -260,7 +260,7 @@ export default function HabitSpinWheelModal({
       const link = 'https://mealson.in/gift/mo-coffee-7782';
       try {
         if (navigator.clipboard?.writeText) {
-          navigator.clipboard.writeText(link);
+          navigator.clipboard.writeText(link).catch(() => {});
         }
       } catch (err) {
         console.error(err);
@@ -277,7 +277,7 @@ export default function HabitSpinWheelModal({
     if (wonReward.id === 'pass_discount') {
       try {
         if (navigator.clipboard?.writeText) {
-          navigator.clipboard.writeText('HABIT15');
+          navigator.clipboard.writeText('HABIT15').catch(() => {});
         }
       } catch (err) {
         console.error(err);
@@ -344,7 +344,7 @@ export default function HabitSpinWheelModal({
           </div>
 
           {/* Glowing Wheel Outer Rim */}
-          <div className="w-64 h-64 rounded-full p-2 bg-gradient-to-tr from-amber-500 via-[#FF5A1F] to-emerald-500 shadow-2xl shadow-orange-500/30 flex items-center justify-center relative ring-4 ring-slate-800">
+          <div className="w-[276px] h-[276px] rounded-full p-2 bg-gradient-to-tr from-amber-500 via-[#FF5A1F] to-emerald-500 shadow-2xl shadow-orange-500/30 flex items-center justify-center relative ring-4 ring-slate-800">
             {/* Rotating SVG Wheel */}
             <svg
               className="w-full h-full rounded-full transition-transform"
@@ -364,7 +364,7 @@ export default function HabitSpinWheelModal({
                 // Label center angle
                 const midAngle = startAngle + sliceAngle / 2;
                 const textRad = ((midAngle - 90) * Math.PI) / 180;
-                const textDist = 95;
+                const textDist = 98;
                 const textX = 150 + textDist * Math.cos(textRad);
                 const textY = 150 + textDist * Math.sin(textRad);
 
@@ -378,20 +378,23 @@ export default function HabitSpinWheelModal({
                       strokeWidth="2.5"
                     />
 
-                    {/* Emoji + Label in Slice */}
+                    {/* Emoji + High-Visibility Label in Slice */}
                     <text
                       x={textX}
                       y={textY}
                       fill="#FFFFFF"
-                      fontSize="10"
+                      stroke="#0F172A"
+                      strokeWidth="1.2"
+                      paintOrder="stroke fill"
+                      fontSize="12.5"
                       fontWeight="900"
                       textAnchor="middle"
                       dominantBaseline="middle"
                       transform={`rotate(${midAngle}, ${textX}, ${textY})`}
-                      className="select-none pointer-events-none drop-shadow-sm font-sans"
+                      className="select-none pointer-events-none font-sans tracking-tight"
                     >
-                      <tspan x={textX} dy="-8" fontSize="15">{slice.emoji}</tspan>
-                      <tspan x={textX} dy="15" fontSize="8.5" fontWeight="800">{slice.sliceLabel}</tspan>
+                      <tspan x={textX} dy="-11" fontSize="19">{slice.emoji}</tspan>
+                      <tspan x={textX} dy="19" fontSize="12" fontWeight="900">{slice.sliceLabel}</tspan>
                     </text>
                   </g>
                 );

@@ -30,6 +30,41 @@ import {
   Play
 } from 'lucide-react';
 
+class PrototypeErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+  componentDidCatch(error, errorInfo) {
+    console.error('Prototype error boundary caught:', error, errorInfo);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="p-6 text-center space-y-3 bg-white rounded-3xl m-4 border border-rose-200 shadow-xl animate-in zoom-in-95">
+          <div className="w-12 h-12 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center mx-auto text-2xl">
+            ⚠️
+          </div>
+          <h3 className="text-sm font-extrabold text-slate-900">Prototype Restored</h3>
+          <p className="text-xs text-slate-500 leading-relaxed">
+            A temporary component state glitch was caught and neutralized.
+          </p>
+          <button
+            onClick={() => this.setState({ hasError: false, error: null })}
+            className="w-full py-2.5 px-4 bg-[#FF5A1F] hover:bg-[#E04812] text-white text-xs font-bold rounded-xl shadow-md transition-all active:scale-95 cursor-pointer"
+          >
+            Resume Prototype View
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 export default function App() {
   const [appMode, setAppMode] = useState('dashboard'); // 'dashboard' | 'ftux' | 'gtm'
   const [activeTab, setActiveTab] = useState('autopilot');
@@ -333,57 +368,59 @@ export default function App() {
               />
 
               <main className="flex-1 overflow-y-auto bg-[#F8FAFC] hide-scrollbar relative">
-                {activeTab === 'autopilot' && (
-                  <AutoPilotTab
-                    playlist={playlist}
-                    setPlaylist={setPlaylist}
-                    onLockInPlaylist={handleLockInPlaylist}
-                    triggerConfetti={triggerConfetti}
-                    onNotify={showToast}
-                    paymentMode={paymentMode}
-                    savedLocations={savedLocations}
-                    onNavigateTab={setActiveTab}
-                  />
-                )}
+                <PrototypeErrorBoundary>
+                  {activeTab === 'autopilot' && (
+                    <AutoPilotTab
+                      playlist={playlist}
+                      setPlaylist={setPlaylist}
+                      onLockInPlaylist={handleLockInPlaylist}
+                      triggerConfetti={triggerConfetti}
+                      onNotify={showToast}
+                      paymentMode={paymentMode}
+                      savedLocations={savedLocations}
+                      onNavigateTab={setActiveTab}
+                    />
+                  )}
 
-                {activeTab === 'cutoff' && (
-                  <CutOffTab
-                    playlist={playlist}
-                    setPlaylist={setPlaylist}
-                    credits={credits}
-                    setCredits={setCredits}
-                    onNotify={showToast}
-                    triggerConfetti={triggerConfetti}
-                    triggerFloatingCredit={triggerFloatingCredit}
-                    paymentMode={paymentMode}
-                    onNavigateTab={setActiveTab}
-                  />
-                )}
+                  {activeTab === 'cutoff' && (
+                    <CutOffTab
+                      playlist={playlist}
+                      setPlaylist={setPlaylist}
+                      credits={credits}
+                      setCredits={setCredits}
+                      onNotify={showToast}
+                      triggerConfetti={triggerConfetti}
+                      triggerFloatingCredit={triggerFloatingCredit}
+                      paymentMode={paymentMode}
+                      onNavigateTab={setActiveTab}
+                    />
+                  )}
 
-                {activeTab === 'wallet' && (
-                  <WalletTab
-                    credits={credits}
-                    setCredits={setCredits}
-                    onNotify={showToast}
-                    triggerConfetti={triggerConfetti}
-                    paymentMode={paymentMode}
-                    setPaymentMode={setPaymentMode}
-                  />
-                )}
+                  {activeTab === 'wallet' && (
+                    <WalletTab
+                      credits={credits}
+                      setCredits={setCredits}
+                      onNotify={showToast}
+                      triggerConfetti={triggerConfetti}
+                      paymentMode={paymentMode}
+                      setPaymentMode={setPaymentMode}
+                    />
+                  )}
 
-                {activeTab === 'streaks' && (
-                  <StreaksTab
-                    credits={credits}
-                    setCredits={setCredits}
-                    playlist={playlist}
-                    setPlaylist={setPlaylist}
-                    onNavigateTab={setActiveTab}
-                    onOpenFtux={() => setAppMode('ftux')}
-                    onNotify={showToast}
-                    triggerConfetti={triggerConfetti}
-                    onOpenWowModal={setWowModal}
-                  />
-                )}
+                  {activeTab === 'streaks' && (
+                    <StreaksTab
+                      credits={credits}
+                      setCredits={setCredits}
+                      playlist={playlist}
+                      setPlaylist={setPlaylist}
+                      onNavigateTab={setActiveTab}
+                      onOpenFtux={() => setAppMode('ftux')}
+                      onNotify={showToast}
+                      triggerConfetti={triggerConfetti}
+                      onOpenWowModal={setWowModal}
+                    />
+                  )}
+                </PrototypeErrorBoundary>
               </main>
 
               <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />

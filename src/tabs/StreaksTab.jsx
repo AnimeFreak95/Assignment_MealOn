@@ -33,6 +33,7 @@ import {
   Settings,
   Sliders,
   RotateCcw,
+  RotateCw,
   ExternalLink
 } from 'lucide-react';
 import { playPop, playSuccessChime, playCelebrationFanfare } from '../utils/audioDelight';
@@ -74,7 +75,7 @@ export default function StreaksTab({
     } else if (reward.id === 'coffee_shout') {
       try {
         if (navigator.clipboard?.writeText) {
-          navigator.clipboard.writeText('https://mealson.in/gift/mo-coffee-7782');
+          navigator.clipboard.writeText('https://mealson.in/gift/mo-coffee-7782').catch(() => {});
         }
       } catch (err) {}
       if (onNotify) {
@@ -83,7 +84,7 @@ export default function StreaksTab({
     } else if (reward.id === 'pass_discount') {
       try {
         if (navigator.clipboard?.writeText) {
-          navigator.clipboard.writeText('HABIT15');
+          navigator.clipboard.writeText('HABIT15').catch(() => {});
         }
       } catch (err) {}
       if (onOpenFtux) {
