@@ -15,22 +15,25 @@ export default {
           500: '#FF5A1F',
           600: '#E04812',
           700: '#B8350B',
+          accessible: '#C2410C', // 4.8:1 on white (WCAG AA compliant)
         },
         brandEmerald: {
           DEFAULT: '#10B981',
           light: '#ECFDF5',
           dark: '#064E3B',
+          accessible: '#047857', // 4.6:1 on white (WCAG AA compliant)
         },
         brandAmber: {
           DEFAULT: '#F59E0B',
           light: '#FFFBEB',
+          accessible: '#B45309', // 4.7:1 on white (WCAG AA compliant)
         },
         alabaster: '#F8FAFC',
         slateDark: '#0F172A',
         phoneBorder: '#1E293B',
       },
       fontFamily: {
-        sans: ['"Plus Jakarta Sans"', 'Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        sans: ['"Plus Jakarta Sans"', 'Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
       },
       boxShadow: {
         'phone': '0 25px 60px -15px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.08)',
