@@ -30,12 +30,22 @@ export default function CutOffTab({
   paymentMode = 'prepaid'
 }) {
   const [viewMode, setViewMode] = useState('inapp'); // 'inapp' | 'whatsapp'
+  const [demoTimePreset, setDemoTimePreset] = useState('open'); // 'open' | 'urgent' | 'locked'
   const [secondsRemaining, setSecondsRemaining] = useState(1 * 3600 + 48 * 60 + 12); // 01h : 48m : 12s
   const [showSwapCarousel, setShowSwapCarousel] = useState(false);
   const [tomorrowStatus, setTomorrowStatus] = useState('pending'); // 'pending' | 'confirmed' | 'swapped' | 'skipped'
   const [activeAlternativeId, setActiveAlternativeId] = useState(null);
   const [expandedFaq, setExpandedFaq] = useState(true);
   const [showSkipConfirmation, setShowSkipConfirmation] = useState(false);
+
+  // Preset switcher handler
+  const handleSetDemoPreset = (preset) => {
+    playPop();
+    setDemoTimePreset(preset);
+    if (preset === 'open') setSecondsRemaining(1 * 3600 + 55 * 60); // 8:05 PM (~1h 55m remaining)
+    if (preset === 'urgent') setSecondsRemaining(4 * 60 + 45); // 9:55 PM (4m 45s remaining)
+    if (preset === 'locked') setSecondsRemaining(0); // 10:01 PM (Cutoff passed, kitchen locked)
+  };
 
   // Ticking countdown timer
   useEffect(() => {
@@ -139,11 +149,45 @@ export default function CutOffTab({
 
   return (
     <div className="pb-28 px-4 pt-3 space-y-3.5">
+      {/* Demo Clock Controller for Reviewers */}
+      <div className="bg-slate-900/90 text-white rounded-xl p-2 flex items-center justify-between border border-slate-700 shadow-xs">
+        <div className="flex items-center space-x-1.5">
+          <span className="text-xs">⏰</span>
+          <span className="text-[10px] font-bold text-slate-300 uppercase tracking-wider">Demo Clock:</span>
+        </div>
+        <div className="flex items-center space-x-1">
+          <button
+            onClick={() => handleSetDemoPreset('open')}
+            className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all ${
+              demoTimePreset === 'open' ? 'bg-emerald-600 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'
+            }`}
+          >
+            8:05 PM (Open)
+          </button>
+          <button
+            onClick={() => handleSetDemoPreset('urgent')}
+            className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all ${
+              demoTimePreset === 'urgent' ? 'bg-amber-600 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'
+            }`}
+          >
+            9:55 PM (5m)
+          </button>
+          <button
+            onClick={() => handleSetDemoPreset('locked')}
+            className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all ${
+              demoTimePreset === 'locked' ? 'bg-red-600 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'
+            }`}
+          >
+            10:01 PM (Locked)
+          </button>
+        </div>
+      </div>
+
       {/* 1. Channel Switcher (Glanceable) */}
       <div className="space-y-1.5">
         <div className="flex items-center justify-between px-1">
           <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-            Channel Preview
+            Channel Preview (8 PM Check-In)
           </span>
 
           <div className="flex items-center bg-slate-200/80 p-0.5 rounded-lg border border-slate-300/60 text-[10px] font-bold">
@@ -330,8 +374,19 @@ export default function CutOffTab({
           </div>
         </div>
 
-        {/* 3 Interactive Action Buttons */}
-        <div className="grid grid-cols-3 gap-1.5 pt-0.5">
+        {/* Post-10 PM Kitchen Lockout Banner */}
+        {secondsRemaining === 0 ? (
+          <div className="bg-red-50 border border-red-300 rounded-xl p-3 text-center space-y-1 animate-in fade-in duration-200">
+            <div className="flex items-center justify-center space-x-1.5 text-xs font-black text-red-950">
+              <span>🔒 10:00 PM Cut-Off Reached</span>
+            </div>
+            <p className="text-[10px] text-red-800">
+              Orders locked for morning wholesale procurement. Swaps and skips closed for tomorrow.
+            </p>
+          </div>
+        ) : (
+          /* 3 Interactive Action Buttons */
+          <div className="grid grid-cols-3 gap-1.5 pt-0.5">
           <button
             onClick={handleKeepMeal}
             className={`py-2 px-1 rounded-xl font-bold text-[11px] flex flex-col items-center justify-center space-y-0.5 transition-all active:scale-[0.96] cta-bounce ${
@@ -369,6 +424,7 @@ export default function CutOffTab({
             <span>{tomorrowStatus === 'skipped' ? 'Skipped' : paymentMode === 'prepaid' ? 'Skip & Bank' : 'Skip & Pay ₹0'}</span>
           </button>
         </div>
+        )}
 
         {/* Interactive Confirmation Bar (Transparent Pre-Skip Breakdown) */}
         {showSkipConfirmation && tomorrowStatus !== 'skipped' && (
