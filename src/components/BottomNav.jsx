@@ -5,7 +5,7 @@ const TABS = [
   { id: 'autopilot', label: 'Planner', icon: Sparkles },
   { id: 'cutoff', label: '8PM Cut-Off', icon: Clock, badge: 'Live' },
   { id: 'wallet', label: 'Wallet', icon: ShieldCheck },
-  { id: 'streaks', label: 'Streaks & Pods', icon: Flame, badge: '🔥' },
+  { id: 'streaks', label: 'Loyalty', icon: Flame, badge: '🔥' },
 ];
 
 export default function BottomNav({ activeTab, setActiveTab }) {
