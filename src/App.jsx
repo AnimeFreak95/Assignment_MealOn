@@ -34,6 +34,7 @@ export default function App() {
   const [appMode, setAppMode] = useState('dashboard'); // 'dashboard' | 'ftux' | 'gtm'
   const [activeTab, setActiveTab] = useState('autopilot');
   const [credits, setCredits] = useState(14);
+  const [paymentMode, setPaymentMode] = useState('prepaid'); // 'prepaid' | 'mandate'
   const [playlist, setPlaylist] = useState(INITIAL_PLAYLIST);
   const [toast, setToast] = useState(null);
   const [showIntroSheet, setShowIntroSheet] = useState(false);
@@ -73,6 +74,9 @@ export default function App() {
 
   const handleCompleteActivation = (passData) => {
     setCredits(passData.meals);
+    if (passData.paymentOption) {
+      setPaymentMode(passData.paymentOption === 'mandate' ? 'mandate' : 'prepaid');
+    }
     setAppMode('dashboard');
     setActiveTab('autopilot');
     triggerConfetti();
@@ -86,6 +90,7 @@ export default function App() {
 
   const resetAllState = () => {
     setCredits(14);
+    setPaymentMode('prepaid');
     setPlaylist(INITIAL_PLAYLIST);
     setActiveTab('autopilot');
     setAppMode('dashboard');
@@ -148,6 +153,36 @@ export default function App() {
             <Layers className="w-3 h-3" />
             <span>📣 GTM Hub</span>
           </button>
+
+          {/* Active Payment Rail Switcher for PM Test / Walkthrough */}
+          <div className="flex items-center bg-slate-800/90 rounded-lg p-0.5 border border-slate-700 text-[10px]">
+            <button
+              onClick={() => {
+                playPop();
+                setPaymentMode('prepaid');
+                showToast('Payment Rail: Prepaid', 'Skipped meals deposit 100% value into MealsOn Balance.', 'info');
+              }}
+              className={`px-2 py-1 rounded font-bold transition-all ${
+                paymentMode === 'prepaid' ? 'bg-emerald-600 text-white shadow-xs' : 'text-slate-400 hover:text-white'
+              }`}
+              title="Prepaid Plan: Skipped meals bank ₹ value into MealsOn Balance"
+            >
+              💰 Prepaid Pass
+            </button>
+            <button
+              onClick={() => {
+                playPop();
+                setPaymentMode('mandate');
+                showToast('Payment Rail: UPI AutoPay Mandate', 'Skipped meals cancel 10 PM debit (₹0 charged, no wallet credit).', 'info');
+              }}
+              className={`px-2 py-1 rounded font-bold transition-all ${
+                paymentMode === 'mandate' ? 'bg-indigo-600 text-white shadow-xs' : 'text-slate-400 hover:text-white'
+              }`}
+              title="UPI Mandate: Skipped meals cancel 10 PM debit (₹0 charged)"
+            >
+              ⚡ UPI Mandate
+            </button>
+          </div>
 
           {/* FTUX & Pass Checkout Mode */}
           <button
@@ -300,6 +335,7 @@ export default function App() {
                     onLockInPlaylist={handleLockInPlaylist}
                     triggerConfetti={triggerConfetti}
                     onNotify={showToast}
+                    paymentMode={paymentMode}
                   />
                 )}
 
@@ -312,6 +348,7 @@ export default function App() {
                     onNotify={showToast}
                     triggerConfetti={triggerConfetti}
                     triggerFloatingCredit={triggerFloatingCredit}
+                    paymentMode={paymentMode}
                   />
                 )}
 
@@ -321,6 +358,8 @@ export default function App() {
                     setCredits={setCredits}
                     onNotify={showToast}
                     triggerConfetti={triggerConfetti}
+                    paymentMode={paymentMode}
+                    setPaymentMode={setPaymentMode}
                   />
                 )}
 
