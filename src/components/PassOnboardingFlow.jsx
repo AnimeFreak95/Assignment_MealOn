@@ -210,187 +210,193 @@ export default function SubscriptionFTUXFlow({ onCompleteActivation, onOpenIntro
 
   return (
     <div className="min-h-full bg-[#F8FAFC] flex flex-col relative text-slate-900 pb-0 font-sans selection:bg-[#FF5A1F] selection:text-white">
-      {/* Top Header: Step Indicator & FAQ Toggle */}
-      <div className="bg-white border-b border-slate-200/90 px-4 py-2.5 sticky top-0 z-30 flex items-center justify-between shadow-xs">
-        <div className="flex items-center space-x-2">
-          {stage > 1 && (
-            <button
-              onClick={handleBackStage}
-              aria-label="Back to previous step" className="p-2 -ml-1.5 min-w-[44px] min-h-[44px] flex items-center justify-center text-slate-500 hover:text-slate-800 rounded-lg hover:bg-slate-100 transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4" />
-            </button>
-          )}
-          <div>
-            <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#FF5A1F]">
-              {stage === 1 ? 'Step 1 of 3' : stage === 2 ? 'Step 2 of 3' : 'Step 3 of 3'}
-            </span>
-            <h2 className="text-xs font-extrabold text-slate-900 leading-tight">
+      {/* Top Header: Step Indicator & Help Trigger */}
+      <div className="bg-white border-b border-slate-200 px-4 py-2.5 sticky top-0 z-30 shadow-xs space-y-1.5">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            {stage > 1 ? (
+              <button
+                type="button"
+                onClick={handleBackStage}
+                aria-label="Back to previous step"
+                className="w-11 h-11 -ml-2 flex items-center justify-center text-slate-600 hover:text-slate-900 rounded-full hover:bg-slate-100 transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4" />
+              </button>
+            ) : onClose ? (
+              <button
+                type="button"
+                onClick={onClose}
+                aria-label="Close"
+                className="w-11 h-11 -ml-2 flex items-center justify-center text-slate-500 hover:text-slate-800 rounded-full hover:bg-slate-100 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            ) : null}
+            <h2 className="text-sm font-bold text-slate-900 leading-tight">
               {stage === 1
-                ? 'Customize Your Pass'
+                ? 'Customize your pass'
                 : stage === 2
-                ? 'Payment & Activation'
-                : 'Delivery Hubs & Hybrid Geofence'}
+                ? 'Payment & activation'
+                : 'Delivery hubs & hybrid geofence'}
             </h2>
           </div>
-        </div>
 
-        {/* Right FAQ & 15s Story Link */}
-        <div className="flex items-center space-x-1.5">
-          {onOpenIntroSheet && (
-            <button
-              onClick={() => {
-                playPop();
-                onOpenIntroSheet();
-              }}
-              className="flex items-center space-x-1 text-[10px] font-bold text-amber-900 bg-amber-50 hover:bg-amber-100 px-2 py-1 rounded-full border border-amber-200 transition-colors"
-            >
-              <Play className="w-2.5 h-2.5 fill-current text-amber-600" />
-              <span>15s Story</span>
-            </button>
-          )}
-
+          {/* Right: Help (opens Story & FAQ sheet) */}
           <button
+            type="button"
             onClick={() => {
               playPop();
               setShowFtuxInfo(true);
             }}
-            className="flex items-center space-x-1 text-[10px] font-bold text-slate-600 hover:text-[#FF5A1F] bg-slate-100 px-2 py-1 rounded-full border border-slate-200 transition-colors"
+            className="w-11 h-11 -mr-2 text-slate-600 hover:text-[#C2410C] rounded-full hover:bg-slate-100 flex items-center justify-center transition-colors"
+            aria-label="Help & FAQ"
+            title="Help & FAQ"
           >
-            <HelpCircle className="w-3 h-3 text-[#FF5A1F]" />
-            <span>FAQ</span>
+            <HelpCircle className="w-4 h-4" />
           </button>
+        </div>
 
-          {onClose && (
-            <button
-              onClick={onClose}
-              className="p-1 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          )}
+        {/* 3-Segment Progress Bar */}
+        <div className="space-y-1 pt-0.5">
+          <div className="flex items-center justify-between text-xs font-semibold text-slate-600">
+            <span>
+              {stage === 1
+                ? 'Step 1 of 3: Pass config'
+                : stage === 2
+                ? 'Step 2 of 3: Payment method'
+                : 'Step 3 of 3: Delivery hubs'}
+            </span>
+            <span>{stage === 1 ? '33%' : stage === 2 ? '66%' : '100%'}</span>
+          </div>
+          <div className="grid grid-cols-3 gap-1.5 h-1.5 w-full">
+            <div className={`h-full rounded-full ${stage >= 1 ? 'bg-[#FF5A1F]' : 'bg-slate-200'}`} />
+            <div className={`h-full rounded-full ${stage >= 2 ? 'bg-[#FF5A1F]' : 'bg-slate-200'}`} />
+            <div className={`h-full rounded-full ${stage >= 3 ? 'bg-[#FF5A1F]' : 'bg-slate-200'}`} />
+          </div>
         </div>
       </div>
 
       {/* STAGE 1: PASS CONFIGURATOR */}
       {stage === 1 && (
-        <div className="px-4 py-3 space-y-3 animate-in fade-in duration-200">
-          {/* A. DYNAMIC FTUX HERO CARD (Updates Live based on Selected Plan) */}
-          <div className="rounded-2xl p-3.5 bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#0F172A] text-white shadow-md border border-slate-700/80 relative overflow-hidden transition-all">
-            <div className="absolute top-0 right-0 w-28 h-28 bg-[#FF5A1F]/15 rounded-full blur-xl pointer-events-none" />
-
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="text-[9px] font-extrabold bg-[#FF5A1F]/20 text-[#FF7B47] border border-[#FF5A1F]/40 px-2 py-0.5 rounded-full flex items-center shadow-xs">
-                ✨ {durationObj.label.toUpperCase()} CONFIGURATION
-              </span>
-              <span className="text-[10px] font-bold text-emerald-400">
-                Save ₹{totalPocketSavings}
+        <div className="px-4 py-3.5 space-y-4 animate-in fade-in duration-200">
+          {/* Summary Card (replaces dark hero) */}
+          <div className="bg-white rounded-2xl p-3.5 border border-slate-200 shadow-xs space-y-2.5">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-bold text-slate-900">
+                {selectedDuration} lunches, valid for {durationObj.validityDays} days
+              </h3>
+              <span className="text-xs font-bold text-[#047857] bg-emerald-50 border border-emerald-200/80 px-2 py-0.5 rounded-full">
+                Save ₹{formatINR(totalPocketSavings)}*
               </span>
             </div>
 
-            <h1 className="text-sm font-extrabold text-white tracking-tight leading-snug">
-              {selectedDuration} Lunches • {durationObj.validityDays} Calendar Days Buffer
-            </h1>
-
-            {/* Visual Flex Buffer Bar */}
-            <div className="mt-2 bg-slate-800/90 p-2 rounded-xl border border-slate-700 space-y-1.5">
-              <div className="flex items-center justify-between text-[9px] font-bold">
-                <span className="text-slate-300">🍽️ {selectedDuration} Meals Ordered</span>
-                <span className="text-emerald-400">🛡️ +{durationObj.extraBufferDays} Free Rollover Days</span>
-              </div>
-              <div className="h-1.5 w-full bg-slate-700 rounded-full overflow-hidden flex">
+            {/* Two-colour progress bar: Lunches + Extra buffer days */}
+            <div className="space-y-1.5">
+              <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden flex">
                 <div
-                  className="bg-[#FF5A1F] h-full"
+                  className="bg-[#FF5A1F] h-full transition-all duration-300"
                   style={{ width: `${(selectedDuration / durationObj.validityDays) * 100}%` }}
                 />
                 <div
-                  className="bg-[#10B981] h-full"
+                  className="bg-[#10B981] h-full transition-all duration-300"
                   style={{ width: `${(durationObj.extraBufferDays / durationObj.validityDays) * 100}%` }}
                 />
               </div>
+              <div className="flex items-center justify-between text-xs font-medium text-slate-600">
+                <span className="flex items-center space-x-1">
+                  <span className="w-2 h-2 rounded-full bg-[#FF5A1F] inline-block" />
+                  <span>{selectedDuration} lunches</span>
+                </span>
+                <span className="flex items-center space-x-1">
+                  <span className="w-2 h-2 rounded-full bg-[#10B981] inline-block" />
+                  <span>{durationObj.extraBufferDays} extra days</span>
+                </span>
+              </div>
             </div>
 
-            {/* Dynamic Real-Time Plan Highlights */}
-            <div className="grid grid-cols-3 gap-1.5 mt-2 text-[9px] font-bold text-slate-200">
-              <div className="bg-slate-800/80 p-1.5 rounded-lg border border-slate-700 text-center truncate">
-                <span className="block text-emerald-400">🛡️ {durationObj.validityDays} Days</span> Safe Validity
-              </div>
-              <div className="bg-slate-800/80 p-1.5 rounded-lg border border-slate-700 text-center truncate">
-                <span className="block text-amber-400">🚚 ₹{deliverySaved} Free</span> Delivery Waived
-              </div>
-              <div className="bg-slate-800/80 p-1.5 rounded-lg border border-slate-700 text-center truncate">
-                <span className="block text-[#FF5A1F]">⏰ 10 PM Free</span> Skip Guarantee
-              </div>
+            {/* Benefit line */}
+            <div className="pt-1.5 border-t border-slate-100 text-xs text-slate-600 flex items-center justify-between">
+              <span>Skip free until 10 PM the night before</span>
+              <span className="text-xs text-slate-500">*incl. free delivery</span>
             </div>
           </div>
 
-          {/* B. Step 1: Select Meal Allowance Tier (3-Column Segmented Visual) */}
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-extrabold text-slate-800 uppercase tracking-wider">
-                1. Daily Meal Allowance
-              </span>
-              <span className="text-[10px] text-slate-500 font-semibold">Max Cap</span>
-            </div>
+          {/* 1. Your budget per lunch */}
+          <div className="space-y-2">
+            <h4 className="text-sm font-bold text-slate-900">
+              Your budget per lunch
+            </h4>
 
+            {/* Tier Tiles */}
             <div className="grid grid-cols-3 gap-2">
               {TIERS.map((tier) => {
                 const isSelected = selectedTier === tier.price;
                 return (
-                  <div
+                  <button
                     key={tier.id}
+                    type="button"
                     onClick={() => handleTierSelect(tier.price)}
-                    className={`rounded-2xl p-2.5 cursor-pointer transition-all relative border flex flex-col justify-between cta-bounce ${
+                    className={`rounded-xl p-2.5 text-left transition-all relative border flex flex-col justify-between min-h-[96px] cta-bounce cursor-pointer ${
                       isSelected
-                        ? 'bg-[#FFF5F0]/90 border-2 border-[#FF5A1F] shadow-sm ring-2 ring-[#FF5A1F]/20'
+                        ? 'bg-[#FFF5F0] border-2 border-[#FF5A1F] shadow-xs'
                         : 'bg-white border-slate-200 hover:border-slate-300'
                     }`}
                   >
-                    {tier.isPopular ? (
-                      <span className="text-[8px] font-extrabold text-[#FF5A1F] bg-[#FFF5F0] border border-[#FF5A1F]/30 px-1.5 py-0.2 rounded-full self-start mb-1">
-                        MOST POPULAR
+                    {/* Badge & Selection check */}
+                    <div className="flex items-center justify-between w-full mb-1">
+                      <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded-full ${
+                        tier.isPopular
+                          ? 'bg-[#FF5A1F]/10 text-[#C2410C] font-extrabold'
+                          : 'bg-slate-100 text-slate-600'
+                      }`}>
+                        {tier.badge}
                       </span>
-                    ) : (
-                      <span className="text-[8px] font-bold text-slate-400 uppercase mb-1">
-                        {tier.tag}
-                      </span>
-                    )}
+                      {isSelected ? (
+                        <Check className="w-3.5 h-3.5 text-[#C2410C] shrink-0" />
+                      ) : (
+                        <span className="w-3.5 h-3.5" />
+                      )}
+                    </div>
 
                     <div>
-                      <div className="text-xs font-extrabold text-slate-900">
+                      <div className="text-xs font-bold text-slate-900">
                         {tier.label}
                       </div>
-                      <div className="text-sm font-extrabold text-[#FF5A1F] mt-0.5 tabular-nums">
-                        ₹{tier.price}
-                        <span className="text-[9px] font-medium text-slate-500">/d</span>
+                      <div className="text-sm font-extrabold text-[#C2410C] mt-0.5 tabular-nums">
+                        ₹{formatINR(tier.price)}
+                        <span className="text-xs font-normal text-slate-600">/meal</span>
                       </div>
                     </div>
-
-                    <div className="text-[9px] text-slate-500 mt-1 font-medium truncate">
-                      {tier.subtext}
-                    </div>
-                  </div>
+                  </button>
                 );
               })}
             </div>
 
-            {/* Visual Micro Pill Helper */}
-            <div className="bg-[#FFFBEB] border border-amber-200 rounded-xl px-2.5 py-1.5 text-[10px] text-amber-900 flex items-center justify-between">
-              <span>💡 Pick a meal under ₹{selectedTier}? Balance rolls to Wallet</span>
-              <span className="font-bold text-[#FF5A1F]">100% Retained</span>
+            {/* Shared dynamic description (Full text, no ellipsis) */}
+            <p className="text-xs text-slate-600 leading-snug px-0.5">
+              {tierObj.description}
+            </p>
+
+            {/* Neutral callout */}
+            <div className="bg-slate-50 border border-slate-200/80 rounded-xl px-3 py-2 text-xs text-slate-700 flex items-center justify-between">
+              <span>Pick a dish under ₹{formatINR(selectedTier)} and the difference goes to your wallet.</span>
+              <span className="font-bold text-[#C2410C] shrink-0 ml-2">100% retained</span>
             </div>
           </div>
 
-          {/* C. Step 2: Select Duration Cards */}
-          <div className="space-y-1.5">
+          {/* 2. Number of lunches */}
+          <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-extrabold text-slate-800 uppercase tracking-wider">
-                2. Pass Duration
+              <h4 className="text-sm font-bold text-slate-900">
+                Number of lunches
+              </h4>
+              <span className="text-xs font-semibold text-[#047857]">
+                Free delivery on every pass
               </span>
-              <span className="text-[10px] font-bold text-emerald-700">₹0 Delivery</span>
             </div>
 
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               {DURATIONS.map((dur) => {
                 const isSelected = selectedDuration === dur.days;
                 const baseVal = dur.days * selectedTier;
@@ -402,13 +408,14 @@ export default function SubscriptionFTUXFlow({ onCompleteActivation, onOpenIntro
                   <div
                     key={dur.id}
                     onClick={() => handleDurationSelect(dur.days)}
-                    className={`rounded-2xl p-2.5 px-3 border cursor-pointer transition-all flex items-center justify-between cta-bounce ${
+                    className={`rounded-xl p-3 border cursor-pointer transition-all flex items-center justify-between cta-bounce ${
                       isSelected
-                        ? 'bg-white border-2 border-[#FF5A1F] shadow-sm ring-2 ring-[#FF5A1F]/15'
+                        ? 'bg-[#FFF5F0] border-2 border-[#FF5A1F] shadow-xs'
                         : 'bg-white border-slate-200 hover:border-slate-300'
                     }`}
                   >
-                    <div className="flex items-center space-x-2.5">
+                    <div className="flex items-center space-x-3">
+                      {/* Radio Indicator */}
                       <div
                         className={`w-4 h-4 rounded-full flex items-center justify-center border transition-all ${
                           isSelected
@@ -420,32 +427,29 @@ export default function SubscriptionFTUXFlow({ onCompleteActivation, onOpenIntro
                       </div>
 
                       <div>
-                        <div className="flex items-center space-x-1.5">
-                          <span className="text-xs font-extrabold text-slate-900">
+                        <div className="flex items-center space-x-2">
+                          <span className="text-xs font-bold text-slate-900">
                             {dur.label}
                           </span>
                           {dur.tag && (
-                            <span className="text-[8px] font-extrabold bg-[#ECFDF5] text-[#10B981] border border-[#10B981]/30 px-1.5 py-0.2 rounded-full">
+                            <span className="text-[10px] font-bold bg-[#ECFDF5] text-[#047857] border border-emerald-200 px-1.5 py-0.2 rounded-full">
                               {dur.tag}
                             </span>
                           )}
                         </div>
 
-                        <div className="flex items-center flex-wrap gap-1 mt-0.5 text-[9px]">
-                          <span className="font-bold text-emerald-700 bg-emerald-50 px-1 rounded">
-                            {dur.discountBadge}
-                          </span>
-                          <span className="text-slate-400">• {dur.validityDays}d Buffer</span>
+                        <div className="text-xs text-slate-600 mt-0.5">
+                          {dur.discountPct}% off · valid for {dur.validityDays} days
                         </div>
                       </div>
                     </div>
 
                     <div className="text-right">
-                      <div className="text-sm font-extrabold text-slate-900 tabular-nums">
-                        ₹{finalPassPrice}
+                      <div className="text-sm font-bold text-slate-900 tabular-nums">
+                        ₹{formatINR(finalPassPrice)}
                       </div>
-                      <div className="text-[9px] font-bold text-[#FF5A1F] tabular-nums">
-                        ₹{costPerMeal}/meal
+                      <div className="text-xs font-bold text-[#C2410C] tabular-nums">
+                        ₹{formatINR(costPerMeal)}/meal
                       </div>
                     </div>
                   </div>
@@ -454,23 +458,14 @@ export default function SubscriptionFTUXFlow({ onCompleteActivation, onOpenIntro
             </div>
           </div>
 
-          {/* C. Step 3: Preferred 30-Min Lunch Window (Batched Milk-Run Drop) */}
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-extrabold text-slate-800 uppercase tracking-wider flex items-center">
-                <span>3. 30-Min Drop Window</span>
-              </span>
-              <span className="text-[10px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 px-1.5 py-0.2 rounded-full">
-                Eco-Batching ₹0 Fee
-              </span>
-            </div>
+          {/* 3. Delivery window (30 min) */}
+          <div className="space-y-2">
+            <h4 className="text-sm font-bold text-slate-900">
+              Delivery window (30 min)
+            </h4>
 
-            <div className="grid grid-cols-3 gap-1.5">
-              {[
-                { id: '12:30 PM – 1:00 PM', label: '12:30 – 1:00 PM', sub: 'Early Lunch' },
-                { id: '1:00 PM – 1:30 PM', label: '1:00 – 1:30 PM', sub: '🔥 Peak Pod', badge: 'Default' },
-                { id: '1:30 PM – 2:00 PM', label: '1:30 – 2:00 PM', sub: 'Post-Standup' }
-              ].map((slot) => {
+            <div className="grid grid-cols-3 gap-2">
+              {SLOTS.map((slot) => {
                 const isSelected = selectedLunchSlot === slot.id;
                 return (
                   <button
@@ -480,120 +475,100 @@ export default function SubscriptionFTUXFlow({ onCompleteActivation, onOpenIntro
                       playPop();
                       setSelectedLunchSlot(slot.id);
                     }}
-                    className={`p-2 min-h-[44px] flex flex-col justify-center rounded-xl border text-center transition-all cta-bounce ${
+                    className={`p-2.5 rounded-xl border text-center transition-all relative cta-bounce cursor-pointer ${
                       isSelected
-                        ? 'bg-indigo-50/90 border-2 border-indigo-600 shadow-xs ring-1 ring-indigo-600/20'
+                        ? 'bg-[#FFF5F0] border-2 border-[#FF5A1F] shadow-xs'
                         : 'bg-white border-slate-200 hover:border-slate-300'
                     }`}
                   >
-                    <div className="text-[10px] font-extrabold text-slate-900 leading-tight">
-                      {slot.label}
+                    {isSelected && (
+                      <Check className="w-3.5 h-3.5 text-[#C2410C] absolute top-2 right-2" />
+                    )}
+                    <div className="text-xs font-bold text-slate-900 leading-tight">
+                      {slot.time}
                     </div>
-                    <div className="text-[9px] font-bold text-indigo-600 mt-0.5">
-                      {slot.sub}
+                    <div className="text-xs text-slate-600 mt-0.5">
+                      {slot.label}
                     </div>
                   </button>
                 );
               })}
             </div>
-            <p className="text-[9px] text-slate-500 italic px-0.5">
-              💡 30-min windows batch deliveries into your office lobby, eliminating delivery charges.
+
+            <p className="text-xs text-slate-600 px-0.5">
+              On office days, deliveries are batched to your lobby.
             </p>
           </div>
 
-          {/* D. Live Savings Receipt Card (Mathematically Accurate & Transparent UX) */}
-          <div className="bg-gradient-to-b from-[#F0FDF4] to-[#ECFDF5] border border-[#BBF7D0] rounded-2xl p-3.5 text-xs text-slate-800 space-y-2 shadow-xs">
-            {/* Header / Receipt Title */}
-            <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-wider text-emerald-800 pb-1.5 border-b border-[#BBF7D0]/70">
-              <span className="flex items-center space-x-1.5">
-                <Receipt className="w-3.5 h-3.5 text-emerald-700" />
-                <span>Pass Price Breakdown</span>
-              </span>
-              <span className="text-emerald-800 font-extrabold bg-emerald-100/90 border border-emerald-200/80 px-2 py-0.5 rounded-full">
-                {selectedDuration} Meals Plan
-              </span>
+          {/* 4. Price breakdown (Single clean container, no nested card boxes) */}
+          <div className="bg-slate-50/80 border border-slate-200/90 rounded-2xl p-4 text-xs space-y-2">
+            <h4 className="text-sm font-bold text-slate-900">
+              Price
+            </h4>
+
+            {/* Line 1: Allowance */}
+            <div className="flex items-center justify-between text-slate-700">
+              <span>{selectedDuration} lunches × ₹{formatINR(selectedTier)}</span>
+              <span className="font-semibold text-slate-900 tabular-nums">₹{formatINR(baseCost)}</span>
             </div>
 
-            {/* Line 1: Base Meals Value */}
-            <div className="flex items-center justify-between text-[11px] text-slate-700 font-medium">
-              <span>Meal Allowance ({selectedDuration} Meals × ₹{selectedTier} Cap)</span>
-              <span className="font-bold text-slate-900 tabular-nums">₹{baseCost}</span>
+            {/* Line 2: Pass Discount */}
+            <div className="flex items-center justify-between text-[#047857]">
+              <span>{durationObj.discountPct}% off</span>
+              <span className="tabular-nums font-semibold">−₹{formatINR(discountAmount)}</span>
             </div>
 
-            {/* Line 2: Pass Discount (Meal Discount) */}
-            <div className="flex items-center justify-between text-[11px] text-emerald-700 font-semibold">
-              <span>Pass Discount ({durationObj.discountPct}% OFF)</span>
-              <span className="tabular-nums font-bold">- ₹{discountAmount}</span>
-            </div>
-
-            {/* Line 3: Delivery Charges (Waived via 30-min window batching) */}
-            <div className="flex items-center justify-between text-[11px] text-slate-600">
-              <span className="flex items-center space-x-1">
-                <span>Batch Delivery ({selectedDuration} drops)</span>
-                <span className="text-[9px] text-slate-400 font-normal">(@ ₹40)</span>
-              </span>
+            {/* Line 3: Delivery */}
+            <div className="flex items-center justify-between text-slate-600">
+              <span>Delivery ({selectedDuration} × ₹40)</span>
               <div className="flex items-center space-x-1.5">
-                <span className="line-through text-slate-400 text-[10px] tabular-nums">₹{deliverySaved}</span>
-                <span className="text-[10px] font-black text-[#059669] bg-[#DCFCE7] border border-[#86EFAC] px-1.5 py-0.2 rounded-md uppercase">
-                  FREE
-                </span>
+                <span className="line-through text-slate-400 tabular-nums">₹{formatINR(deliverySaved)}</span>
+                <span className="font-bold text-[#047857]">Free</span>
               </div>
             </div>
 
-            {/* Total / Net Pass Price */}
-            <div className="border-t border-[#BBF7D0] pt-2 mt-1 flex items-center justify-between">
+            {/* Divider & Total */}
+            <div className="border-t border-slate-200/80 pt-2 flex items-center justify-between">
               <div>
-                <span className="text-xs font-black text-slate-900 block leading-tight">
-                  Net Pass Price
+                <span className="text-sm font-bold text-slate-900 block leading-tight">
+                  Total
                 </span>
-                <span className="text-[10px] text-slate-500 font-medium">
-                  (₹{effectiveMealPrice}/meal all-inclusive)
-                </span>
-              </div>
-              <div className="text-right">
-                <span className="text-base font-black text-slate-950 tabular-nums">
-                  ₹{netPrice}
+                <span className="text-xs text-slate-600">
+                  ₹{formatINR(effectiveMealPrice)} per lunch, all-inclusive
                 </span>
               </div>
-            </div>
-
-            {/* Total Pocket Savings Banner (Transparent summary of both benefits) */}
-            <div className="bg-[#10B981]/10 border border-[#10B981]/30 rounded-xl p-2 px-2.5 text-[10px] text-emerald-950 font-bold flex items-center justify-between">
-              <span className="flex items-center space-x-1">
-                <span>🎉</span>
-                <span>Total Pocket Savings:</span>
-              </span>
-              <span className="text-emerald-800 font-black tabular-nums">
-                ₹{totalPocketSavings} (₹{discountAmount} off + ₹{deliverySaved} free delivery)
+              <span className="text-base font-extrabold text-slate-950 tabular-nums">
+                ₹{formatINR(netPrice)}
               </span>
             </div>
 
-            {/* Visual Prepaid Bonus Callout */}
-            <div className="bg-white border border-[#10B981]/30 rounded-xl p-2 px-2.5 text-[10px] text-emerald-900 font-bold flex items-center justify-between">
-              <span className="flex items-center">
-                <Zap className="w-3.5 h-3.5 text-amber-500 fill-amber-500 mr-1" />
-                Prepaid Bonus Perk:
-              </span>
-              <span className="bg-[#ECFDF5] text-[#10B981] px-1.5 py-0.5 rounded font-extrabold border border-emerald-200">
-                +₹{bonusCredits} Extra Wallet Cash (5%)
-              </span>
+            {/* Clean benefit lines below total (no boxes) */}
+            <div className="pt-1.5 space-y-1 text-xs">
+              <div className="text-[#047857] font-semibold">
+                You save ₹{formatINR(totalPocketSavings)} (₹{formatINR(discountAmount)} off + ₹{formatINR(deliverySaved)} free delivery)
+              </div>
+              <div className="text-slate-700 flex items-center space-x-1">
+                <Info className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                <span>Pay upfront: +₹{formatINR(bonusCredits)} wallet cash (5%)</span>
+              </div>
             </div>
-          </div>
 
-          {/* Small FAQ Anchor Link */}
-          <div className="text-center pt-0.5">
-            <button
-              onClick={() => {
-                playPop();
-                setShowFtuxInfo(true);
-              }}
-              className="text-[10px] font-bold text-slate-500 hover:text-[#FF5A1F] transition-colors inline-flex items-center space-x-1"
-            >
-              <span>Have questions about 10 PM cut-off or rollovers?</span>
-              <span className="text-[#FF5A1F] underline flex items-center">
-                View FAQ <ArrowRight className="w-2.5 h-2.5 ml-0.5" />
-              </span>
-            </button>
+            {/* Contextual FAQ link */}
+            <div className="pt-1 border-t border-slate-200/60">
+              <button
+                type="button"
+                onClick={() => {
+                  playPop();
+                  setShowFtuxInfo(true);
+                }}
+                className="text-xs text-slate-600 hover:text-[#C2410C] transition-colors inline-flex items-center space-x-1 cursor-pointer"
+              >
+                <span>Questions about cut-off or rollovers?</span>
+                <span className="text-[#C2410C] font-semibold underline inline-flex items-center">
+                  View FAQ <ArrowRight className="w-3 h-3 ml-0.5" />
+                </span>
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -1005,19 +980,27 @@ export default function SubscriptionFTUXFlow({ onCompleteActivation, onOpenIntro
       )}
 
       {/* STICKY BOTTOM CHECKOUT CTA DOCKED AT BOTTOM OF PHONE */}
-      <div className="sticky bottom-0 left-0 right-0 w-full bg-white/95 backdrop-blur-md border-t border-slate-200 p-3 px-4 shadow-[0_-4px_16px_rgba(0,0,0,0.08)] z-20 mt-auto">
+      <div className="sticky bottom-0 left-0 right-0 w-full bg-white/95 backdrop-blur-md border-t border-slate-200 p-3 px-4 shadow-[0_-4px_16px_rgba(0,0,0,0.06)] z-20 mt-auto">
         {stage === 1 ? (
-          <button
-            onClick={handleGoToPayment}
-            className="w-full min-h-[48px] bg-[#FF5A1F] hover:bg-[#E04812] text-white font-extrabold text-xs py-3 px-4 rounded-xl shadow-md transition-all active:scale-[0.98] cta-bounce flex items-center justify-center space-x-1.5 cursor-pointer"
-          >
-            <span>Continue to Payment • ₹{netPrice}</span>
-            <ChevronRight className="w-4 h-4" />
-          </button>
+          <div className="space-y-1.5">
+            {/* Live summary line */}
+            <div className="text-xs font-semibold text-slate-600 text-center">
+              {selectedDuration} lunches · ₹{formatINR(effectiveMealPrice)} each · Save ₹{formatINR(totalPocketSavings)}
+            </div>
+            <button
+              type="button"
+              onClick={handleGoToPayment}
+              className="w-full min-h-[48px] bg-[#FF5A1F] hover:bg-[#E04812] text-white font-bold text-sm py-3 px-4 rounded-xl shadow-md transition-all active:scale-[0.98] cta-bounce flex items-center justify-center space-x-1.5 cursor-pointer"
+            >
+              <span>Continue to payment · ₹{formatINR(netPrice)}</span>
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
         ) : stage === 2 ? (
           <button
+            type="button"
             onClick={handleCompleteCheckout}
-            className={`w-full text-white font-extrabold text-xs py-3 px-4 rounded-xl shadow-md transition-all active:scale-[0.98] cta-bounce flex items-center justify-center space-x-1.5 cursor-pointer ${
+            className={`w-full min-h-[48px] text-white font-bold text-sm py-3 px-4 rounded-xl shadow-md transition-all active:scale-[0.98] cta-bounce flex items-center justify-center space-x-1.5 cursor-pointer ${
               paymentOption === 'prepaid'
                 ? 'bg-gradient-to-r from-[#10B981] to-[#059669]'
                 : paymentOption === 'mandate'
@@ -1026,19 +1009,20 @@ export default function SubscriptionFTUXFlow({ onCompleteActivation, onOpenIntro
             }`}
           >
             {paymentOption === 'prepaid' && (
-              <span>Pay ₹{netPrice} & Claim +₹{bonusCredits} Bonus Cash →</span>
+              <span>Pay ₹{formatINR(netPrice)} & Claim +₹{formatINR(bonusCredits)} Bonus Cash →</span>
             )}
             {paymentOption === 'mandate' && (
               <span>Setup 10 PM UPI Mandate (₹0 Today) →</span>
             )}
             {paymentOption === 'pluxee' && (
-              <span>Pay ₹{netPrice} via Pluxee →</span>
+              <span>Pay ₹{formatINR(netPrice)} via Pluxee →</span>
             )}
           </button>
         ) : (
           <button
+            type="button"
             onClick={handleConfirmLocationsAndFinish}
-            className="w-full bg-gradient-to-r from-[#FF5A1F] to-[#FF7B47] hover:from-[#E04812] hover:to-[#FF5A1F] text-white font-extrabold text-xs py-3 px-4 rounded-xl shadow-md transition-all active:scale-[0.98] cta-bounce flex items-center justify-center space-x-1.5 cursor-pointer"
+            className="w-full min-h-[48px] bg-gradient-to-r from-[#FF5A1F] to-[#FF7B47] hover:from-[#E04812] hover:to-[#FF5A1F] text-white font-bold text-sm py-3 px-4 rounded-xl shadow-md transition-all active:scale-[0.98] cta-bounce flex items-center justify-center space-x-1.5 cursor-pointer"
           >
             <Sparkles className="w-4 h-4" />
             <span>Confirm Hubs & Build My AI Playlist ✨ ➔</span>
@@ -1048,60 +1032,101 @@ export default function SubscriptionFTUXFlow({ onCompleteActivation, onOpenIntro
 
       {/* FTUX & BILLING FAQ DRAWER (SLIDE-IN MODAL) */}
       {showFtuxInfo && (
-        <div className="absolute inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-end justify-center animate-in fade-in duration-200">
-          <div className="w-full bg-white rounded-t-3xl p-4 shadow-2xl border-t border-slate-100 max-h-[85%] overflow-y-auto space-y-3 animate-in slide-in-from-bottom duration-250">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Help & frequently asked questions"
+          className="absolute inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-end justify-center animate-in fade-in duration-200"
+          onClick={() => setShowFtuxInfo(false)}
+        >
+          <div
+            className="w-full bg-white rounded-t-3xl p-5 shadow-2xl border-t border-slate-100 max-h-[85%] overflow-y-auto space-y-3.5 animate-in slide-in-from-bottom duration-250 pb-[calc(1.25rem+env(safe-area-inset-bottom,0px))]"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="w-10 h-1 bg-slate-300 rounded-full mx-auto -mt-1 mb-1" />
 
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
-                <span className="text-lg">❓</span>
-                <h3 className="text-xs font-extrabold text-slate-900">
-                  Scheduled Meals & Billing FAQ
+                <HelpCircle className="w-4 h-4 text-[#C2410C]" />
+                <h3 className="text-sm font-bold text-slate-900">
+                  Help & frequently asked questions
                 </h3>
               </div>
               <button
+                type="button"
                 onClick={() => setShowFtuxInfo(false)}
-                className="p-1 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100"
+                className="w-9 h-9 flex items-center justify-center rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100"
+                aria-label="Close help"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
+            {/* 15s Story Walkthrough Video Trigger */}
+            {onOpenIntroSheet && (
+              <div className="bg-amber-50/80 border border-amber-200/80 p-3 rounded-2xl flex items-center justify-between">
+                <div>
+                  <h4 className="text-xs font-bold text-amber-950">
+                    New to scheduled meals?
+                  </h4>
+                  <p className="text-[11px] text-amber-800 mt-0.5">
+                    Watch the 15-second walkthrough to see how smart cut-offs and batching work.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    playPop();
+                    setShowFtuxInfo(false);
+                    onOpenIntroSheet();
+                  }}
+                  className="px-3 py-1.5 bg-[#FF5A1F] hover:bg-[#E04812] text-white font-bold text-xs rounded-xl shadow-xs shrink-0 ml-3 flex items-center space-x-1"
+                >
+                  <Play className="w-3 h-3 fill-current" />
+                  <span>Watch</span>
+                </button>
+              </div>
+            )}
+
             {/* Clean Visual Q&A Cards */}
             <div className="space-y-2 text-xs">
-              <div className="bg-[#FFF5F0] border border-[#FF5A1F]/30 p-2.5 rounded-xl">
-                <h4 className="font-bold text-[#FF5A1F] flex items-center text-[11px]">
-                  ⏰ What is the 10:00 PM cutoff?
+              <div className="bg-slate-50 border border-slate-200 p-3 rounded-xl">
+                <h4 className="font-bold text-slate-900 flex items-center text-xs">
+                  <Clock className="w-3.5 h-3.5 mr-1.5 text-[#C2410C]" />
+                  What is the 10:00 PM cut-off?
                 </h4>
-                <p className="text-[10px] text-slate-600 mt-0.5 leading-snug">
-                  Partner cloud kitchens marinate and prepare zero-waste fresh ingredients overnight. You can swap dishes or skip for free before 10 PM.
+                <p className="text-xs text-slate-600 mt-1 leading-snug">
+                  Partner cloud kitchens procure fresh ingredients and batch-cook overnight. You can swap dishes, flip locations, or skip meals for free before 10:00 PM.
                 </p>
               </div>
 
-              <div className="bg-[#ECFDF5] border border-emerald-200 p-2.5 rounded-xl">
-                <h4 className="font-bold text-emerald-900 flex items-center text-[11px]">
-                  🛡️ What happens when I skip a meal?
+              <div className="bg-slate-50 border border-slate-200 p-3 rounded-xl">
+                <h4 className="font-bold text-slate-900 flex items-center text-xs">
+                  <ShieldCheck className="w-3.5 h-3.5 mr-1.5 text-[#047857]" />
+                  What happens when I skip a meal?
                 </h4>
-                <p className="text-[10px] text-slate-600 mt-0.5 leading-snug">
-                  100% of your meal value rolls over into your Pause Shield wallet. Your pass validity automatically extends by +1 day with zero fee.
+                <p className="text-xs text-slate-600 mt-1 leading-snug">
+                  Under our Quota Preservation model, your meal is not consumed—it stays in your pass pack and your validity extends +1 day into your buffer. Any unconsumed meals at the end of your validity window convert to wallet balance. For UPI Mandates, the 10 PM debit is canceled (₹0 charged).
                 </p>
               </div>
 
-              <div className="bg-[#EEF2FF] border border-indigo-200 p-2.5 rounded-xl">
-                <h4 className="font-bold text-indigo-950 flex items-center text-[11px]">
-                  💳 How does UPI AutoPay Mandate work?
+              <div className="bg-slate-50 border border-slate-200 p-3 rounded-xl">
+                <h4 className="font-bold text-slate-900 flex items-center text-xs">
+                  <CreditCard className="w-3.5 h-3.5 mr-1.5 text-indigo-600" />
+                  How does UPI AutoPay Mandate work?
                 </h4>
-                <p className="text-[10px] text-slate-600 mt-0.5 leading-snug">
-                  You pay ₹0 today. Deduction happens at 10:00 PM only for confirmed meals. If skipped before 10 PM, ₹0 is debited.
+                <p className="text-xs text-slate-600 mt-1 leading-snug">
+                  You pay ₹0 today. Deduction happens at 10:00 PM only for confirmed meals. If skipped before 10 PM, ₹0 is charged.
                 </p>
               </div>
             </div>
 
             <button
+              type="button"
               onClick={() => setShowFtuxInfo(false)}
-              className="w-full py-2 rounded-xl bg-slate-900 text-white font-bold text-xs"
+              className="w-full min-h-[44px] py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition-colors"
             >
-              Back to Pass Configurator
+              Back to pass configurator
             </button>
           </div>
         </div>
