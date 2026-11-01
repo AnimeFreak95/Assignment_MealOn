@@ -21,11 +21,20 @@ import {
   X,
   MapPin,
   Move,
-  RotateCcw
+  RotateCcw,
+  Calendar,
+  LayoutList,
+  CalendarDays
 } from 'lucide-react';
 import { playPop, playSuccessChime, playCelebrationFanfare } from '../utils/audioDelight';
 import { MASTER_DISH_CATALOG, INITIAL_VAULT_IDS, SAVED_LOCATIONS } from '../data/mockData';
 import FoodVaultModal from '../components/FoodVaultModal';
+
+const TIME_WINDOWS = [
+  '12:30 PM – 1:00 PM',
+  '1:00 PM – 1:30 PM',
+  '1:30 PM – 2:00 PM'
+];
 
 const FILTER_CHIPS = [
   { id: 'protein', label: '💪 High protein', text: 'High-protein (>20g)' },
@@ -63,6 +72,13 @@ export default function AutoPilotTab({
   const [draggedDayIndex, setDraggedDayIndex] = useState(null);
   const [dragOverDayIndex, setDragOverDayIndex] = useState(null);
   const [activeShiftDay, setActiveShiftDay] = useState(null);
+
+  // View Layout: 'cards' vs 'calendar'
+  const [viewLayout, setViewLayout] = useState('cards');
+  const [selectedCalendarDay, setSelectedCalendarDay] = useState(0); // 0-4 for Mon-Fri
+  const [calendarSyncActive, setCalendarSyncActive] = useState(true);
+  const [autoSwitchedThursday, setAutoSwitchedThursday] = useState(true);
+  const [selectedRoutine, setSelectedRoutine] = useState('3-2'); // '3-2' | '4-1' | 'office' | 'home'
 
   // Calculate vault statistics
   const vaultDishes = useMemo(() => {
@@ -331,6 +347,88 @@ export default function AutoPilotTab({
   }, 0);
 
   const activeMealsCount = playlist.filter((d) => d.status !== 'skipped').length;
+  const officeDaysCount = playlist.filter((d) => d.location === 'office' && d.status !== 'skipped').length;
+  const homeDaysCount = playlist.filter((d) => d.location === 'home' && d.status !== 'skipped').length;
+  const skippedDaysCount = playlist.filter((d) => d.status === 'skipped').length;
+
+  // Calendar Auto-Sync toggle
+  const handleToggleCalendarSync = () => {
+    const nextState = !calendarSyncActive;
+    setCalendarSyncActive(nextState);
+    playPop();
+    if (nextState) {
+      setPlaylist((prev) => {
+        const next = [...prev];
+        if (next[3]) {
+          next[3] = {
+            ...next[3],
+            location: 'home',
+            slot: '1:30 PM – 2:00 PM'
+          };
+        }
+        return next;
+      });
+      setAutoSwitchedThursday(true);
+      if (onNotify) {
+        onNotify('Google Calendar Synced 📅', 'Detected Thursday WFH event ("Sprint Planning - Remote"). Rerouted to Home (1:30–2:00 PM).', 'info');
+      }
+    } else {
+      setAutoSwitchedThursday(false);
+      if (onNotify) {
+        onNotify('Calendar Sync Paused', 'Manual scheduling enabled for all days.', 'info');
+      }
+    }
+  };
+
+  // Revert Thursday WFH switch
+  const handleRevertThursday = () => {
+    playPop();
+    setPlaylist((prev) => {
+      const next = [...prev];
+      if (next[3]) {
+        next[3] = {
+          ...next[3],
+          location: 'office',
+          slot: '1:00 PM – 1:30 PM'
+        };
+      }
+      return next;
+    });
+    setAutoSwitchedThursday(false);
+    if (onNotify) {
+      onNotify('Reverted to Office 🏢', 'Thursday lunch set to Cyber Park Tower B (1:00–1:30 PM).', 'info');
+    }
+  };
+
+  // Apply default recurring routine (e.g. 3-2 = Mon-Wed Office, Thu-Fri Home)
+  const applyRecurringRoutine = (pattern) => {
+    setSelectedRoutine(pattern);
+    playSuccessChime();
+    setPlaylist((prev) => {
+      return prev.map((day, idx) => {
+        let targetLoc = 'office';
+        if (pattern === '3-2') {
+          targetLoc = idx < 3 ? 'office' : 'home';
+        } else if (pattern === '4-1') {
+          targetLoc = idx < 4 ? 'office' : 'home';
+        } else if (pattern === 'home') {
+          targetLoc = 'home';
+        } else if (pattern === 'office') {
+          targetLoc = 'office';
+        }
+        const defaultSlot = SAVED_LOCATIONS[targetLoc]?.defaultSlot || (targetLoc === 'office' ? '1:00 PM – 1:30 PM' : '1:30 PM – 2:00 PM');
+        return {
+          ...day,
+          location: targetLoc,
+          slot: defaultSlot
+        };
+      });
+    });
+    const label = pattern === '3-2' ? 'Mon–Wed Office • Thu–Fri Home' : pattern === '4-1' ? 'Mon–Thu Office • Fri Home' : pattern === 'office' ? 'All Days Office' : 'All Days Home';
+    if (onNotify) {
+      onNotify('Default Routine Applied ✨', `Set ${label} across all weeks.`, 'success');
+    }
+  };
 
   const avgProtein = Math.round(
     playlist.reduce((acc, day) => {
@@ -360,20 +458,104 @@ export default function AutoPilotTab({
       />
 
       <div className="space-y-3.5 animate-in fade-in duration-200">
-        {/* Main Title: Your week + Status Badge */}
+        {/* Main Title + View Switcher (Cards vs Calendar) */}
         <div className="flex items-center justify-between px-1">
+          <div>
             <h1 className="text-2xl font-black text-slate-900 tracking-tight">
-              Your week
+              {viewLayout === 'cards' ? 'Your week' : 'Pass Calendar'}
             </h1>
-            <div className="flex items-center space-x-1.5">
-              <span className="text-[10px] font-extrabold text-[#FF5A1F] bg-[#FFF5F0] border border-[#FF5A1F]/30 px-2.5 py-0.5 rounded-full">
-                {activeMealsCount} Meals Active • ₹0 Delivery
-              </span>
-            </div>
+            <p className="text-[11px] font-medium text-slate-500">
+              {viewLayout === 'cards' ? 'Nov 3 – Nov 7 • Mon to Fri' : 'Nov 2026 • 20-Day Buffer Runway'}
+            </p>
           </div>
 
-          {/* TOP-LEVEL MODE SWITCHER: AI MODE VS MY VAULT (At Top, Not In Card Input Field) */}
-          <div className="grid grid-cols-2 gap-1.5 bg-slate-100 p-1 rounded-2xl border border-slate-200/90 shadow-2xs">
+          <div className="flex items-center space-x-1.5">
+            {/* View Switcher: [Cards] | [Calendar] */}
+            <div className="bg-slate-100 p-0.5 rounded-xl border border-slate-200/90 flex items-center shadow-2xs">
+              <button
+                type="button"
+                onClick={() => {
+                  playPop();
+                  setViewLayout('cards');
+                }}
+                className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all flex items-center space-x-1 cursor-pointer ${
+                  viewLayout === 'cards'
+                    ? 'bg-white text-slate-900 shadow-xs'
+                    : 'text-slate-500 hover:text-slate-800'
+                }`}
+              >
+                <LayoutList className="w-3.5 h-3.5" />
+                <span>Cards</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  playPop();
+                  setViewLayout('calendar');
+                }}
+                className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all flex items-center space-x-1 cursor-pointer ${
+                  viewLayout === 'calendar'
+                    ? 'bg-[#FF5A1F] text-white shadow-xs'
+                    : 'text-slate-500 hover:text-slate-800'
+                }`}
+              >
+                <Calendar className="w-3.5 h-3.5" />
+                <span>Calendar</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {viewLayout === 'cards' ? (
+          <div className="space-y-3.5">
+            {/* Interactive Mini Week Date Strip */}
+            <div className="bg-white rounded-2xl p-2.5 border border-slate-200/90 shadow-2xs flex items-center justify-between gap-1.5">
+              {playlist.map((dayItem, idx) => {
+                const isOffice = dayItem.location === 'office';
+                const isSkipped = dayItem.status === 'skipped';
+                const isThursdaySync = idx === 3 && autoSwitchedThursday;
+                return (
+                  <button
+                    key={dayItem.day}
+                    type="button"
+                    onClick={() => {
+                      playPop();
+                      const el = document.getElementById(`meal-card-${idx}`);
+                      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }}
+                    className={`flex-1 py-1.5 px-1 rounded-xl flex flex-col items-center transition-all border text-center cursor-pointer ${
+                      isSkipped
+                        ? 'bg-slate-100 border-slate-200 text-slate-400'
+                        : isOffice
+                        ? 'bg-blue-50/70 border-blue-200 text-blue-900 hover:bg-blue-100/70'
+                        : 'bg-emerald-50/70 border-emerald-200 text-emerald-900 hover:bg-emerald-100/70'
+                    }`}
+                  >
+                    <span className="text-[10px] font-bold text-slate-500 uppercase">{dayItem.day.slice(0, 3)}</span>
+                    <span className="text-xs font-black text-slate-900">{idx + 3}</span>
+                    <span className="text-[10px] mt-0.5">
+                      {isSkipped ? '🛡️' : isThursdaySync ? '⚡' : isOffice ? '🏢' : '🏠'}
+                    </span>
+                  </button>
+                );
+              })}
+              <button
+                type="button"
+                onClick={() => {
+                  playPop();
+                  setViewLayout('calendar');
+                }}
+                className="px-2 py-2 rounded-xl bg-slate-100 hover:bg-[#FFF5F0] hover:text-[#FF5A1F] text-slate-600 border border-slate-200 text-[10px] font-extrabold flex flex-col items-center justify-center transition-all cta-bounce shrink-0 cursor-pointer"
+                title="Open full monthly calendar & routing"
+              >
+                <Calendar className="w-3.5 h-3.5" />
+                <span className="mt-0.5 whitespace-nowrap">Month</span>
+              </button>
+            </div>
+
+            {/* TOP-LEVEL MODE SWITCHER: AI MODE VS MY VAULT (At Top, Not In Card Input Field) */}
+            <div className="grid grid-cols-2 gap-1.5 bg-slate-100 p-1 rounded-2xl border border-slate-200/90 shadow-2xs">
             <button
               type="button"
               onClick={() => {
@@ -615,6 +797,7 @@ export default function AutoPilotTab({
                 return (
                   <div
                     key={dayItem.day}
+                    id={`meal-card-${idx}`}
                     onDragOver={(e) => {
                       e.preventDefault();
                       if (draggedDayIndex !== null && draggedDayIndex !== idx) {
@@ -918,6 +1101,478 @@ export default function AutoPilotTab({
             )}
           </div>
         </div>
+      ) : (
+        /* ======================================================== */
+        /* 📅 FULL MULTI-WEEK CALENDAR VIEW & HYBRID ROUTING HUB     */
+        /* ======================================================== */
+        <div className="space-y-3.5 animate-in fade-in duration-200">
+          {/* 1. Pass Runway & Buffer Horizon Banner */}
+          <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl p-4 text-white shadow-lg space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <div className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center">
+                  <Calendar className="w-4 h-4 text-[#FF5A1F]" />
+                </div>
+                <div>
+                  <span className="text-[10px] font-bold text-slate-400 block uppercase tracking-wider">
+                    Pass Runway & Horizon
+                  </span>
+                  <h3 className="text-sm font-black text-white">
+                    14 Meals Left • Valid through Nov 26
+                  </h3>
+                </div>
+              </div>
+              <span className="text-[10px] font-extrabold bg-[#FF5A1F]/20 text-[#FF5A1F] border border-[#FF5A1F]/30 px-2.5 py-1 rounded-full">
+                20-Day Buffer
+              </span>
+            </div>
+
+            {/* Multi-Location Split Stats */}
+            <div className="grid grid-cols-3 gap-2 pt-1 border-t border-white/10 text-center">
+              <div className="bg-white/5 rounded-xl p-2 border border-white/5">
+                <span className="text-[10px] text-slate-400 block font-medium">🏢 Office (Cyber Park)</span>
+                <span className="text-sm font-black text-blue-300">{officeDaysCount} Drops</span>
+              </div>
+              <div className="bg-white/5 rounded-xl p-2 border border-white/5">
+                <span className="text-[10px] text-slate-400 block font-medium">🏠 Home (Green Valley)</span>
+                <span className="text-sm font-black text-emerald-300">{homeDaysCount} Drops</span>
+              </div>
+              <div className="bg-white/5 rounded-xl p-2 border border-white/5">
+                <span className="text-[10px] text-slate-400 block font-medium">🛡️ Rollover Saved</span>
+                <span className="text-sm font-black text-amber-300">₹{skippedDaysCount * 190}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* 2. Google Calendar Auto-Reroute Intelligence Card */}
+          <div className="bg-white rounded-3xl p-4 border border-slate-200/90 shadow-xs space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+                  <CalendarDays className="w-4 h-4" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-black text-slate-900">
+                    Google Calendar Auto-Reroute
+                  </h4>
+                  <span className="text-[10px] text-slate-500 font-medium">
+                    Auto-detects WFH events & flips address at 8 PM prior
+                  </span>
+                </div>
+              </div>
+
+              {/* Toggle button */}
+              <button
+                type="button"
+                onClick={handleToggleCalendarSync}
+                className={`w-9 h-5 rounded-full transition-colors relative p-0.5 cursor-pointer ${
+                  calendarSyncActive ? 'bg-[#FF5A1F]' : 'bg-slate-300'
+                }`}
+              >
+                <div
+                  className={`w-4 h-4 rounded-full bg-white transition-transform ${
+                    calendarSyncActive ? 'translate-x-4' : 'translate-x-0'
+                  }`}
+                />
+              </button>
+            </div>
+
+            {calendarSyncActive && (
+              <div className="bg-blue-50/70 border border-blue-200 rounded-2xl p-2.5 text-xs text-blue-900 flex items-center justify-between animate-in fade-in">
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm">⚡</span>
+                  <div>
+                    <p className="font-bold text-[11px] leading-tight">
+                      Thu, Nov 6: Detected WFH ("Sprint Planning - Remote")
+                    </p>
+                    <p className="text-[10px] text-blue-700">
+                      {autoSwitchedThursday
+                        ? 'Auto-switched to Home (Green Valley Apt • 1:30–2:00 PM)'
+                        : 'Manually kept at Office (Cyber Park Tower B • 1:00–1:30 PM)'}
+                    </p>
+                  </div>
+                </div>
+
+                {autoSwitchedThursday ? (
+                  <button
+                    type="button"
+                    onClick={handleRevertThursday}
+                    className="text-[10px] font-extrabold text-blue-700 hover:text-blue-900 bg-white border border-blue-300 px-2 py-1 rounded-lg shrink-0 transition-all active:scale-95 cursor-pointer flex items-center space-x-1"
+                  >
+                    <RotateCcw className="w-2.5 h-2.5" />
+                    <span>Undo</span>
+                  </button>
+                ) : (
+                  <span className="text-[9px] font-bold text-slate-500 bg-white px-2 py-1 rounded-lg border border-slate-200">
+                    Overridden
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* 3. Interactive Monthly Calendar Grid (November 2026) */}
+          <div className="bg-white rounded-3xl p-4 border border-slate-200/90 shadow-xs space-y-3">
+            <div className="flex items-center justify-between pb-1">
+              <div>
+                <h3 className="text-sm font-black text-slate-900">
+                  November 2026 Schedule
+                </h3>
+                <p className="text-[10px] text-slate-500 font-medium">
+                  Tap any weekday to view meal, flip location, or skip
+                </p>
+              </div>
+              <div className="flex items-center space-x-2 text-[10px] font-bold">
+                <span className="flex items-center space-x-1 text-blue-700">
+                  <span className="w-2 h-2 rounded-full bg-blue-500" />
+                  <span>Office</span>
+                </span>
+                <span className="flex items-center space-x-1 text-emerald-700">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                  <span>Home</span>
+                </span>
+                <span className="flex items-center space-x-1 text-slate-500">
+                  <span className="w-2 h-2 rounded-full bg-slate-300" />
+                  <span>Skip</span>
+                </span>
+              </div>
+            </div>
+
+            {/* Day Headers */}
+            <div className="grid grid-cols-7 gap-1 text-center font-black text-[10px] text-slate-400 pb-1 border-b border-slate-100">
+              <span>M</span>
+              <span>T</span>
+              <span>W</span>
+              <span>T</span>
+              <span>F</span>
+              <span className="text-slate-300">S</span>
+              <span className="text-slate-300">S</span>
+            </div>
+
+            {/* Week 1: Active Pass Week (Nov 3 - 7 + weekend Nov 8-9) */}
+            <div className="space-y-1">
+              <div className="flex items-center justify-between text-[9px] font-black text-slate-400 uppercase tracking-wider px-1">
+                <span>Week 1 (Active Meal Playlist)</span>
+                <span className="text-[#FF5A1F]">Current Week</span>
+              </div>
+              <div className="grid grid-cols-7 gap-1">
+                {playlist.map((dayItem, idx) => {
+                  const isSelected = selectedCalendarDay === idx;
+                  const isOffice = dayItem.location === 'office';
+                  const isSkipped = dayItem.status === 'skipped';
+                  const isThursdaySync = idx === 3 && autoSwitchedThursday;
+                  const meal = dayItem.options[dayItem.currentIdx] || dayItem.options[0];
+
+                  return (
+                    <button
+                      key={dayItem.day}
+                      type="button"
+                      onClick={() => {
+                        playPop();
+                        setSelectedCalendarDay(idx);
+                      }}
+                      className={`py-2 px-1 rounded-xl flex flex-col items-center justify-center transition-all border cursor-pointer relative ${
+                        isSelected
+                          ? 'ring-2 ring-[#FF5A1F] border-[#FF5A1F] bg-orange-50/50 shadow-xs'
+                          : isSkipped
+                          ? 'bg-slate-50 border-slate-200 text-slate-400'
+                          : isOffice
+                          ? 'bg-blue-50/60 border-blue-200 text-blue-900 hover:bg-blue-100/50'
+                          : 'bg-emerald-50/60 border-emerald-200 text-emerald-900 hover:bg-emerald-100/50'
+                      }`}
+                    >
+                      <span className="text-xs font-black text-slate-900">{idx + 3}</span>
+                      <span className="text-[10px] mt-0.5">
+                        {isSkipped ? '🛡️' : isThursdaySync ? '⚡' : isOffice ? '🏢' : '🏠'}
+                      </span>
+                      <span className="text-[8px] font-extrabold truncate w-full text-center mt-0.5 leading-tight text-slate-600">
+                        {isSkipped ? 'Skip' : meal.name.split(' ')[0]}
+                      </span>
+                    </button>
+                  );
+                })}
+                {/* Weekend Sat 8 & Sun 9 */}
+                <div className="py-2 px-1 rounded-xl bg-slate-50 border border-slate-100/80 text-center flex flex-col items-center justify-center opacity-40">
+                  <span className="text-xs font-semibold text-slate-400">8</span>
+                  <span className="text-[9px] text-slate-400">☕</span>
+                </div>
+                <div className="py-2 px-1 rounded-xl bg-slate-50 border border-slate-100/80 text-center flex flex-col items-center justify-center opacity-40">
+                  <span className="text-xs font-semibold text-slate-400">9</span>
+                  <span className="text-[9px] text-slate-400">☕</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Week 2: Pass Buffer Runway (Nov 10 - 16) */}
+            <div className="space-y-1 pt-1 border-t border-slate-100">
+              <div className="flex items-center justify-between text-[9px] font-black text-slate-400 uppercase tracking-wider px-1">
+                <span>Week 2 (Pass Buffer Runway)</span>
+                <span className="text-slate-500">Scheduled Ahead</span>
+              </div>
+              <div className="grid grid-cols-7 gap-1">
+                {[10, 11, 12, 13, 14].map((d, dIdx) => (
+                  <div
+                    key={d}
+                    className="py-2 px-1 rounded-xl bg-slate-50 border border-slate-200/80 flex flex-col items-center justify-center text-center"
+                  >
+                    <span className="text-xs font-bold text-slate-700">{d}</span>
+                    <span className="text-[10px] mt-0.5">{dIdx < 3 ? '🏢' : '🏠'}</span>
+                    <span className="text-[8px] font-semibold text-slate-400 mt-0.5">Pass</span>
+                  </div>
+                ))}
+                <div className="py-2 px-1 rounded-xl bg-slate-50 border border-slate-100/80 text-center flex flex-col items-center justify-center opacity-40">
+                  <span className="text-xs font-semibold text-slate-400">15</span>
+                  <span className="text-[9px] text-slate-400">☕</span>
+                </div>
+                <div className="py-2 px-1 rounded-xl bg-slate-50 border border-slate-100/80 text-center flex flex-col items-center justify-center opacity-40">
+                  <span className="text-xs font-semibold text-slate-400">16</span>
+                  <span className="text-[9px] text-slate-400">☕</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Week 3 & 4 (Expiry Buffer Horizon) */}
+            <div className="space-y-1 pt-1 border-t border-slate-100">
+              <div className="flex items-center justify-between text-[9px] font-black text-slate-400 uppercase tracking-wider px-1">
+                <span>Buffer Boundary</span>
+                <span className="text-rose-600 font-extrabold">Nov 26 Expiry (20d Buffer)</span>
+              </div>
+              <div className="grid grid-cols-7 gap-1">
+                {[17, 18, 19, 20, 21].map((d) => (
+                  <div
+                    key={d}
+                    className="py-1.5 px-1 rounded-lg bg-slate-50 border border-slate-100 text-center"
+                  >
+                    <span className="text-[11px] font-medium text-slate-500">{d}</span>
+                  </div>
+                ))}
+                <div className="py-1.5 px-1 rounded-lg bg-slate-50 opacity-40 text-center text-[11px] text-slate-400">22</div>
+                <div className="py-1.5 px-1 rounded-lg bg-slate-50 opacity-40 text-center text-[11px] text-slate-400">23</div>
+              </div>
+            </div>
+          </div>
+
+          {/* 4. Selected Day Inspector & Quick Action Card */}
+          {selectedCalendarDay !== null && playlist[selectedCalendarDay] && (
+            <div className="bg-white rounded-3xl p-4 border-2 border-[#FF5A1F]/30 shadow-md space-y-3 animate-in fade-in">
+              {/* Header with Date & Day */}
+              <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                <div className="flex items-center space-x-2">
+                  <span className="text-base">
+                    {playlist[selectedCalendarDay].location === 'office' ? '🏢' : '🏠'}
+                  </span>
+                  <div>
+                    <h4 className="text-sm font-black text-slate-900">
+                      {playlist[selectedCalendarDay].day}, Nov {selectedCalendarDay + 3}
+                    </h4>
+                    <span className="text-[10px] font-medium text-slate-500">
+                      {playlist[selectedCalendarDay].status === 'skipped'
+                        ? '🛡️ Skipped • ₹190 Preserved in MealsOn Balance'
+                        : `Scheduled • ${playlist[selectedCalendarDay].location === 'office' ? 'Cyber Park Tower B' : 'Green Valley Apt'}`}
+                    </span>
+                  </div>
+                </div>
+
+                <span
+                  className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border ${
+                    playlist[selectedCalendarDay].status === 'skipped'
+                      ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                      : 'bg-orange-50 text-[#FF5A1F] border-orange-200'
+                  }`}
+                >
+                  {playlist[selectedCalendarDay].status === 'skipped' ? 'Skipped 🛡️' : 'Active Lunch'}
+                </span>
+              </div>
+
+              {/* Dish Info */}
+              {(() => {
+                const dayItem = playlist[selectedCalendarDay];
+                const currentMeal = dayItem.options[dayItem.currentIdx] || dayItem.options[0];
+                return (
+                  <div className="flex items-center justify-between bg-slate-50 p-2.5 rounded-2xl border border-slate-200/80">
+                    <div className="flex items-center space-x-2.5">
+                      <span className="text-2xl">{currentMeal.image}</span>
+                      <div>
+                        <h5 className="text-xs font-black text-slate-900 leading-tight">
+                          {currentMeal.name}
+                        </h5>
+                        <p className="text-[10px] text-slate-500 mt-0.5">
+                          {currentMeal.kitchen} • {currentMeal.protein}g Protein • {currentMeal.kcal} kcal
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-xs font-black text-slate-900 block">₹{currentMeal.price}</span>
+                      <span className="text-[9px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">
+                        In Pass
+                      </span>
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* 1-Tap Delivery Address Switcher */}
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black uppercase tracking-wider text-slate-500 block">
+                  Delivery Address (1-Tap Flip)
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (playlist[selectedCalendarDay].location !== 'office') {
+                        toggleDayLocation(selectedCalendarDay);
+                      }
+                    }}
+                    className={`p-2 rounded-xl border text-left transition-all cursor-pointer flex items-center space-x-2 ${
+                      playlist[selectedCalendarDay].location === 'office'
+                        ? 'bg-blue-50/80 border-blue-400 text-blue-950 font-black shadow-2xs'
+                        : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                    }`}
+                  >
+                    <Building2 className={`w-4 h-4 shrink-0 ${playlist[selectedCalendarDay].location === 'office' ? 'text-blue-600' : 'text-slate-400'}`} />
+                    <div className="min-w-0">
+                      <span className="text-[11px] block truncate font-bold">🏢 Cyber Park</span>
+                      <span className="text-[9px] text-slate-500 block">Office Pod</span>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (playlist[selectedCalendarDay].location !== 'home') {
+                        toggleDayLocation(selectedCalendarDay);
+                      }
+                    }}
+                    className={`p-2 rounded-xl border text-left transition-all cursor-pointer flex items-center space-x-2 ${
+                      playlist[selectedCalendarDay].location === 'home'
+                        ? 'bg-emerald-50/80 border-emerald-400 text-emerald-950 font-black shadow-2xs'
+                        : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                    }`}
+                  >
+                    <Home className={`w-4 h-4 shrink-0 ${playlist[selectedCalendarDay].location === 'home' ? 'text-emerald-600' : 'text-slate-400'}`} />
+                    <div className="min-w-0">
+                      <span className="text-[11px] block truncate font-bold">🏠 Green Valley</span>
+                      <span className="text-[9px] text-slate-500 block">Residence</span>
+                    </div>
+                  </button>
+                </div>
+              </div>
+
+              {/* 30-Min Delivery Window Selector */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-[10px] font-black uppercase tracking-wider text-slate-500">
+                    30-Min Delivery Wave
+                  </label>
+                  <span className="text-[9px] font-bold text-slate-400">Batched hot drops</span>
+                </div>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {TIME_WINDOWS.map((tw) => {
+                    const isSelectedSlot = playlist[selectedCalendarDay].slot === tw;
+                    return (
+                      <button
+                        key={tw}
+                        type="button"
+                        onClick={() => selectTimeSlot(selectedCalendarDay, tw)}
+                        className={`py-1.5 px-1 rounded-xl text-[10px] font-bold border transition-all text-center cursor-pointer ${
+                          isSelectedSlot
+                            ? 'bg-[#FF5A1F] text-white border-[#FF5A1F] shadow-xs'
+                            : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
+                        }`}
+                      >
+                        {tw.replace(' PM', '').replace(' – ', '-')}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Quick Action Buttons (Skip & Swap) */}
+              <div className="grid grid-cols-2 gap-2 pt-1 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => handleSkipDay(selectedCalendarDay)}
+                  className="py-2.5 px-3 rounded-xl border border-slate-200 text-slate-700 font-extrabold text-xs hover:bg-slate-50 active:scale-95 transition-all flex items-center justify-center space-x-1.5 cursor-pointer"
+                >
+                  <SkipForward className="w-3.5 h-3.5 text-slate-500" />
+                  <span>
+                    {playlist[selectedCalendarDay].status === 'skipped' ? 'Restore Meal' : 'Skip & Bank Credit'}
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    playPop();
+                    setMultiSwapModalDay(selectedCalendarDay);
+                  }}
+                  className="py-2.5 px-3 rounded-xl bg-orange-50 border border-orange-200 text-[#FF5A1F] font-extrabold text-xs hover:bg-orange-100 active:scale-95 transition-all flex items-center justify-center space-x-1.5 cursor-pointer"
+                >
+                  <Repeat className="w-3.5 h-3.5" />
+                  <span>Swap Dish</span>
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* 5. Set Recurring Hybrid Routine Card */}
+          <div className="bg-white rounded-3xl p-4 border border-slate-200/90 shadow-xs space-y-3">
+            <div>
+              <span className="text-[10px] font-black uppercase tracking-wider text-[#FF5A1F]">
+                Weekly Routine Automation
+              </span>
+              <h4 className="text-xs font-black text-slate-900">
+                Set Recurring Hybrid Work Pattern
+              </h4>
+              <p className="text-[10px] text-slate-500 font-medium">
+                Applies your preferred office vs home schedule to all future AI meal generations
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                { id: '3-2', label: '3 Office • 2 Home', desc: 'Mon–Wed Cyber Park • Thu–Fri Home' },
+                { id: '4-1', label: '4 Office • 1 Home', desc: 'Mon–Thu Cyber Park • Fri Home' },
+                { id: 'office', label: '100% Office', desc: 'All 5 days at Cyber Park Tower B' },
+                { id: 'home', label: '100% Home', desc: 'All 5 days at Green Valley Apt' }
+              ].map((pat) => (
+                <button
+                  key={pat.id}
+                  type="button"
+                  onClick={() => applyRecurringRoutine(pat.id)}
+                  className={`p-2.5 rounded-2xl border text-left transition-all cursor-pointer ${
+                    selectedRoutine === pat.id
+                      ? 'bg-[#FFF5F0] border-[#FF5A1F] shadow-2xs'
+                      : 'bg-slate-50/70 border-slate-200 hover:bg-slate-100/60'
+                  }`}
+                >
+                  <span className={`text-[11px] font-extrabold block ${selectedRoutine === pat.id ? 'text-[#FF5A1F]' : 'text-slate-800'}`}>
+                    {pat.label}
+                  </span>
+                  <span className="text-[9px] text-slate-500 font-medium block leading-tight mt-0.5">
+                    {pat.desc}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* 6. Office Pod Batching Unit Economics Explainer */}
+          <div className="bg-emerald-50/70 border border-emerald-200 rounded-3xl p-3.5 text-xs text-emerald-950 flex items-center space-x-3">
+            <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0" />
+            <div>
+              <h5 className="font-extrabold text-[11px] leading-tight">
+                Why Batch Delivery is 100% Free
+              </h5>
+              <p className="text-[10px] text-emerald-700 leading-relaxed mt-0.5">
+                MealsOn batches 5+ deliveries to Cyber Park Tower B in 30-min milk-run windows, saving ₹40/drop. That savings is directly passed to you as free delivery on every meal pass!
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
 
       {/* ======================================================== */}
       {/* 4–5 OPTION SWAP MODAL / BOTTOM SHEET WITH VAULT FILTER   */}

@@ -66,10 +66,9 @@ export default function App() {
   const handleLockInPlaylist = () => {
     showToast(
       'Weekly Playlist Locked In! ✨',
-      '5 personalized lunches scheduled. Now verify your hybrid office/home routing.',
+      '5 personalized lunches scheduled across your office & home locations.',
       'success'
     );
-    setActiveTab('routing');
   };
 
   const handleCompleteActivation = (passData) => {
@@ -166,10 +165,9 @@ export default function App() {
             <span>🎟️ Pass Flow</span>
           </button>
 
-          {/* 5 Core Feature Tabs */}
+          {/* 4 Core Feature Tabs */}
           {[
-            { id: 'autopilot', label: 'Auto-Pilot', icon: Sparkles },
-            { id: 'routing', label: 'Routing', icon: MapPin },
+            { id: 'autopilot', label: 'Planner', icon: Sparkles },
             { id: 'cutoff', label: '8PM Cut-Off', icon: Clock },
             { id: 'wallet', label: 'Wallet', icon: ShieldCheck },
             { id: 'streaks', label: 'Streaks', icon: Flame },
@@ -301,14 +299,6 @@ export default function App() {
                     setPlaylist={setPlaylist}
                     onLockInPlaylist={handleLockInPlaylist}
                     triggerConfetti={triggerConfetti}
-                    onNotify={showToast}
-                  />
-                )}
-
-                {activeTab === 'routing' && (
-                  <RoutingTab
-                    playlist={playlist}
-                    setPlaylist={setPlaylist}
                     onNotify={showToast}
                   />
                 )}
