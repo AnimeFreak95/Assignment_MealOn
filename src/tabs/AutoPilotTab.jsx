@@ -1138,12 +1138,12 @@ export default function AutoPilotTab({
                     )}
 
                     {/* Inline Confirmation Bar for Card (Pre-Skip Transparency) */}
-                    {confirmSkipDayIndex === idx && day.status !== 'skipped' && (
+                    {confirmSkipDayIndex === idx && dayItem.status !== 'skipped' && (
                       <div className="bg-gradient-to-br from-amber-50 via-orange-50 to-amber-100/70 border-t-2 border-amber-300 p-3 rounded-b-3xl space-y-2 animate-in fade-in duration-200">
                         <div className="flex items-center justify-between pb-1 border-b border-amber-200/60">
                           <span className="text-xs font-black text-amber-950 flex items-center space-x-1">
                             <span>🛡️</span>
-                            <span>Confirm Skip: {day.day} Lunch ({currentMeal.name})</span>
+                            <span>Confirm Skip: {dayItem.day} Lunch ({currentMeal.name})</span>
                           </span>
                           <button
                             type="button"
