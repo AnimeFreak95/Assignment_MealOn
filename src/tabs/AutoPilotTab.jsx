@@ -730,9 +730,17 @@ export default function AutoPilotTab({
                     </button>
                   </div>
 
-                  <p className="text-xs text-slate-600 font-medium leading-snug">
-                    Schedule 5 meals strictly rotated from your <strong>{vaultIds.length} approved favorites</strong>. Zero unwanted ingredients, zero repeats.
-                  </p>
+                  <div className="flex flex-wrap items-center gap-1.5 py-0.5 text-[10px]">
+                    <span className="bg-rose-50 border border-rose-200 text-rose-800 font-bold px-2 py-0.5 rounded-md">
+                      ✨ {vaultIds.length} Approved Dishes
+                    </span>
+                    <span className="bg-white border border-slate-200 text-slate-700 font-medium px-2 py-0.5 rounded-md">
+                      🛡️ Zero Repeats
+                    </span>
+                    <span className="bg-white border border-slate-200 text-slate-700 font-medium px-2 py-0.5 rounded-md">
+                      👌 100% Personal Taste
+                    </span>
+                  </div>
 
                   {/* Vault Stats Bar */}
                   <div className="grid grid-cols-3 gap-1.5 pt-1 border-t border-rose-100 text-center">
@@ -1517,9 +1525,10 @@ export default function AutoPilotTab({
                       ₹0 Delivery
                     </span>
                   </div>
-                  <p className="text-[8.5px] text-slate-500 leading-tight">
-                    🔒 <strong>10:00 PM Routing Lock:</strong> Switching between Office and Home for tomorrow locks at 10 PM tonight. Same-day morning address flips are disabled to protect batch delivery manifests.
-                  </p>
+                  <div className="flex items-center gap-1.5 text-[9px] text-slate-600 bg-white/80 rounded px-1.5 py-0.5 border border-slate-200/60 font-medium">
+                    <span className="font-bold text-amber-800">🔒 10 PM Routing Lock:</span>
+                    <span>Address flips lock at 10 PM to protect batch delivery</span>
+                  </div>
                 </div>
               </div>
 
@@ -1640,15 +1649,29 @@ export default function AutoPilotTab({
           </div>
 
           {/* 6. Office Pod Batching Unit Economics Explainer */}
-          <div className="bg-emerald-50/70 border border-emerald-200 rounded-3xl p-3.5 text-xs text-emerald-950 flex items-center space-x-3">
-            <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0" />
-            <div>
-              <h5 className="font-extrabold text-[11px] leading-tight">
-                Why Batch Delivery is 100% Free
-              </h5>
-              <p className="text-[10px] text-emerald-700 leading-relaxed mt-0.5">
-                MealsOn batches 5+ deliveries to Cyber Park Tower B in 30-min milk-run windows, saving ₹40/drop. That savings is directly passed to you as free delivery on every meal pass!
-              </p>
+          <div className="bg-emerald-50/80 border border-emerald-200 rounded-2xl p-3 text-xs text-emerald-950 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="font-black text-[11px] text-emerald-900 flex items-center gap-1.5">
+                <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+                Batch Drop Milk-Run Economy
+              </span>
+              <span className="text-[9px] font-extrabold bg-emerald-600 text-white px-2 py-0.5 rounded-full">
+                ₹0 Fee Passed to You
+              </span>
+            </div>
+            <div className="grid grid-cols-3 gap-1.5 text-center text-[10px]">
+              <div className="bg-white/80 border border-emerald-100 rounded-lg py-1 px-1.5">
+                <span className="block font-bold text-slate-800">📦 5+ Pod Orders</span>
+                <span className="text-[9px] text-slate-500">Cyber Park Hub</span>
+              </div>
+              <div className="bg-white/80 border border-emerald-100 rounded-lg py-1 px-1.5">
+                <span className="block font-bold text-slate-800">🛵 1 Milk-Run Drop</span>
+                <span className="text-[9px] text-slate-500">Saves ₹40/run</span>
+              </div>
+              <div className="bg-emerald-100/80 border border-emerald-300 rounded-lg py-1 px-1.5">
+                <span className="block font-black text-emerald-900">✨ 100% Free</span>
+                <span className="text-[9px] text-emerald-700">On Every Pass</span>
+              </div>
             </div>
           </div>
         </div>
@@ -1714,21 +1737,29 @@ export default function AutoPilotTab({
             </div>
 
             {/* Smart Swap Algorithm Callout */}
-            <div className="bg-emerald-50/80 border border-emerald-200/80 rounded-xl p-2.5 flex items-center justify-between text-xs text-emerald-950">
-              <div className="flex items-center space-x-1.5">
-                <span className="text-sm">🎯</span>
-                <div>
-                  <span className="font-extrabold text-[11px] block text-emerald-900 leading-tight">
-                    Smart Swap Algorithm: Similar-Value Match
-                  </span>
-                  <span className="text-[10px] text-emerald-700">
-                    Filtered to budget peer dishes (±₹25) • 100% Plan Covered • ₹0 Extra
+            <div className="bg-emerald-50/80 border border-emerald-200/80 rounded-xl p-2.5 space-y-1.5 text-xs text-emerald-950">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-1.5">
+                  <span className="text-sm">🎯</span>
+                  <span className="font-extrabold text-[11px] text-emerald-900 leading-tight">
+                    Smart Swap: Similar-Value Match
                   </span>
                 </div>
+                <span className="text-[9px] font-bold bg-emerald-600 text-white px-2 py-0.5 rounded-full shrink-0">
+                  ₹0 Fee
+                </span>
               </div>
-              <span className="text-[9px] font-bold bg-emerald-600 text-white px-2 py-0.5 rounded-full shrink-0">
-                ₹0 Fee
-              </span>
+              <div className="flex flex-wrap items-center gap-1.5 text-[10px]">
+                <span className="bg-white/80 border border-emerald-200 text-emerald-800 font-semibold px-2 py-0.5 rounded-md">
+                  🏷️ ±₹25 Budget Match
+                </span>
+                <span className="bg-white/80 border border-emerald-200 text-emerald-800 font-semibold px-2 py-0.5 rounded-md">
+                  🛡️ 100% Plan Covered
+                </span>
+                <span className="bg-emerald-100 text-emerald-900 font-bold px-2 py-0.5 rounded-md">
+                  ✨ Zero Extra Cost
+                </span>
+              </div>
             </div>
 
             <p className="text-[11px] text-slate-500">

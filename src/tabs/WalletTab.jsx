@@ -155,11 +155,33 @@ export default function WalletTab({ credits, setCredits, onNotify, triggerConfet
           </span>
         </div>
 
-        <p className="text-[11px] leading-relaxed opacity-90">
-          {paymentMode === 'prepaid'
-            ? 'When you skip a meal before 10:00 PM, your meal is NOT consumed. It stays in your pack, extending your runway +1 day into your 20-day buffer. The wallet credit is only given as a Safety Net if your 20-day validity window expires with unconsumed meals!'
-            : 'Because you pay per-meal via UPI AutoPay, skipping a meal before 10:00 PM simply cancels that night\'s debit. ₹0 is deducted from your bank, so no wallet credit is needed.'}
-        </p>
+        <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+          {paymentMode === 'prepaid' ? (
+            <>
+              <span className="inline-flex items-center gap-1 text-[10px] font-semibold bg-emerald-100 text-emerald-900 px-2 py-0.5 rounded-md border border-emerald-300">
+                🛡️ Quota Preserved on Skip
+              </span>
+              <span className="inline-flex items-center gap-1 text-[10px] font-semibold bg-white text-slate-700 px-2 py-0.5 rounded-md border border-emerald-200">
+                📅 +1 Day Buffer Runway
+              </span>
+              <span className="inline-flex items-center gap-1 text-[10px] font-semibold bg-white text-slate-700 px-2 py-0.5 rounded-md border border-emerald-200">
+                ⚡ Safety Net on Expiry
+              </span>
+            </>
+          ) : (
+            <>
+              <span className="inline-flex items-center gap-1 text-[10px] font-semibold bg-blue-100 text-blue-900 px-2 py-0.5 rounded-md border border-blue-300">
+                ⚡ ₹0 Nightly Auto-Debit
+              </span>
+              <span className="inline-flex items-center gap-1 text-[10px] font-semibold bg-white text-slate-700 px-2 py-0.5 rounded-md border border-blue-200">
+                💳 Zero Bank Deduction
+              </span>
+              <span className="inline-flex items-center gap-1 text-[10px] font-semibold bg-white text-slate-700 px-2 py-0.5 rounded-md border border-blue-200">
+                🔒 10 PM Cut-off Protection
+              </span>
+            </>
+          )}
+        </div>
 
         <div className="grid grid-cols-2 gap-1.5 pt-0.5 text-[10px]">
           <div className="bg-white/90 rounded-lg p-2 border border-slate-200/70 space-y-0.5">

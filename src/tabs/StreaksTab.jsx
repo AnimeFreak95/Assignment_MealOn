@@ -903,9 +903,14 @@ export default function StreaksTab({
                   <h2 id="habit-tree-section" className="text-sm font-extrabold text-slate-900 leading-tight">
                     Healthy Week Habit Tree
                   </h2>
-                  <p className="text-xs text-slate-500 font-medium">
-                    4 of 5 meals blooms your tree • 1 Free Protected Skip
-                  </p>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200/70">
+                      🌸 4 Meals Bloom
+                    </span>
+                    <span className="text-[10px] font-semibold text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded">
+                      🛡️ 1 Protected Skip
+                    </span>
+                  </div>
                 </div>
               </div>
 
@@ -1091,9 +1096,17 @@ export default function StreaksTab({
                 </span>
               </div>
 
-              <p className="text-xs text-slate-300 leading-snug relative z-10 font-medium">
-                Zero food waste, zero cold-chain packaging. Spin the wheel to claim your guaranteed reward (Tier Upgrade, ₹50 Balance, +3d Buffer, Coffee Shout, or 15% Pass Discount).
-              </p>
+              <div className="flex flex-wrap items-center gap-1.5 relative z-10 py-0.5">
+                <span className="inline-flex items-center gap-1 text-[11px] font-semibold bg-white/10 text-slate-200 px-2 py-0.5 rounded-md border border-white/10">
+                  🌱 Zero Food Waste
+                </span>
+                <span className="inline-flex items-center gap-1 text-[11px] font-semibold bg-emerald-500/15 text-emerald-300 px-2 py-0.5 rounded-md border border-emerald-500/20">
+                  🎁 5 Guaranteed Perks
+                </span>
+                <span className="inline-flex items-center gap-1 text-[11px] font-semibold bg-amber-500/15 text-amber-300 px-2 py-0.5 rounded-md border border-amber-500/20">
+                  ⚡ Instant Credit
+                </span>
+              </div>
 
               {claimedWheelReward ? (
                 <div className="bg-slate-800/90 rounded-xl p-3 border border-slate-700 space-y-2 relative z-10">
