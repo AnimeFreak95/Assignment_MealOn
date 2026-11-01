@@ -246,30 +246,29 @@ export default function CutOffTab({
                 ⏳ Modify or skip before 10:00 PM cutoff
               </p>
 
-              {/* Quick Reply Buttons */}
-              <div className="grid grid-cols-3 gap-1 pt-0.5">
-                <button
-                  onClick={handleKeepMeal}
-                  className="py-1 px-1 rounded border border-[#25D366] bg-[#DCF8C6] text-emerald-950 font-bold text-[10px] transition-all active:scale-95 text-center truncate"
-                >
-                  ✅ Confirm
-                </button>
+              {/* Quick Action Buttons (Opt-out Exception Flow) */}
+              <div className="grid grid-cols-2 gap-1.5 pt-0.5">
                 <button
                   onClick={() => {
                     playPop();
                     setShowSwapCarousel(true);
                   }}
-                  className="py-1 px-1 rounded border border-slate-300 bg-slate-50 text-slate-800 font-bold text-[10px] transition-all active:scale-95 text-center truncate"
+                  className="py-1.5 px-2 rounded-lg border border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-800 font-bold text-[11px] transition-all active:scale-95 text-center flex items-center justify-center space-x-1"
                 >
-                  🔄 Swap
+                  <span>🔄</span>
+                  <span>Swap Dish</span>
                 </button>
                 <button
                   onClick={handleInitiateSkip}
-                  className="py-1 px-1 rounded border border-amber-300 bg-amber-50 text-amber-900 font-bold text-[10px] transition-all active:scale-95 text-center truncate"
+                  className="py-1.5 px-2 rounded-lg border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-900 font-bold text-[11px] transition-all active:scale-95 text-center flex items-center justify-center space-x-1"
                 >
-                  {paymentMode === 'prepaid' ? '⏭️ Skip & Bank' : '⏭️ Skip (₹0)'}
+                  <span>⏭️</span>
+                  <span>{paymentMode === 'prepaid' ? 'Skip & Bank' : 'Skip (₹0)'}</span>
                 </button>
               </div>
+              <p className="text-[9px] text-slate-500 text-center italic">
+                ✓ Auto-locks at 10 PM. No action needed if you love this meal!
+              </p>
             </div>
           </div>
         ) : (
@@ -328,19 +327,17 @@ export default function CutOffTab({
               Tomorrow's Lunch (Mon)
             </span>
 
-            {tomorrowStatus === 'confirmed' && (
-              <span className="text-[9px] font-extrabold bg-[#10B981] text-white px-2 py-0.5 rounded-full flex items-center">
-                <CheckCircle2 className="w-2.5 h-2.5 mr-0.5" /> Confirmed
-              </span>
-            )}
-            {tomorrowStatus === 'swapped' && (
+            {tomorrowStatus === 'swapped' ? (
               <span className="text-[9px] font-extrabold bg-[#FF5A1F] text-white px-2 py-0.5 rounded-full flex items-center">
                 <RefreshCw className="w-2.5 h-2.5 mr-0.5" /> Swapped
               </span>
-            )}
-            {tomorrowStatus === 'skipped' && (
+            ) : tomorrowStatus === 'skipped' ? (
               <span className="text-[9px] font-extrabold bg-slate-600 text-white px-2 py-0.5 rounded-full flex items-center">
                 <SkipForward className="w-2.5 h-2.5 mr-0.5" /> Skipped
+              </span>
+            ) : (
+              <span className="text-[9px] font-extrabold bg-[#10B981] text-white px-2 py-0.5 rounded-full flex items-center shadow-2xs">
+                <CheckCircle2 className="w-2.5 h-2.5 mr-0.5" /> Auto-Confirmed
               </span>
             )}
           </div>
@@ -385,45 +382,45 @@ export default function CutOffTab({
             </p>
           </div>
         ) : (
-          /* 3 Interactive Action Buttons */
-          <div className="grid grid-cols-3 gap-1.5 pt-0.5">
-          <button
-            onClick={handleKeepMeal}
-            className={`py-2 px-1 rounded-xl font-bold text-[11px] flex flex-col items-center justify-center space-y-0.5 transition-all active:scale-[0.96] cta-bounce ${
-              tomorrowStatus === 'confirmed'
-                ? 'bg-[#10B981] text-white shadow-sm'
-                : 'bg-[#ECFDF5] hover:bg-[#D1FAE5] text-[#065F46] border border-[#10B981]/40'
-            }`}
-          >
-            <CheckCircle2 className="w-3.5 h-3.5" />
-            <span>Confirm</span>
-          </button>
+          /* 2 Exception Action Buttons (Zero-Friction Auto-Lock) */
+          <div className="space-y-1.5 pt-0.5">
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={() => {
+                  playPop();
+                  setShowSwapCarousel(!showSwapCarousel);
+                }}
+                className={`py-2.5 px-3 rounded-xl font-bold text-xs flex items-center justify-center space-x-1.5 transition-all active:scale-[0.97] cta-bounce ${
+                  showSwapCarousel
+                    ? 'bg-[#FF5A1F] text-white shadow-sm'
+                    : 'bg-[#FFF5F0] hover:bg-[#FFE6DC] text-[#FF5A1F] border border-[#FF5A1F]/40'
+                }`}
+              >
+                <RefreshCw className="w-3.5 h-3.5" />
+                <span>Swap Dish</span>
+              </button>
 
-          <button
-            onClick={() => {
-              playPop();
-              setShowSwapCarousel(!showSwapCarousel);
-            }}
-            className="py-2 px-1 rounded-xl font-bold text-[11px] flex flex-col items-center justify-center space-y-0.5 bg-[#FFF5F0] hover:bg-[#FFE6DC] text-[#FF5A1F] border border-[#FF5A1F]/40 transition-all active:scale-[0.96] cta-bounce"
-          >
-            <RefreshCw className="w-3.5 h-3.5" />
-            <span>Swap Dish</span>
-          </button>
+              <button
+                onClick={handleInitiateSkip}
+                className={`py-2.5 px-3 rounded-xl font-bold text-xs flex items-center justify-center space-x-1.5 transition-all active:scale-[0.97] cta-bounce ${
+                  tomorrowStatus === 'skipped'
+                    ? 'bg-slate-700 text-white shadow-sm'
+                    : showSkipConfirmation
+                    ? 'bg-amber-200 text-amber-950 border-2 border-amber-500 ring-2 ring-amber-400/30'
+                    : 'bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300'
+                }`}
+              >
+                <SkipForward className="w-3.5 h-3.5" />
+                <span>{tomorrowStatus === 'skipped' ? 'Meal Skipped' : paymentMode === 'prepaid' ? 'Skip & Bank ₹190' : 'Skip & Pay ₹0'}</span>
+              </button>
+            </div>
 
-          <button
-            onClick={handleInitiateSkip}
-            className={`py-2 px-1 rounded-xl font-bold text-[11px] flex flex-col items-center justify-center space-y-0.5 transition-all active:scale-[0.96] cta-bounce ${
-              tomorrowStatus === 'skipped'
-                ? 'bg-slate-700 text-white shadow-sm'
-                : showSkipConfirmation
-                ? 'bg-amber-200 text-amber-950 border-2 border-amber-500 ring-2 ring-amber-400/30'
-                : 'bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300'
-            }`}
-          >
-            <SkipForward className="w-3.5 h-3.5" />
-            <span>{tomorrowStatus === 'skipped' ? 'Skipped' : paymentMode === 'prepaid' ? 'Skip & Bank' : 'Skip & Pay ₹0'}</span>
-          </button>
-        </div>
+            {/* Zero-Effort Subscription Assurance Subtext */}
+            <div className="flex items-center justify-center space-x-1 text-[10px] text-slate-500 font-medium pt-0.5">
+              <CheckCircle2 className="w-3 h-3 text-[#10B981]" />
+              <span>Auto-locks at 10 PM. No action needed if you want this lunch!</span>
+            </div>
+          </div>
         )}
 
         {/* Interactive Confirmation Bar (Transparent Pre-Skip Breakdown) */}
