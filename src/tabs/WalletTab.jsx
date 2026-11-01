@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import { playPop, playSuccessChime } from '../utils/audioDelight';
 
-export default function WalletTab({ credits, setCredits, onNotify, triggerConfetti }) {
+export default function WalletTab({ credits, setCredits, onNotify, triggerConfetti, paymentMode = 'prepaid' }) {
   const [vacationDays, setVacationDays] = useState(2);
   const [autoRolloverActive, setAutoRolloverActive] = useState(true);
   const [expandedFaq, setExpandedFaq] = useState(true);
@@ -113,6 +113,48 @@ export default function WalletTab({ credits, setCredits, onNotify, triggerConfet
             Zero Expiry Penalty
           </span>
           <span className="font-bold text-white">Valid to {extendedDateStr}</span>
+        </div>
+      </div>
+
+      {/* 1.5 Educational Callout: Prepaid Rollover vs Mandate Cancellation */}
+      <div className={`rounded-2xl p-3 border shadow-sm space-y-2 ${
+        paymentMode === 'prepaid'
+          ? 'bg-emerald-50/70 border-emerald-200 text-emerald-950'
+          : 'bg-blue-50/70 border-blue-200 text-blue-950'
+      }`}>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-1.5 font-extrabold text-xs">
+            <span className="text-base select-none">{paymentMode === 'prepaid' ? '💰' : '⚡'}</span>
+            <span>
+              {paymentMode === 'prepaid'
+                ? 'Prepaid Pass: 60-Day Rollover Balance'
+                : 'UPI Mandate: Zero-Debit Cancellation (₹0 Charged)'}
+            </span>
+          </div>
+          <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full uppercase ${
+            paymentMode === 'prepaid'
+              ? 'bg-emerald-600 text-white'
+              : 'bg-blue-600 text-white'
+          }`}>
+            {paymentMode === 'prepaid' ? 'Prepaid Active' : 'Mandate Active'}
+          </span>
+        </div>
+
+        <p className="text-[11px] leading-relaxed opacity-90">
+          {paymentMode === 'prepaid'
+            ? 'Because you paid upfront, skipping a meal before 10:00 PM deposits 100% (₹190) into your MealsOn Balance. Your balance is valid for 60 days on pass renewal (up to 25% invoice offset).'
+            : 'Because you pay per-meal via UPI AutoPay, skipping a meal before 10:00 PM simply cancels the 10 PM debit. ₹0 is deducted from your bank, so no wallet credit is issued.'}
+        </p>
+
+        <div className="grid grid-cols-2 gap-1.5 pt-1 text-[10px]">
+          <div className="bg-white/80 rounded-lg p-1.5 border border-slate-200/60">
+            <span className="font-bold text-slate-700 block">💰 Prepaid Members</span>
+            <span className="text-slate-600">Upfront payment → 100% cash preserved in balance on skip.</span>
+          </div>
+          <div className="bg-white/80 rounded-lg p-1.5 border border-slate-200/60">
+            <span className="font-bold text-slate-700 block">⚡ Mandate Members</span>
+            <span className="text-slate-600">Per-meal debit → ₹0 debited on skip. Keep your money in bank.</span>
+          </div>
         </div>
       </div>
 
