@@ -5,7 +5,7 @@ import BottomNav from './components/BottomNav';
 import Toast from './components/Toast';
 import { ConfettiCanvas, FloatingCreditBadge, WowDelightModal } from './components/DelightEffects';
 import { isSoundEnabled, setSoundEnabled, playPop, playCelebrationFanfare } from './utils/audioDelight';
-import SubscriptionFTUXFlow from './components/SubscriptionFTUXFlow';
+import SubscriptionFTUXFlow from './components/PassOnboardingFlow';
 import GtmIntroBottomSheet from './components/GtmIntroBottomSheet';
 import GtmCampaignHub from './components/GtmCampaignHub';
 
