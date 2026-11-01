@@ -353,7 +353,7 @@ export default function CutOffTab({
           <div className="bg-[#ECFDF5] border border-[#10B981] rounded-xl p-2.5 text-xs text-emerald-900 animate-in fade-in duration-200">
             <div className="flex items-center space-x-1.5 font-bold">
               <ShieldCheck className="w-4 h-4 text-[#10B981] shrink-0" />
-              <span>₹190 Banked! Plan extended +1 day.</span>
+              <span>₹190 Saved in MealsOn Balance • Valid across your 20-day pass buffer</span>
             </div>
           </div>
         )}

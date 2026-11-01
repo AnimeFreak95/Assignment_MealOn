@@ -263,9 +263,18 @@ export default function AutoPilotTab({
 
     if (onNotify) {
       if (!isCurrentlySkipped) {
-        onNotify('Meal Skipped & Banked! 🛡️', `₹190 credit preserved in your MealsOn Wallet. Pass extended +1 day.`, 'success');
+        const dishPrice = playlist[dayIndex]?.options[playlist[dayIndex]?.currentIdx]?.price || 190;
+        onNotify(
+          `${playlist[dayIndex].day} Lunch Skipped 🛡️`,
+          `₹${dishPrice} meal credit safely preserved in your MealsOn Balance.`,
+          'success'
+        );
       } else {
-        onNotify('Meal Restored! 🥗', `${playlist[dayIndex].day} lunch restored to your weekly schedule.`, 'info');
+        onNotify(
+          'Meal Restored! 🥗',
+          `${playlist[dayIndex].day} lunch restored to your weekly schedule.`,
+          'info'
+        );
       }
     }
   };
@@ -393,7 +402,7 @@ export default function AutoPilotTab({
       {/* ======================================================== */}
       {viewVersion === 'v2' ? (
         <div className="space-y-3.5 animate-in fade-in duration-200">
-          {/* Main Title: Your week */}
+          {/* Main Title: Your week + Status Badge */}
           <div className="flex items-center justify-between px-1">
             <h1 className="text-2xl font-black text-slate-900 tracking-tight">
               Your week
@@ -405,53 +414,65 @@ export default function AutoPilotTab({
             </div>
           </div>
 
-          {/* 1. Smart Planner Top Card with Mode Switcher (AI Auto-Pilot vs My Food Vault) */}
-          <div className="bg-white rounded-3xl p-4 border border-slate-200/90 shadow-sm space-y-3">
-            {/* Header: Title + Mode Toggle (AI vs My Vault) */}
-            <div className="flex items-center justify-between pb-1">
-              <div className="flex items-center space-x-1.5">
-                {plannerMode === 'ai' ? (
-                  <Sparkles className="w-4 h-4 text-[#FF5A1F]" />
-                ) : (
-                  <Heart className="w-4 h-4 text-rose-500 fill-rose-500" />
-                )}
-                <h2 className="text-sm font-extrabold text-slate-900">
-                  {plannerMode === 'ai' ? 'Smart planner' : 'My Food Vault'}
-                </h2>
-              </div>
+          {/* TOP-LEVEL MODE SWITCHER: AI MODE VS MY VAULT (At Top, Not In Card Input Field) */}
+          <div className="grid grid-cols-2 gap-1.5 bg-slate-100 p-1 rounded-2xl border border-slate-200/90 shadow-2xs">
+            <button
+              type="button"
+              onClick={() => {
+                playPop();
+                setPlannerMode('ai');
+              }}
+              className={`py-2 px-3 rounded-xl text-xs font-black transition-all flex items-center justify-center space-x-1.5 cursor-pointer ${
+                plannerMode === 'ai'
+                  ? 'bg-white text-slate-900 shadow-xs border border-slate-200/80'
+                  : 'text-slate-500 hover:text-slate-800'
+              }`}
+            >
+              <Sparkles className={`w-3.5 h-3.5 ${plannerMode === 'ai' ? 'text-[#FF5A1F]' : 'text-slate-400'}`} />
+              <span>✨ AI Smart Planner</span>
+            </button>
 
-              {/* Mode Toggle Segment: AI vs My Vault */}
-              <div className="flex items-center bg-slate-100 p-0.5 rounded-xl border border-slate-200 text-[10px] font-bold">
-                <button
-                  type="button"
-                  onClick={() => {
-                    playPop();
-                    setPlannerMode('ai');
-                  }}
-                  className={`px-2.5 py-1 rounded-lg transition-all ${
-                    plannerMode === 'ai'
-                      ? 'bg-white text-slate-900 font-extrabold shadow-2xs'
-                      : 'text-slate-500 hover:text-slate-700'
-                  }`}
-                >
-                  ✨ AI Mode
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    playPop();
-                    setPlannerMode('vault');
-                  }}
-                  className={`px-2.5 py-1 rounded-lg transition-all flex items-center space-x-1 ${
-                    plannerMode === 'vault'
-                      ? 'bg-rose-500 text-white font-extrabold shadow-2xs'
-                      : 'text-slate-500 hover:text-slate-700'
-                  }`}
-                >
-                  <Heart className="w-2.5 h-2.5 fill-current" />
-                  <span>Vault ({vaultIds.length})</span>
-                </button>
+            <button
+              type="button"
+              onClick={() => {
+                playPop();
+                setPlannerMode('vault');
+              }}
+              className={`py-2 px-3 rounded-xl text-xs font-black transition-all flex items-center justify-center space-x-1.5 cursor-pointer ${
+                plannerMode === 'vault'
+                  ? 'bg-white text-rose-600 shadow-xs border border-slate-200/80'
+                  : 'text-slate-500 hover:text-slate-800'
+              }`}
+            >
+              <Heart className={`w-3.5 h-3.5 ${plannerMode === 'vault' ? 'fill-rose-500 text-rose-500' : 'text-slate-400'}`} />
+              <span>💖 My Food Vault ({vaultIds.length})</span>
+            </button>
+          </div>
+
+          {/* 1. Planner Card (Clean Content based on Selected Top-Level Mode) */}
+          <div className="bg-white rounded-3xl p-4 border border-slate-200/90 shadow-sm space-y-3">
+            {/* Header: Clean Title based on Mode */}
+            <div className="flex items-center justify-between pb-0.5">
+              <div className="flex items-center space-x-2">
+                {plannerMode === 'ai' ? (
+                  <>
+                    <Sparkles className="w-4 h-4 text-[#FF5A1F]" />
+                    <h2 className="text-sm font-extrabold text-slate-900">
+                      Smart planner
+                    </h2>
+                  </>
+                ) : (
+                  <>
+                    <Heart className="w-4 h-4 text-rose-500 fill-rose-500" />
+                    <h2 className="text-sm font-extrabold text-slate-900">
+                      My Food Vault
+                    </h2>
+                  </>
+                )}
               </div>
+              <span className={`text-[10px] font-bold ${plannerMode === 'ai' ? 'text-slate-400' : 'text-rose-600 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded-full'}`}>
+                {plannerMode === 'ai' ? 'AI Auto-Pilot' : `${vaultIds.length} Dishes Approved`}
+              </span>
             </div>
 
             {/* Content for AI Mode (Exact Match from Screenshot) */}
@@ -858,16 +879,16 @@ export default function AutoPilotTab({
                     {/* BOTTOM TOOLBAR: CONDITIONAL BASED ON SKIPPED STATE       */}
                     {/* ======================================================== */}
                     {isSkipped ? (
-                      /* SIMPLIFIED HIGH-CONTRAST SKIPPED CARD STATE FOR MOBILE */
+                      /* OPTION B: PRD-ALIGNED MINIMAL SKIPPED STATE */
                       <div className="bg-emerald-50/90 border-t border-emerald-200 -mx-4 -mb-4 p-3 rounded-b-3xl flex items-center justify-between animate-in fade-in duration-150">
                         <div className="flex items-center space-x-2">
                           <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
                           <div>
                             <span className="text-xs font-black text-emerald-950 block leading-tight">
-                              Meal Skipped • ₹190 Preserved
+                              Meal Skipped • ₹{currentMeal.price} Saved
                             </span>
                             <span className="text-[10px] font-medium text-emerald-700">
-                              Credited to MealsOn Wallet. Pass extended +1 day.
+                              Credited to your MealsOn Balance • Valid across your 20-day pass buffer.
                             </span>
                           </div>
                         </div>
