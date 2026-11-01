@@ -203,7 +203,7 @@ export default function App() {
           {/* 4 Core Feature Tabs */}
           {[
             { id: 'autopilot', label: 'Planner', icon: Sparkles },
-            { id: 'cutoff', label: '8PM Cut-Off', icon: Clock },
+            { id: 'cutoff', label: 'Cut-Off', icon: Clock },
             { id: 'wallet', label: 'Wallet', icon: ShieldCheck },
             { id: 'streaks', label: 'Streaks', icon: Flame },
           ].map((item) => (

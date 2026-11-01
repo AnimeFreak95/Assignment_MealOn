@@ -3,7 +3,7 @@ import { Sparkles, MapPin, Clock, ShieldCheck, Flame } from 'lucide-react';
 
 const TABS = [
   { id: 'autopilot', label: 'Planner', icon: Sparkles },
-  { id: 'cutoff', label: '8PM Cut-Off', icon: Clock, badge: 'Live' },
+  { id: 'cutoff', label: 'Cut-Off', icon: Clock, badge: 'Live' },
   { id: 'wallet', label: 'Wallet', icon: ShieldCheck },
   { id: 'streaks', label: 'Loyalty', icon: Flame, badge: '🔥' },
 ];

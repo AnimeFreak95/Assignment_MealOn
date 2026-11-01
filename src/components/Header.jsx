@@ -66,7 +66,7 @@ export default function Header({
         {/* Notification Bell */}
         <button
           onClick={onBellClick || (() => onNavigateTab('cutoff'))}
-          title="8 PM Cut-Off Notifications"
+          title="10 PM Cut-Off Notifications"
           className="relative p-1.5 rounded-full hover:bg-slate-100 text-slate-600 transition-colors"
         >
           <Bell className="w-3.5 h-3.5" />
