@@ -46,11 +46,53 @@ const AVATARS = [
   { name: 'Neha V.', initials: 'NV', bg: 'bg-purple-500', role: 'HR', orders: 3 },
 ];
 
-export default function StreaksTab({ onNotify, triggerConfetti, onOpenWowModal }) {
+export default function StreaksTab({
+  credits,
+  setCredits,
+  playlist,
+  setPlaylist,
+  onNavigateTab,
+  onOpenFtux,
+  onNotify,
+  triggerConfetti,
+  onOpenWowModal
+}) {
   // SUB-TAB NAVIGATION: 'tree' (My Habit Tree) | 'tribe' (Tower Tribe)
   const [activeSubTab, setActiveSubTab] = useState('tree');
   const [showSpinWheelModal, setShowSpinWheelModal] = useState(false);
   const [claimedWheelReward, setClaimedWheelReward] = useState(null);
+
+  const handleExecuteRewardAction = (reward) => {
+    if (!reward) return;
+    playPop();
+    if (reward.id === 'wallet_credit') {
+      if (onNavigateTab) onNavigateTab('wallet');
+    } else if (reward.id === 'tier_upgrade') {
+      if (onNavigateTab) onNavigateTab('autopilot');
+    } else if (reward.id === 'buffer_days') {
+      if (onNavigateTab) onNavigateTab('wallet');
+    } else if (reward.id === 'coffee_shout') {
+      try {
+        if (navigator.clipboard?.writeText) {
+          navigator.clipboard.writeText('https://mealson.in/gift/mo-coffee-7782');
+        }
+      } catch (err) {}
+      if (onNotify) {
+        onNotify('Gift Link Copied! ☕', 'Share mealson.in/gift/mo-coffee-7782 on Slack/WhatsApp.', 'success');
+      }
+    } else if (reward.id === 'pass_discount') {
+      try {
+        if (navigator.clipboard?.writeText) {
+          navigator.clipboard.writeText('HABIT15');
+        }
+      } catch (err) {}
+      if (onOpenFtux) {
+        onOpenFtux();
+      } else if (onNavigateTab) {
+        onNavigateTab('wallet');
+      }
+    }
+  };
 
   // --- HABIT TREE STATE ---
   const [currentDay, setCurrentDay] = useState(4); // Default to Thu (4/5)
@@ -1068,11 +1110,19 @@ export default function StreaksTab({ onNotify, triggerConfetti, onOpenWowModal }
                   </p>
                   <div className="pt-1 flex items-center gap-2">
                     <button
+                      onClick={() => handleExecuteRewardAction(claimedWheelReward)}
+                      className="flex-1 min-h-[40px] bg-[#FF5A1F] hover:bg-[#E04812] text-white text-xs font-bold py-2 px-3 rounded-lg flex items-center justify-center space-x-1 cursor-pointer transition-colors"
+                    >
+                      <span>{claimedWheelReward.actionText}</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
+                    <button
                       onClick={() => setShowSpinWheelModal(true)}
-                      className="flex-1 min-h-[40px] bg-slate-700 hover:bg-slate-600 text-white text-xs font-bold py-2 px-3 rounded-lg flex items-center justify-center space-x-1 cursor-pointer transition-colors"
+                      className="min-h-[40px] px-3 bg-slate-700 hover:bg-slate-600 text-white text-xs font-bold rounded-lg flex items-center justify-center space-x-1 cursor-pointer transition-colors"
+                      title="Re-spin Wheel (Demo Mode)"
                     >
                       <RotateCw className="w-3.5 h-3.5" />
-                      <span>Re-spin Wheel (Demo Mode)</span>
+                      <span>Re-spin</span>
                     </button>
                   </div>
                 </div>
@@ -1222,6 +1272,12 @@ export default function StreaksTab({ onNotify, triggerConfetti, onOpenWowModal }
         isOpen={showSpinWheelModal}
         onClose={() => setShowSpinWheelModal(false)}
         onRewardClaimed={(reward) => setClaimedWheelReward(reward)}
+        credits={credits}
+        setCredits={setCredits}
+        playlist={playlist}
+        setPlaylist={setPlaylist}
+        onNavigateTab={onNavigateTab}
+        onOpenFtux={onOpenFtux}
         triggerConfetti={triggerConfetti}
         onNotify={onNotify}
       />

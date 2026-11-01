@@ -373,6 +373,12 @@ export default function App() {
 
                 {activeTab === 'streaks' && (
                   <StreaksTab
+                    credits={credits}
+                    setCredits={setCredits}
+                    playlist={playlist}
+                    setPlaylist={setPlaylist}
+                    onNavigateTab={setActiveTab}
+                    onOpenFtux={() => setAppMode('ftux')}
                     onNotify={showToast}
                     triggerConfetti={triggerConfetti}
                     onOpenWowModal={setWowModal}

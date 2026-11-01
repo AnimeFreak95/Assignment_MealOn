@@ -13,6 +13,7 @@ import {
   ArrowRight
 } from 'lucide-react';
 import { playPop, playSuccessChime, playCelebrationFanfare } from '../utils/audioDelight';
+import { MASTER_DISH_CATALOG } from '../data/mockData';
 
 // 5 Balanced Digital Habit Perks (No physical treats, no 10:30 VIP)
 export const WHEEL_REWARDS = [
@@ -111,12 +112,19 @@ export default function HabitSpinWheelModal({
   onClose,
   onRewardClaimed,
   triggerConfetti,
-  onNotify
+  onNotify,
+  credits,
+  setCredits,
+  playlist,
+  setPlaylist,
+  onNavigateTab,
+  onOpenFtux
 }) {
   const [isSpinning, setIsSpinning] = useState(false);
   const [rotationDegrees, setRotationDegrees] = useState(0);
   const [wonReward, setWonReward] = useState(null);
   const [copiedLink, setCopiedLink] = useState(false);
+  const [isApplying, setIsApplying] = useState(false);
   const tickIntervalRef = useRef(null);
 
   if (!isOpen) return null;
@@ -130,6 +138,7 @@ export default function HabitSpinWheelModal({
     setIsSpinning(true);
     setWonReward(null);
     setCopiedLink(false);
+    setIsApplying(false);
 
     // Pick random target slice (0 to 4)
     const targetSliceIdx = Math.floor(Math.random() * totalSlices);
@@ -178,10 +187,113 @@ export default function HabitSpinWheelModal({
   };
 
   const handleActionClick = () => {
+    if (!wonReward || isApplying) return;
     playSuccessChime();
+    setIsApplying(true);
     setCopiedLink(true);
-    if (onNotify && wonReward) {
-      onNotify('Perk Applied! ✨', wonReward.perkAction, 'success');
+
+    if (wonReward.id === 'wallet_credit') {
+      if (setCredits) {
+        setCredits((prev) => prev + 1);
+      }
+      if (onNotify) {
+        onNotify('₹50 Added to MealsOn Balance! 💰', 'Deposited into your MealsOn Balance. Redirecting to Wallet...', 'success');
+      }
+      setTimeout(() => {
+        onClose();
+        if (onNavigateTab) onNavigateTab('wallet');
+      }, 900);
+      return;
+    }
+
+    if (wonReward.id === 'tier_upgrade') {
+      if (setPlaylist) {
+        setPlaylist((prev) => {
+          const next = [...prev];
+          if (next[0]) {
+            const upgradedDish = MASTER_DISH_CATALOG?.find((d) => d.id === 'vd12') || {
+              id: 'vd12',
+              name: 'Zen Teriyaki Soba Bowl (Chef’s Table)',
+              kitchen: 'Zen Asian Bowls',
+              rating: 4.8,
+              price: 235,
+              kcal: 475,
+              protein: 25,
+              category: 'light',
+              isVeg: true,
+              tag: 'Chef’s Table',
+              image: '🍜',
+              desc: 'Buckwheat Japanese soba noodles, grilled sesame teriyaki tofu cubes, tender edamame pods.'
+            };
+            next[0] = {
+              ...next[0],
+              selectedDishId: upgradedDish.id,
+              isUpgraded: true,
+              options: [upgradedDish, ...(next[0].options || []).filter((o) => o.id !== upgradedDish.id)]
+            };
+          }
+          return next;
+        });
+      }
+      if (onNotify) {
+        onNotify('Chef’s Table Upgraded! 🥗', 'Zen Teriyaki Soba applied to Monday lunch (₹0 extra). Opening Planner...', 'success');
+      }
+      setTimeout(() => {
+        onClose();
+        if (onNavigateTab) onNavigateTab('autopilot');
+      }, 900);
+      return;
+    }
+
+    if (wonReward.id === 'buffer_days') {
+      if (onNotify) {
+        onNotify('+3 Days Extended Buffer! 🛡️', 'Pass validity buffer extended to 23 days. Opening Wallet...', 'success');
+      }
+      setTimeout(() => {
+        onClose();
+        if (onNavigateTab) onNavigateTab('wallet');
+      }, 900);
+      return;
+    }
+
+    if (wonReward.id === 'coffee_shout') {
+      const link = 'https://mealson.in/gift/mo-coffee-7782';
+      try {
+        if (navigator.clipboard?.writeText) {
+          navigator.clipboard.writeText(link);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+      if (onNotify) {
+        onNotify('Gift Link Copied! ☕', 'Share mealson.in/gift/mo-coffee-7782 on Slack or WhatsApp with your desk-mate.', 'success');
+      }
+      setTimeout(() => {
+        setIsApplying(false);
+      }, 1500);
+      return;
+    }
+
+    if (wonReward.id === 'pass_discount') {
+      try {
+        if (navigator.clipboard?.writeText) {
+          navigator.clipboard.writeText('HABIT15');
+        }
+      } catch (err) {
+        console.error(err);
+      }
+      if (onNotify) {
+        onNotify('Promo Code Copied! 🎟️', 'Code HABIT15 copied! Opening Pass Configurator...', 'success');
+      }
+      setTimeout(() => {
+        onClose();
+        if (onOpenFtux) {
+          onOpenFtux();
+        } else if (onNavigateTab) {
+          onNavigateTab('wallet');
+        }
+      }, 900);
+      return;
     }
   };
 
@@ -346,9 +458,25 @@ export default function HabitSpinWheelModal({
               <div className="pt-1 flex items-center gap-1.5">
                 <button
                   onClick={handleActionClick}
-                  className="flex-1 min-h-[44px] bg-gradient-to-r from-[#FF5A1F] to-[#FF7B47] hover:from-[#E04812] hover:to-[#FF5A1F] text-white font-extrabold text-xs py-2.5 px-3 rounded-xl shadow-xs transition-all active:scale-[0.98] cursor-pointer flex items-center justify-center space-x-1.5"
+                  disabled={isApplying}
+                  className="flex-1 min-h-[44px] bg-gradient-to-r from-[#FF5A1F] to-[#FF7B47] hover:from-[#E04812] hover:to-[#FF5A1F] text-white font-extrabold text-xs py-2.5 px-3 rounded-xl shadow-xs transition-all active:scale-[0.98] cursor-pointer flex items-center justify-center space-x-1.5 disabled:opacity-80"
                 >
-                  {copiedLink ? (
+                  {isApplying ? (
+                    <>
+                      <CheckCircle2 className="w-3.5 h-3.5 text-white animate-pulse" />
+                      <span>
+                        {wonReward.id === 'wallet_credit'
+                          ? 'Opening Wallet...'
+                          : wonReward.id === 'tier_upgrade'
+                          ? 'Opening Planner...'
+                          : wonReward.id === 'buffer_days'
+                          ? 'Opening Wallet...'
+                          : wonReward.id === 'pass_discount'
+                          ? 'Opening Pass Flow...'
+                          : 'Slack Link Copied!'}
+                      </span>
+                    </>
+                  ) : copiedLink ? (
                     <>
                       <CheckCircle2 className="w-3.5 h-3.5 text-white" />
                       <span>{wonReward.id === 'pass_discount' ? 'Code Copied! (HABIT15)' : wonReward.id === 'coffee_shout' ? 'Slack Link Copied!' : 'Perk Activated!'}</span>
