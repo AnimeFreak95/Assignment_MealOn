@@ -255,15 +255,18 @@ export default function WalletTab({ credits, setCredits, onNotify, triggerConfet
             </span>
           </div>
 
-          <input
-            type="range"
-            min="1"
-            max="5"
-            step="1"
-            value={vacationDays}
-            onChange={handleSliderChange}
-            className="w-full accent-[#FF5A1F] cursor-pointer h-1.5"
-          />
+          <div className="py-2 flex items-center">
+            <input
+              type="range"
+              min="1"
+              max="5"
+              step="1"
+              aria-label="Vacation pause days slider"
+              value={vacationDays}
+              onChange={handleSliderChange}
+              className="w-full accent-[#FF5A1F] cursor-pointer h-2 min-h-[32px]"
+            />
+          </div>
 
           <div className="flex justify-between text-[9px] font-semibold text-slate-400">
             <span>1d</span>

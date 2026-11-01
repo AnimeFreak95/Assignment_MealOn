@@ -265,14 +265,14 @@ export default function CutOffTab({
                     playPop();
                     setShowSwapCarousel(true);
                   }}
-                  className="py-1.5 px-2 rounded-lg border border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-800 font-bold text-[11px] transition-all active:scale-95 text-center flex items-center justify-center space-x-1"
+                  className="py-2.5 px-2 min-h-[44px] rounded-lg border border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-800 font-bold text-[11px] transition-all active:scale-95 text-center flex items-center justify-center space-x-1"
                 >
                   <span>🔄</span>
                   <span>Swap Dish</span>
                 </button>
                 <button
                   onClick={handleInitiateSkip}
-                  className="py-1.5 px-2 rounded-lg border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-900 font-bold text-[11px] transition-all active:scale-95 text-center flex items-center justify-center space-x-1"
+                  className="py-2.5 px-2 min-h-[44px] rounded-lg border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-900 font-bold text-[11px] transition-all active:scale-95 text-center flex items-center justify-center space-x-1"
                 >
                   <span>⏭️</span>
                   <span>{paymentMode === 'prepaid' ? 'Skip (Preserve)' : 'Skip (₹0)'}</span>

@@ -3,7 +3,7 @@ import { Wifi, Battery } from 'lucide-react';
 
 export default function StatusBar() {
   return (
-    <div className="flex items-center justify-between px-6 pt-3 pb-1 text-slate-800 text-xs font-semibold select-none bg-white/95 backdrop-blur-md sticky top-0 z-40 border-b border-slate-100/50">
+    <div className="hidden sm:flex items-center justify-between px-6 pt-3 pb-1 text-slate-800 text-xs font-semibold select-none bg-white/95 backdrop-blur-md sticky top-0 z-40 border-b border-slate-100/50">
       <span className="tracking-tight text-[13px] font-bold">9:41</span>
       <div className="flex items-center space-x-2">
         <span className="text-[11px] font-bold tracking-wider text-slate-700">5G</span>

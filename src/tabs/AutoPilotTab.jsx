@@ -548,7 +548,7 @@ export default function AutoPilotTab({
         {viewLayout === 'cards' ? (
           <div className="space-y-3.5">
             {/* Interactive Mini Week Date Strip */}
-            <div className="bg-white rounded-2xl p-2.5 border border-slate-200/90 shadow-2xs flex items-center justify-between gap-1.5">
+            <div className="bg-white rounded-2xl p-2 border border-slate-200/90 shadow-2xs flex items-center justify-between gap-1 overflow-x-auto hide-scrollbar">
               {playlist.map((dayItem, idx) => {
                 const isOffice = dayItem.location === 'office';
                 const isSkipped = dayItem.status === 'skipped';
@@ -562,7 +562,7 @@ export default function AutoPilotTab({
                       const el = document.getElementById(`meal-card-${idx}`);
                       if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     }}
-                    className={`flex-1 py-1.5 px-1 rounded-xl flex flex-col items-center transition-all border text-center cursor-pointer ${
+                    className={`flex-1 min-w-[42px] py-1.5 px-1 rounded-xl flex flex-col items-center transition-all border text-center cursor-pointer ${
                       isSkipped
                         ? 'bg-slate-100 border-slate-200 text-slate-400'
                         : isOffice
@@ -663,7 +663,8 @@ export default function AutoPilotTab({
                     onChange={(e) => setPromptText(e.target.value)}
                     onFocus={(e) => e.target.scrollIntoView({ behavior: 'smooth', block: 'center' })}
                     rows={2}
-                    className="w-full text-xs text-slate-800 bg-transparent focus:outline-none resize-none font-medium leading-relaxed placeholder-slate-400"
+                    aria-label="Describe your dietary goals for AI menu curation"
+                    className="w-full text-[16px] sm:text-xs text-slate-800 bg-transparent focus:outline-none resize-none font-medium leading-relaxed placeholder-slate-400"
                     placeholder="Describe your dietary goals..."
                   />
                 </div>
@@ -676,10 +677,10 @@ export default function AutoPilotTab({
                       <button
                         key={chip.id}
                         onClick={() => toggleChip(chip.id)}
-                        className={`text-xs font-bold px-3 py-1.5 rounded-full border transition-all whitespace-nowrap cta-bounce ${
+                        className={`text-xs font-bold px-3 py-2 min-h-[38px] rounded-full border transition-all whitespace-nowrap cta-bounce ${
                           active
-                            ? 'bg-white border-[#FF5A1F] text-[#FF5A1F] shadow-2xs'
-                            : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
+                            ? 'bg-white border-[#FF5A1F] text-[#C2410C] shadow-2xs'
+                            : 'bg-white border-slate-200 text-slate-700 hover:border-slate-300'
                         }`}
                       >
                         {chip.label}

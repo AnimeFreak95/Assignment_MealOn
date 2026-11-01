@@ -107,9 +107,9 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0F172A] text-slate-100 flex flex-col items-center justify-center p-2 sm:p-6 lg:p-8 font-sans selection:bg-[#FF5A1F] selection:text-white">
-      {/* Top Presentation Bar for PM Walkthrough */}
-      <div className="w-full max-w-[1100px] mb-4 flex flex-col md:flex-row items-center justify-between gap-3 bg-slate-900/90 border border-slate-800 rounded-2xl px-5 py-3 shadow-xl backdrop-blur-md">
+    <div className="min-h-screen bg-[#0F172A] text-slate-100 flex flex-col items-center justify-center p-0 sm:p-6 lg:p-8 font-sans selection:bg-[#FF5A1F] selection:text-white">
+      {/* Top Presentation Bar for PM Walkthrough - hidden on small mobile screens to prevent clutter */}
+      <div className="w-full max-w-[1100px] mb-4 hidden sm:flex flex-col md:flex-row items-center justify-between gap-3 bg-slate-900/90 border border-slate-800 rounded-2xl px-5 py-3 shadow-xl backdrop-blur-md">
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#FF5A1F] to-[#FF7B47] flex items-center justify-center shadow-md shadow-[#FF5A1F]/20">
             <Sparkles className="w-4 h-4 text-white" />
@@ -254,11 +254,11 @@ export default function App() {
         </div>
       </div>
 
-      {/* Main Centered Mobile Device Frame (420px x 880px) */}
-      <div className="relative">
-        <div className="absolute -inset-1 bg-gradient-to-tr from-[#FF5A1F]/20 via-[#10B981]/15 to-[#4F46E5]/15 rounded-[38px] blur-xl opacity-75 pointer-events-none" />
+      {/* Main Centered Mobile Device Frame (Responsive on mobile, 420px x 880px on desktop) */}
+      <div className="relative w-full sm:w-auto flex justify-center">
+        <div className="hidden sm:block absolute -inset-1 bg-gradient-to-tr from-[#FF5A1F]/20 via-[#10B981]/15 to-[#4F46E5]/15 rounded-[38px] blur-xl opacity-75 pointer-events-none" />
 
-        <div className="relative w-full max-w-[420px] w-[390px] sm:w-[420px] h-[880px] bg-[#F8FAFC] rounded-[36px] border-[8px] border-[#1E293B] shadow-2xl overflow-hidden flex flex-col text-slate-900 select-none">
+        <div className="relative w-full sm:max-w-[420px] sm:w-[420px] min-h-screen sm:min-h-[880px] sm:h-[880px] h-[100dvh] bg-[#F8FAFC] sm:rounded-[36px] sm:border-[8px] sm:border-[#1E293B] shadow-2xl overflow-hidden flex flex-col text-slate-900 select-none">
           {/* Confetti Canvas Overlay */}
           <ConfettiCanvas
             active={confettiActive}
@@ -288,8 +288,8 @@ export default function App() {
             />
           )}
 
-          {/* Top Notch / Camera pill */}
-          <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-24 h-4 bg-[#1E293B] rounded-full z-50 flex items-center justify-center">
+          {/* Top Notch / Camera pill - shown only on simulated desktop frame */}
+          <div className="hidden sm:flex absolute top-2 left-1/2 transform -translate-x-1/2 w-24 h-4 bg-[#1E293B] rounded-full z-50 items-center justify-center">
             <div className="w-2.5 h-2.5 rounded-full bg-slate-900 ring-1 ring-slate-800 ml-10" />
           </div>
 
