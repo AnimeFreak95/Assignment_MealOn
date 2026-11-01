@@ -35,6 +35,7 @@ export default function CutOffTab({
   const [tomorrowStatus, setTomorrowStatus] = useState('pending'); // 'pending' | 'confirmed' | 'swapped' | 'skipped'
   const [activeAlternativeId, setActiveAlternativeId] = useState(null);
   const [expandedFaq, setExpandedFaq] = useState(true);
+  const [showSkipConfirmation, setShowSkipConfirmation] = useState(false);
 
   // Ticking countdown timer
   useEffect(() => {
@@ -102,18 +103,25 @@ export default function CutOffTab({
     }
   };
 
-  // Button 3: Skip Meal (Prepaid vs Mandate logic)
-  const handleSkipMeal = () => {
+  // Step 1: Open Skip Confirmation Bar instead of 1-click skipping
+  const handleInitiateSkip = () => {
+    playPop();
+    setShowSwapCarousel(false);
+    setShowSkipConfirmation(true);
+  };
+
+  // Step 2: Finalize Skip with explicit user confirmation
+  const handleConfirmSkip = () => {
     playShieldBankChime();
     setTomorrowStatus('skipped');
-    setShowSwapCarousel(false);
+    setShowSkipConfirmation(false);
     if (paymentMode === 'prepaid') {
       setCredits((prev) => prev + 1);
       if (triggerFloatingCredit) triggerFloatingCredit();
       if (onNotify) {
         onNotify(
           '₹190 Banked to Balance! 🛡️',
-          'Prepaid meal preserved in MealsOn Balance • Valid 60 days on pass renewal.',
+          'Prepaid meal preserved in MealsOn Balance • Valid 60 days on renewal.',
           'warning'
         );
       }
@@ -212,7 +220,7 @@ export default function CutOffTab({
                   🔄 Swap
                 </button>
                 <button
-                  onClick={handleSkipMeal}
+                  onClick={handleInitiateSkip}
                   className="py-1 px-1 rounded border border-amber-300 bg-amber-50 text-amber-900 font-bold text-[10px] transition-all active:scale-95 text-center truncate"
                 >
                   {paymentMode === 'prepaid' ? '⏭️ Skip & Bank' : '⏭️ Skip (₹0)'}
@@ -348,17 +356,115 @@ export default function CutOffTab({
           </button>
 
           <button
-            onClick={handleSkipMeal}
+            onClick={handleInitiateSkip}
             className={`py-2 px-1 rounded-xl font-bold text-[11px] flex flex-col items-center justify-center space-y-0.5 transition-all active:scale-[0.96] cta-bounce ${
               tomorrowStatus === 'skipped'
                 ? 'bg-slate-700 text-white shadow-sm'
+                : showSkipConfirmation
+                ? 'bg-amber-200 text-amber-950 border-2 border-amber-500 ring-2 ring-amber-400/30'
                 : 'bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300'
             }`}
           >
             <SkipForward className="w-3.5 h-3.5" />
-            <span>{paymentMode === 'prepaid' ? 'Skip & Bank ₹190' : 'Skip & Pay ₹0'}</span>
+            <span>{tomorrowStatus === 'skipped' ? 'Skipped' : paymentMode === 'prepaid' ? 'Skip & Bank' : 'Skip & Pay ₹0'}</span>
           </button>
         </div>
+
+        {/* Interactive Confirmation Bar (Transparent Pre-Skip Breakdown) */}
+        {showSkipConfirmation && tomorrowStatus !== 'skipped' && (
+          <div className="bg-gradient-to-br from-amber-50 via-orange-50 to-amber-100/70 border-2 border-amber-400/80 rounded-2xl p-3 space-y-2.5 shadow-md animate-in fade-in slide-in-from-top-2 duration-200">
+            {/* Header with Title and Dismiss */}
+            <div className="flex items-center justify-between pb-1.5 border-b border-amber-200/70">
+              <div className="flex items-center space-x-1.5">
+                <span className="text-sm">🛡️</span>
+                <span className="text-xs font-black text-amber-950">
+                  Confirm Skip: {tomorrowMeal.name}
+                </span>
+              </div>
+              <button
+                onClick={() => {
+                  playPop();
+                  setShowSkipConfirmation(false);
+                }}
+                className="text-[10px] font-bold text-slate-500 hover:text-slate-800 bg-white/70 hover:bg-white rounded-md px-1.5 py-0.5 border border-slate-200 transition-colors"
+              >
+                ✕ Cancel
+              </button>
+            </div>
+
+            {/* Information Grid: What happens when you skip */}
+            <div className="grid grid-cols-2 gap-2 text-[10px]">
+              <div className="bg-white/90 rounded-xl p-2 border border-amber-200/60 shadow-2xs">
+                <span className="font-extrabold text-amber-900 block flex items-center">
+                  💵 Financial Action
+                </span>
+                <p className="text-slate-700 mt-0.5 leading-snug">
+                  {paymentMode === 'prepaid' ? (
+                    <>
+                      <strong>+₹190</strong> added to MealsOn Balance immediately.
+                    </>
+                  ) : (
+                    <>
+                      <strong>₹0 Charged</strong>. 10 PM UPI debit is canceled.
+                    </>
+                  )}
+                </p>
+              </div>
+
+              <div className="bg-white/90 rounded-xl p-2 border border-amber-200/60 shadow-2xs">
+                <span className="font-extrabold text-amber-900 block flex items-center">
+                  ⏳ Cut-Off Deadline
+                </span>
+                <p className="text-slate-700 mt-0.5 leading-snug">
+                  Locks at <strong>10:00 PM</strong> tonight. Kitchen prep starts at 6 AM.
+                </p>
+              </div>
+
+              <div className="bg-white/90 rounded-xl p-2 border border-amber-200/60 shadow-2xs">
+                <span className="font-extrabold text-amber-900 block flex items-center">
+                  🔄 Rollover Policy
+                </span>
+                <p className="text-slate-700 mt-0.5 leading-snug">
+                  {paymentMode === 'prepaid'
+                    ? 'Valid 60 days on pass renewal (up to 25% off invoice).'
+                    : 'No credit balance since payment is per-meal.'}
+                </p>
+              </div>
+
+              <div className="bg-white/90 rounded-xl p-2 border border-amber-200/60 shadow-2xs">
+                <span className="font-extrabold text-amber-900 block flex items-center">
+                  🔁 Can I Undo?
+                </span>
+                <p className="text-slate-700 mt-0.5 leading-snug">
+                  You can restore or swap until <strong>10:00 PM</strong> tonight.
+                </p>
+              </div>
+            </div>
+
+            {/* Action Bar inside Confirmation */}
+            <div className="flex items-center space-x-2 pt-0.5">
+              <button
+                onClick={() => {
+                  playPop();
+                  setShowSkipConfirmation(false);
+                }}
+                className="flex-1 py-2 rounded-xl border border-slate-300 bg-white text-slate-700 font-bold text-xs hover:bg-slate-50 transition-all active:scale-[0.97]"
+              >
+                Keep My Lunch
+              </button>
+
+              <button
+                onClick={handleConfirmSkip}
+                className="flex-1 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-black text-xs shadow-sm transition-all active:scale-[0.97] flex items-center justify-center space-x-1 cta-bounce"
+              >
+                <SkipForward className="w-3.5 h-3.5" />
+                <span>
+                  {paymentMode === 'prepaid' ? 'Confirm & Bank ₹190' : 'Confirm & Pay ₹0'}
+                </span>
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Skipped Banner */}
         {tomorrowStatus === 'skipped' && (

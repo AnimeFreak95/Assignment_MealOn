@@ -61,6 +61,7 @@ export default function AutoPilotTab({
   const [multiSwapModalDay, setMultiSwapModalDay] = useState(null);
   const [swapModalFilter, setSwapModalFilter] = useState('curated'); // 'curated' | 'vault'
   const [activeSlotPickerDay, setActiveSlotPickerDay] = useState(null);
+  const [confirmSkipDayIndex, setConfirmSkipDayIndex] = useState(null);
 
   const [promptText, setPromptText] = useState(
     'High-protein veg lunches under 500 kcal, no mushrooms'
@@ -259,39 +260,61 @@ export default function AutoPilotTab({
     }
   };
 
-  // Skip & Bank credit
+  // Skip & Bank credit (Initiate confirmation or restore directly)
   const handleSkipDay = (dayIndex) => {
     playPop();
     const isCurrentlySkipped = playlist[dayIndex].status === 'skipped';
+    
+    // If currently skipped, clicking restores immediately
+    if (isCurrentlySkipped) {
+      setPlaylist((prev) => {
+        const next = [...prev];
+        next[dayIndex] = {
+          ...next[dayIndex],
+          status: 'scheduled'
+        };
+        return next;
+      });
+      setConfirmSkipDayIndex(null);
+      if (onNotify) {
+        onNotify(
+          'Meal Restored! 🥗',
+          `${playlist[dayIndex].day} lunch restored to your weekly schedule.`,
+          'info'
+        );
+      }
+      return;
+    }
+
+    // If not skipped, open confirmation bar with complete breakdown
+    setConfirmSkipDayIndex(dayIndex);
+  };
+
+  // Confirm Skip Action
+  const handleExecuteSkip = (dayIndex) => {
+    playPop();
     setPlaylist((prev) => {
       const next = [...prev];
       next[dayIndex] = {
         ...next[dayIndex],
-        status: isCurrentlySkipped ? 'scheduled' : 'skipped'
+        status: 'skipped'
       };
       return next;
     });
+    setConfirmSkipDayIndex(null);
 
     if (onNotify) {
-      if (!isCurrentlySkipped) {
-        const dishPrice = playlist[dayIndex]?.options[playlist[dayIndex]?.currentIdx]?.price || 190;
-        if (paymentMode === 'prepaid') {
-          onNotify(
-            `${playlist[dayIndex].day} Lunch Skipped 🛡️`,
-            `₹${dishPrice} preserved in MealsOn Balance • Valid 60 days on renewal.`,
-            'success'
-          );
-        } else {
-          onNotify(
-            `${playlist[dayIndex].day} Debit Canceled! ⚡`,
-            `10 PM auto-debit canceled. ₹0 charged to bank (No wallet credit issued).`,
-            'info'
-          );
-        }
+      const dishPrice = playlist[dayIndex]?.options[playlist[dayIndex]?.currentIdx]?.price || 190;
+      if (paymentMode === 'prepaid') {
+        onNotify(
+          `${playlist[dayIndex].day} Lunch Skipped 🛡️`,
+          `₹${dishPrice} preserved in MealsOn Balance • Valid 60 days on renewal.`,
+          'success'
+        );
       } else {
         onNotify(
-          'Meal Restored! 🥗',
-          `${playlist[dayIndex].day} lunch restored to your weekly schedule.`,
+          `${playlist[dayIndex].day} Debit Canceled! ⚡`,
+          `10 PM auto-debit canceled. ₹0 charged to bank (No wallet credit issued).`,
           'info'
         );
       }
@@ -1101,11 +1124,83 @@ export default function AutoPilotTab({
                         <button
                           type="button"
                           onClick={() => handleSkipDay(idx)}
-                          className="py-3 text-xs font-bold transition-colors active:scale-95 rounded-br-3xl flex items-center justify-center space-x-1.5 cta-bounce cursor-pointer text-slate-700 hover:text-amber-600 hover:bg-slate-50/80"
+                          className={`py-3 text-xs font-bold transition-colors active:scale-95 rounded-br-3xl flex items-center justify-center space-x-1.5 cta-bounce cursor-pointer ${
+                            confirmSkipDayIndex === idx
+                              ? 'bg-amber-100 text-amber-900 font-extrabold'
+                              : 'text-slate-700 hover:text-amber-600 hover:bg-slate-50/80'
+                          }`}
                         >
                           <SkipForward className="w-3.5 h-3.5 text-slate-500" />
                           <span>{paymentMode === 'prepaid' ? 'Skip & Bank' : 'Skip (₹0)'}</span>
                         </button>
+                      </div>
+                    )}
+
+                    {/* Inline Confirmation Bar for Card (Pre-Skip Transparency) */}
+                    {confirmSkipDayIndex === idx && day.status !== 'skipped' && (
+                      <div className="bg-gradient-to-br from-amber-50 via-orange-50 to-amber-100/70 border-t-2 border-amber-300 p-3 rounded-b-3xl space-y-2 animate-in fade-in duration-200">
+                        <div className="flex items-center justify-between pb-1 border-b border-amber-200/60">
+                          <span className="text-xs font-black text-amber-950 flex items-center space-x-1">
+                            <span>🛡️</span>
+                            <span>Confirm Skip: {day.day} Lunch ({currentMeal.name})</span>
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              playPop();
+                              setConfirmSkipDayIndex(null);
+                            }}
+                            className="text-[10px] font-bold text-slate-500 hover:text-slate-800 bg-white/80 rounded px-1.5 py-0.5 border border-slate-200"
+                          >
+                            ✕ Cancel
+                          </button>
+                        </div>
+
+                        {/* 4 Informational Pills */}
+                        <div className="grid grid-cols-2 gap-1.5 text-[10px]">
+                          <div className="bg-white/90 p-1.5 rounded-lg border border-amber-200/50">
+                            <span className="font-extrabold text-amber-900 block">💵 Financial Action</span>
+                            <span className="text-slate-700">
+                              {paymentMode === 'prepaid' ? `+₹${currentMeal.price} saved to Balance` : '₹0 debited at 10 PM'}
+                            </span>
+                          </div>
+                          <div className="bg-white/90 p-1.5 rounded-lg border border-amber-200/50">
+                            <span className="font-extrabold text-amber-900 block">⏳ 10 PM Cut-off</span>
+                            <span className="text-slate-700">Free modifications before 10 PM</span>
+                          </div>
+                          <div className="bg-white/90 p-1.5 rounded-lg border border-amber-200/50">
+                            <span className="font-extrabold text-amber-900 block">🔄 Rollover Expiry</span>
+                            <span className="text-slate-700">
+                              {paymentMode === 'prepaid' ? 'Valid 60 days on renewal' : 'No credit created'}
+                            </span>
+                          </div>
+                          <div className="bg-white/90 p-1.5 rounded-lg border border-amber-200/50">
+                            <span className="font-extrabold text-amber-900 block">↩️ Undo Policy</span>
+                            <span className="text-slate-700">Can restore anytime before lock-in</span>
+                          </div>
+                        </div>
+
+                        {/* Confirm CTA */}
+                        <div className="flex items-center space-x-2 pt-0.5">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              playPop();
+                              setConfirmSkipDayIndex(null);
+                            }}
+                            className="flex-1 py-1.5 rounded-xl border border-slate-300 bg-white text-slate-700 font-bold text-xs"
+                          >
+                            Keep Lunch
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleExecuteSkip(idx)}
+                            className="flex-1 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-black text-xs shadow-xs flex items-center justify-center space-x-1 cta-bounce"
+                          >
+                            <SkipForward className="w-3 h-3" />
+                            <span>{paymentMode === 'prepaid' ? `Confirm & Bank ₹${currentMeal.price}` : 'Confirm & Pay ₹0'}</span>
+                          </button>
+                        </div>
                       </div>
                     )}
                   </div>
@@ -1505,16 +1600,32 @@ export default function AutoPilotTab({
               <div className="grid grid-cols-2 gap-2 pt-1 border-t border-slate-100">
                 <button
                   type="button"
-                  onClick={() => handleSkipDay(selectedCalendarDay)}
-                  className="py-2.5 px-3 rounded-xl border border-slate-200 text-slate-700 font-extrabold text-xs hover:bg-slate-50 active:scale-95 transition-all flex items-center justify-center space-x-1.5 cursor-pointer"
+                  onClick={() => {
+                    if (playlist[selectedCalendarDay].status === 'skipped') {
+                      handleSkipDay(selectedCalendarDay);
+                    } else if (confirmSkipDayIndex === selectedCalendarDay) {
+                      handleExecuteSkip(selectedCalendarDay);
+                    } else {
+                      setConfirmSkipDayIndex(selectedCalendarDay);
+                    }
+                  }}
+                  className={`py-2.5 px-3 rounded-xl border font-extrabold text-xs active:scale-95 transition-all flex items-center justify-center space-x-1.5 cursor-pointer ${
+                    confirmSkipDayIndex === selectedCalendarDay && playlist[selectedCalendarDay].status !== 'skipped'
+                      ? 'bg-amber-600 text-white border-amber-600 shadow-sm animate-pulse'
+                      : 'border-slate-200 text-slate-700 hover:bg-slate-50'
+                  }`}
                 >
-                  <SkipForward className="w-3.5 h-3.5 text-slate-500" />
+                  <SkipForward className="w-3.5 h-3.5" />
                   <span>
                     {playlist[selectedCalendarDay].status === 'skipped'
                       ? 'Restore Meal'
+                      : confirmSkipDayIndex === selectedCalendarDay
+                      ? paymentMode === 'prepaid'
+                        ? 'Click to Confirm Bank ₹190'
+                        : 'Click to Confirm Pay ₹0'
                       : paymentMode === 'prepaid'
                       ? 'Skip & Bank ₹190'
-                      : 'Skip & Pay ₹0 (Cancel Debit)'}
+                      : 'Skip & Pay ₹0'}
                   </span>
                 </button>
 
