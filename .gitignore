@@ -19,3 +19,9 @@ node_modules
 *.njsproj
 *.sln
 *.sw?
+
+# Transient payloads and helper dumps
+*payload*.json
+*tool_call*.json
+*args*.json
+block_ids_to_delete.json
