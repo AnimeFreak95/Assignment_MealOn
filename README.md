@@ -61,11 +61,12 @@ Subscription and scheduled meal programs typically face three major failure poin
 - **Rollover Control:** Choose automatic rollover or claim a skipped-meal credit manually from the cut-off screen.
 - **45-Day Flexible Pass Guarantee:** Explains zero-expiry penalty rules.
 
-### 5. 🔥 5-Day Habit Streaks & Office Pod Drops (Tab 5: "Streaks & Pods")
-- **Weekly Habit Streak Tracker:** 5-node Mon–Fri progress tracker.
-- **Demo Mode Simulation:** "Simulate Friday Delivery Completion" button that triggers celebratory fanfare, full-screen confetti, and lets the user pick their unlocked free treat (*☕ Free Cold Brew* or *🍫 High-Protein Almond Brownie*).
+### 5. 🌱 Loyalty & Habit Gamification: Healthy Week Tree & Impact Ledger (Tab: "Loyalty")
+- **Healthy Week Habit Tree:** 5-stage Mon–Fri living tree animation (Sprout 🌱 ➜ Leaves 🍃 ➜ Sapling 🌿 ➜ Canopy 🌸 ➜ Golden Bloom 🌳✨).
+- **Friday Perk Payoff (₹0 Delivery Cost):** "Simulate Friday Delivery" triggers celebratory fanfare, full-screen confetti, and lets the user choose between Clean Fuel (*🍫 Fudgy Whey Protein Bar*) or a Cheat Treat (*☕ Caramel Cold Brew*), bundled directly into Friday's 1:00 PM lunch box for zero additional courier cost.
+- **Impact & Savings Ledger (Cost, Fuel & Eco Dashboard):** Real-time metrics tracking delivery fees avoided (₹3,120), fuel conserved (18.4 L), CO₂ emissions offset (14.2 kg), and cognitive time reclaimed (6.5 hrs) via batch ordering.
 - **Office Pod Consolidated Delivery Engine:** Batches deliveries for Cyber Park Tower B colleagues at 1:00 PM wave.
-- **PM Unit Economics View:** Shows how batching 12 orders into 1 fleet drop slashes last-mile delivery costs by **63%** (from ₹65 to ₹24/order).
+- **PM Unit Economics View:** Shows how batching orders into 1 fleet drop slashes last-mile delivery costs by **63%** (from ₹65 to ₹24/order), creating the margin surplus that funds the Friday reward.
 
 ---
 
