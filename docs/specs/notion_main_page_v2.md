@@ -83,11 +83,25 @@ As per the product assignment requirements, the following baseline assumptions g
 <td>[View Wallet Page](https://app.notion.com/p/40b80bcda1298180bb60e15c14f965e3)</td>
 </tr>
 <tr>
-<td>**6. 5-Day Streaks & Office Pods**</td>
-<td>Rahul, Vikram</td>
-<td>Gamified Mon–Fri completion rewards (Free Cold Brew) + consolidated 1:00 PM wave fleet drops.</td>
-<td>Builds weekday dining habits while slashing last-mile logistics costs by 63%.</td>
-<td>[View Streaks Page](https://app.notion.com/p/40b80bcda12981349a9beef85a7e2a69)</td>
+<td>**6. Healthy Week Habit Tree**</td>
+<td>Rahul, Priya</td>
+<td>4/5 Flexible Workweek Rule (Protected Skip 🛡️ with zero tree death), 5-stage living bonsai habit tree, Friday Lunch Roulette with 100% guaranteed digital perks, and personal impact ledger.</td>
+<td>Builds sticky weekday nutrition habits without punishing legitimate skips; eliminates physical treat logistics friction.</td>
+<td>[View Habit Tree Page](https://app.notion.com/p/40b80bcda12981349a9beef85a7e2a69)</td>
+</tr>
+<tr>
+<td>**7. Tower Tribe Pod Co-Op**</td>
+<td>Priya, Vikram</td>
+<td>Hyper-local building co-op with 3-tier milestone ladder (Bronze 25 ➔ Silver 50 ➔ Gold 75 orders), Friday Fuel Credits (₹25/₹50/₹75) self-funded via batch drop savings, and 1-tap viral nudges.</td>
+<td>Drives high corporate tower density, slashing courier costs from ₹65 to ₹24 per drop while retaining +₹400 to +₹1,200 platform surplus.</td>
+<td>[View Tower Tribe Page](https://app.notion.com/p/40b80bcda129812f8cfce30159ce2d13)</td>
+</tr>
+<tr>
+<td>**8. Strategic Trade-Offs & Decision Manifesto**</td>
+<td>Leadership, Core PM</td>
+<td>8 foundational strategic trade-offs defining core architectural choices, economic guardrails, and non-goals.</td>
+<td>Establishes clear product principles and prevents scope creep across engineering, operations, and growth.</td>
+<td>[View Manifesto Page](https://app.notion.com/p/40b80bcda129812ea11dea0aff115931)</td>
 </tr>
 </table>
 ---
