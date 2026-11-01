@@ -36,6 +36,7 @@ import {
   ExternalLink
 } from 'lucide-react';
 import { playPop, playSuccessChime, playCelebrationFanfare } from '../utils/audioDelight';
+import HabitSpinWheelModal from '../components/HabitSpinWheelModal';
 
 const AVATARS = [
   { name: 'Priya S.', initials: 'PS', bg: 'bg-rose-500', role: 'Engineering', orders: 4 },
@@ -47,7 +48,9 @@ const AVATARS = [
 
 export default function StreaksTab({ onNotify, triggerConfetti, onOpenWowModal }) {
   // SUB-TAB NAVIGATION: 'tree' (My Habit Tree) | 'tribe' (Tower Tribe)
-  const [activeSubTab, setActiveSubTab] = useState('tribe'); // Default to 'tribe' for direct inspection of new UI
+  const [activeSubTab, setActiveSubTab] = useState('tree');
+  const [showSpinWheelModal, setShowSpinWheelModal] = useState(false);
+  const [claimedWheelReward, setClaimedWheelReward] = useState(null);
 
   // --- HABIT TREE STATE ---
   const [currentDay, setCurrentDay] = useState(4); // Default to Thu (4/5)
@@ -195,8 +198,12 @@ export default function StreaksTab({ onNotify, triggerConfetti, onOpenWowModal }
     setCurrentDay(dayIndex);
     if (dayIndex === 5) {
       setStreakCompleted(true);
+      setShowSpinWheelModal(true);
       playCelebrationFanfare();
       if (triggerConfetti) triggerConfetti();
+      if (onNotify) {
+        onNotify('4/5 Milestone Reached! 🌸', 'Friday Lunch Roulette unlocked! Spin to claim your perk.', 'success');
+      }
     } else {
       setStreakCompleted(false);
       setSelectedReward(null);
@@ -874,6 +881,80 @@ export default function StreaksTab({ onNotify, triggerConfetti, onOpenWowModal }
                 <span className="text-xs text-slate-400 font-semibold">Step {currentDay} of 5</span>
               </div>
 
+              {/* Dynamic Living Bonsai Tree Visual */}
+              <div className="my-2 py-1 flex items-center justify-center relative select-none">
+                <svg viewBox="0 0 160 115" className="w-36 h-28 drop-shadow-sm transition-all duration-300">
+                  {/* Terracotta Planter Pot */}
+                  <polygon points="50,88 110,88 102,112 58,112" fill="#EA580C" stroke="#9A3412" strokeWidth="1.5" />
+                  <rect x="46" y="84" width="68" height="5" rx="2.5" fill="#C2410C" />
+                  <ellipse cx="80" cy="86" rx="28" ry="3.5" fill="#78350F" />
+
+                  {/* Stage 1: Sprouting Seedling */}
+                  {currentDay === 1 && (
+                    <g className="animate-in zoom-in-75 duration-300">
+                      <path d="M 80 85 Q 80 72 82 64" stroke="#16A34A" strokeWidth="3" fill="none" strokeLinecap="round" />
+                      <ellipse cx="76" cy="62" rx="6" ry="3.5" fill="#22C55E" transform="rotate(-30 76 62)" />
+                      <ellipse cx="88" cy="62" rx="6" ry="3.5" fill="#4ADE80" transform="rotate(30 88 62)" />
+                    </g>
+                  )}
+
+                  {/* Stage 2: Twin Leaves */}
+                  {currentDay === 2 && (
+                    <g className="animate-in zoom-in-75 duration-300">
+                      <path d="M 80 85 Q 78 68 80 48" stroke="#15803D" strokeWidth="3.5" fill="none" strokeLinecap="round" />
+                      <ellipse cx="70" cy="54" rx="9" ry="5" fill="#16A34A" transform="rotate(-35 70 54)" />
+                      <ellipse cx="90" cy="50" rx="9" ry="5" fill="#22C55E" transform="rotate(35 90 50)" />
+                      <ellipse cx="78" cy="44" rx="7" ry="4" fill="#4ADE80" transform="rotate(-10 78 44)" />
+                    </g>
+                  )}
+
+                  {/* Stage 3: Branching Sapling & Protected Skip Shield */}
+                  {currentDay === 3 && (
+                    <g className="animate-in zoom-in-75 duration-300">
+                      <path d="M 80 85 Q 76 65 80 40 M 78 60 Q 64 50 60 42 M 80 52 Q 94 44 98 38" stroke="#78350F" strokeWidth="4" fill="none" strokeLinecap="round" />
+                      <circle cx="60" cy="38" r="10" fill="#15803D" opacity="0.9" />
+                      <circle cx="98" cy="35" r="11" fill="#16A34A" opacity="0.9" />
+                      <circle cx="80" cy="30" r="13" fill="#22C55E" opacity="0.9" />
+                      {hasWednesdaySkip && (
+                        <g transform="translate(104, 18)">
+                          <circle cx="12" cy="12" r="12" fill="#FEF3C7" stroke="#F59E0B" strokeWidth="1.5" />
+                          <text x="12" y="16" fontSize="12" textAnchor="middle">🛡️</text>
+                        </g>
+                      )}
+                    </g>
+                  )}
+
+                  {/* Stage 4: Budding Canopy */}
+                  {currentDay === 4 && (
+                    <g className="animate-in zoom-in-75 duration-300">
+                      <path d="M 80 85 Q 76 60 80 34 M 78 58 Q 60 48 54 38 M 80 50 Q 100 42 106 34" stroke="#78350F" strokeWidth="4.5" fill="none" strokeLinecap="round" />
+                      <circle cx="56" cy="34" r="14" fill="#15803D" />
+                      <circle cx="104" cy="30" r="15" fill="#16A34A" />
+                      <circle cx="80" cy="24" r="17" fill="#22C55E" />
+                      <circle cx="60" cy="28" r="3.5" fill="#F43F5E" />
+                      <circle cx="98" cy="24" r="3.5" fill="#FB7185" />
+                      <circle cx="80" cy="15" r="3.5" fill="#FDA4AF" />
+                    </g>
+                  )}
+
+                  {/* Stage 5: Full Blooming Bonsai with Sparkles */}
+                  {currentDay === 5 && (
+                    <g className="animate-in zoom-in-75 duration-300">
+                      <circle cx="80" cy="28" r="42" fill="#FDE047" opacity="0.18" />
+                      <path d="M 80 85 Q 75 58 80 32 M 78 56 Q 58 46 50 36 M 80 48 Q 102 40 110 32" stroke="#78350F" strokeWidth="5" fill="none" strokeLinecap="round" />
+                      <circle cx="52" cy="34" r="16" fill="#15803D" />
+                      <circle cx="108" cy="30" r="17" fill="#16A34A" />
+                      <circle cx="80" cy="20" r="20" fill="#22C55E" />
+                      <text x="54" y="32" fontSize="12">🌸</text>
+                      <text x="102" y="28" fontSize="12">🌸</text>
+                      <text x="78" y="16" fontSize="14">🌸</text>
+                      <text x="68" y="42" fontSize="10">✨</text>
+                      <text x="92" y="40" fontSize="10">✨</text>
+                    </g>
+                  )}
+                </svg>
+              </div>
+
               {/* Day stepper */}
               <div className="flex items-center justify-between w-full pt-3 border-t border-slate-200">
                 {[
@@ -910,6 +991,105 @@ export default function StreaksTab({ onNotify, triggerConfetti, onOpenWowModal }
               </div>
             </div>
           </div>
+
+          {/* =========================================================================
+              FRIDAY HABIT MILESTONE: "SPIN THE WHEEL" (VARIABLE REWARD LOOP)
+             ========================================================================= */}
+          {currentDay < 5 ? (
+            <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/90 rounded-2xl p-3.5 space-y-2.5">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <span className="text-xl">🎡</span>
+                  <div>
+                    <h3 className="text-xs font-black text-slate-900 leading-tight">
+                      Weekly Milestone: Friday Lunch Roulette
+                    </h3>
+                    <p className="text-[10px] text-slate-600">
+                      Reach 4 of 5 workweek meals to unlock your guaranteed digital perk!
+                    </p>
+                  </div>
+                </div>
+                <span className="text-[9px] font-extrabold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full border border-amber-300">
+                  Step 4 of 5
+                </span>
+              </div>
+
+              <button
+                onClick={() => {
+                  handleSelectDay(5);
+                }}
+                className="w-full min-h-[44px] bg-gradient-to-r from-emerald-600 via-[#10B981] to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-xs font-extrabold py-2.5 px-4 rounded-xl shadow-xs transition-all active:scale-[0.98] cursor-pointer flex items-center justify-center space-x-2"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Simulate Friday Delivery (Unlock Spin the Wheel) ⚡</span>
+              </button>
+            </div>
+          ) : (
+            <div className="bg-gradient-to-br from-slate-900 via-slate-850 to-slate-900 text-white border-2 border-emerald-400 rounded-2xl p-4 space-y-3 relative overflow-hidden shadow-lg animate-in zoom-in-95 duration-200">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-[#FF5A1F]/15 rounded-full blur-xl pointer-events-none" />
+
+              <div className="flex items-center justify-between relative z-10">
+                <div className="flex items-center space-x-2">
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 to-[#FF5A1F] text-slate-950 flex items-center justify-center text-xl font-bold shadow-md">
+                    🎡
+                  </div>
+                  <div>
+                    <span className="text-[9px] font-black uppercase tracking-wider text-amber-400 block">
+                      4/5 WORKWEEK BLOOM COMPLETE
+                    </span>
+                    <h3 className="text-sm font-black text-white leading-tight">
+                      Friday Lunch Roulette Unlocked!
+                    </h3>
+                  </div>
+                </div>
+
+                <span className="text-[9px] font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-full">
+                  100% Digital Perk
+                </span>
+              </div>
+
+              <p className="text-xs text-slate-300 leading-snug relative z-10 font-medium">
+                Zero food waste, zero cold-chain packaging. Spin the wheel to claim your guaranteed reward (Tier Upgrade, ₹50 Balance, +3d Buffer, Coffee Shout, or 15% Pass Discount).
+              </p>
+
+              {claimedWheelReward ? (
+                <div className="bg-slate-800/90 rounded-xl p-3 border border-slate-700 space-y-2 relative z-10">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-extrabold text-amber-300 flex items-center space-x-1.5">
+                      <span className="text-lg">{claimedWheelReward.emoji}</span>
+                      <span>{claimedWheelReward.name} Claimed!</span>
+                    </span>
+                    <span className="text-[9px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded font-black border border-emerald-500/30">
+                      Active
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-300">
+                    {claimedWheelReward.subtext}
+                  </p>
+                  <div className="pt-1 flex items-center gap-2">
+                    <button
+                      onClick={() => setShowSpinWheelModal(true)}
+                      className="flex-1 min-h-[40px] bg-slate-700 hover:bg-slate-600 text-white text-xs font-bold py-2 px-3 rounded-lg flex items-center justify-center space-x-1 cursor-pointer transition-colors"
+                    >
+                      <RotateCw className="w-3.5 h-3.5" />
+                      <span>Re-spin Wheel (Demo Mode)</span>
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  onClick={() => {
+                    playPop();
+                    setShowSpinWheelModal(true);
+                  }}
+                  className="w-full min-h-[48px] bg-gradient-to-r from-amber-400 via-[#FF5A1F] to-emerald-400 hover:from-amber-500 hover:to-emerald-500 text-slate-950 font-black text-xs py-3 px-4 rounded-xl shadow-lg transition-all active:scale-[0.98] cursor-pointer flex items-center justify-center space-x-2 relative z-10"
+                >
+                  <Sparkles className="w-4 h-4 fill-current" />
+                  <span>SPIN THE FRIDAY HABIT WHEEL ➔</span>
+                </button>
+              )}
+            </div>
+          )}
 
           {/* Impact Ledger */}
           <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm space-y-3">
@@ -1036,6 +1216,15 @@ export default function StreaksTab({ onNotify, triggerConfetti, onOpenWowModal }
           </div>
         </div>
       )}
+
+      {/* Habit Spin Wheel Modal (Friday Lunch Roulette) */}
+      <HabitSpinWheelModal
+        isOpen={showSpinWheelModal}
+        onClose={() => setShowSpinWheelModal(false)}
+        onRewardClaimed={(reward) => setClaimedWheelReward(reward)}
+        triggerConfetti={triggerConfetti}
+        onNotify={onNotify}
+      />
 
       {/* =========================================================================
           HOW IT WORKS BOTTOM SHEET (ORDERED AS PER SECTION 4 OF BRIEF)
