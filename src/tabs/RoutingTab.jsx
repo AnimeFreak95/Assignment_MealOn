@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MapPin, Building2, Home, Calendar, Clock, Check, RotateCcw } from 'lucide-react';
+import { MapPin, Building2, Home, Calendar, Clock, Check, RotateCcw, ShieldCheck, AlertCircle, Info } from 'lucide-react';
 import { SAVED_LOCATIONS } from '../data/mockData';
 import { playPop, playSuccessChime } from '../utils/audioDelight';
 
@@ -118,6 +118,48 @@ export default function RoutingTab({ playlist, setPlaylist, onNotify }) {
           </div>
         </div>
       </div>
+
+      {/* Hybrid Policy & Economics Guardrails Card (Guardrail 1: 7km Geofence & Guardrail 4: 10PM Lock) */}
+      <div className="bg-white rounded-2xl p-3 border border-slate-200 shadow-sm space-y-2">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <div className="w-6 h-6 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center">
+              <ShieldCheck className="w-3.5 h-3.5" />
+            </div>
+            <div>
+              <h4 className="text-xs font-bold text-slate-900 leading-tight">
+                Hybrid Routing Policy & Guardrails
+              </h4>
+              <p className="text-[10px] text-slate-500">Protecting ₹0 delivery via batch clustering</p>
+            </div>
+          </div>
+          <span className="text-[9px] font-extrabold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">
+            Active
+          </span>
+        </div>
+
+        <div className="bg-slate-50 rounded-xl p-2.5 space-y-2 text-[10px]">
+          <div className="flex items-start space-x-2">
+            <MapPin className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+            <div>
+              <strong className="text-slate-900">1. 7 km Kitchen-Cluster Limit:</strong>
+              <span className="text-slate-600 block">
+                Home (Green Valley Apt) is <strong>4.2 km</strong> from kitchen hub (≤ 7 km limit). Verified for ₹0 delivery.
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-start space-x-2 pt-1.5 border-t border-slate-200/80">
+            <Clock className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+            <div>
+              <strong className="text-slate-900">2. 10:00 PM Night-Before Routing Lock:</strong>
+              <span className="text-slate-600 block">
+                Tomorrow's location locks at 10 PM tonight. Same-day morning address flips are disabled to protect batch manifests.
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
       {/* Route Summary Bar (Clean & Visual) */}
       <div className="bg-white rounded-2xl p-3.5 border border-slate-200 shadow-sm space-y-2">
         <div className="flex items-center justify-between text-xs font-bold text-slate-800">
@@ -141,6 +183,48 @@ export default function RoutingTab({ playlist, setPlaylist, onNotify }) {
             className="bg-[#10B981] h-full transition-all duration-300"
             style={{ width: `${(homeCount / 5) * 100}%` }}
           />
+        </div>
+      </div>
+
+      {/* Hybrid Policy & Economics Guardrails Card (Guardrail 1: 7km Geofence & Guardrail 4: 10PM Lock) */}
+      <div className="bg-white rounded-2xl p-3 border border-slate-200 shadow-sm space-y-2">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <div className="w-6 h-6 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center">
+              <ShieldCheck className="w-3.5 h-3.5" />
+            </div>
+            <div>
+              <h4 className="text-xs font-bold text-slate-900 leading-tight">
+                Hybrid Routing Policy & Guardrails
+              </h4>
+              <p className="text-[10px] text-slate-500">Protecting ₹0 delivery via batch clustering</p>
+            </div>
+          </div>
+          <span className="text-[9px] font-extrabold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">
+            Active
+          </span>
+        </div>
+
+        <div className="bg-slate-50 rounded-xl p-2.5 space-y-2 text-[10px]">
+          <div className="flex items-start space-x-2">
+            <MapPin className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+            <div>
+              <strong className="text-slate-900">1. 7 km Kitchen-Cluster Limit:</strong>
+              <span className="text-slate-600 block">
+                Home (Green Valley Apt) is <strong>4.2 km</strong> from kitchen hub (≤ 7 km limit). Verified for ₹0 delivery.
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-start space-x-2 pt-1.5 border-t border-slate-200/80">
+            <Clock className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+            <div>
+              <strong className="text-slate-900">2. 10:00 PM Night-Before Routing Lock:</strong>
+              <span className="text-slate-600 block">
+                Tomorrow's location locks at 10 PM tonight. Same-day morning address flips are disabled to protect batch manifests.
+              </span>
+            </div>
+          </div>
         </div>
       </div>
 

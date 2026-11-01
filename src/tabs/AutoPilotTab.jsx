@@ -1566,6 +1566,22 @@ export default function AutoPilotTab({
                     </div>
                   </button>
                 </div>
+
+                {/* Hybrid Policy Guardrails (7 km Geofence & 10 PM Routing Lock) */}
+                <div className="bg-slate-50 border border-slate-200/90 rounded-xl p-2 space-y-1">
+                  <div className="flex items-center justify-between text-[9px] font-extrabold">
+                    <span className="flex items-center text-emerald-800">
+                      <ShieldCheck className="w-3 h-3 mr-1 text-emerald-600" />
+                      Cluster Geofence: 4.2 km (≤ 7 km Limit)
+                    </span>
+                    <span className="text-emerald-700 bg-emerald-100/90 px-1.5 py-0.2 rounded font-bold">
+                      ₹0 Delivery
+                    </span>
+                  </div>
+                  <p className="text-[8.5px] text-slate-500 leading-tight">
+                    🔒 <strong>10:00 PM Routing Lock:</strong> Switching between Office and Home for tomorrow locks at 10 PM tonight. Same-day morning address flips are disabled to protect batch delivery manifests.
+                  </p>
+                </div>
               </div>
 
               {/* 30-Min Delivery Window Selector */}
@@ -1684,6 +1700,19 @@ export default function AutoPilotTab({
                   </span>
                 </button>
               ))}
+            </div>
+
+            {/* Hybrid Cluster Distance & Cut-Off Guardrail Policy */}
+            <div className="bg-slate-50 border border-slate-200/90 rounded-2xl p-2.5 flex items-center justify-between text-[10px]">
+              <div className="flex items-center space-x-2">
+                <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span className="text-slate-700 font-medium">
+                  <strong>Cluster Guardrail:</strong> Home is <strong>4.2 km</strong> from kitchen hub (≤ 7 km limit). Switches lock at <strong>10:00 PM</strong> night-before.
+                </span>
+              </div>
+              <span className="text-[9px] font-extrabold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full shrink-0">
+                ₹0 Delivery
+              </span>
             </div>
           </div>
 
@@ -1835,6 +1864,19 @@ export default function AutoPilotTab({
                   </div>
                 </div>
               ))}
+            </div>
+
+            {/* Hybrid Cluster Distance & Cut-Off Guardrail Policy */}
+            <div className="bg-slate-50 border border-slate-200/90 rounded-2xl p-2.5 flex items-center justify-between text-[10px]">
+              <div className="flex items-center space-x-2">
+                <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span className="text-slate-700 font-medium">
+                  <strong>Cluster Guardrail:</strong> Home is <strong>4.2 km</strong> from kitchen hub (≤ 7 km limit). Switches lock at <strong>10:00 PM</strong> night-before.
+                </span>
+              </div>
+              <span className="text-[9px] font-extrabold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full shrink-0">
+                ₹0 Delivery
+              </span>
             </div>
           </div>
         </div>
