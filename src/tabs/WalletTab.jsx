@@ -13,6 +13,7 @@ export default function WalletTab({ credits, setCredits, onNotify, triggerConfet
   const [vacationDays, setVacationDays] = useState(2);
   const [autoRolloverActive, setAutoRolloverActive] = useState(true);
   const [expandedFaq, setExpandedFaq] = useState(true);
+  const [safetyNetAccrued, setSafetyNetAccrued] = useState(0);
 
   // Compute extended date based on base date + credits + vacation days
   const baseDate = new Date();
@@ -41,20 +42,34 @@ export default function WalletTab({ credits, setCredits, onNotify, triggerConfet
     if (onNotify) {
       onNotify(
         nextVal ? 'Auto-Rollover Guaranteed 🛡️' : 'Manual Mode',
-        nextVal ? 'Skipped meals rollover automatically.' : 'Manual rollover activated.',
+        nextVal ? 'Unused meals at cycle end roll over automatically.' : 'Manual rollover activated.',
         'info'
+      );
+    }
+  };
+
+  // Simulate end of pass cycle expiry safety net
+  const handleSimulatePassExpiry = () => {
+    playSuccessChime();
+    if (triggerConfetti) triggerConfetti();
+    setSafetyNetAccrued((prev) => prev + 450); // 2 unused meals * ₹225
+    if (onNotify) {
+      onNotify(
+        'Safety Net Triggered! 🛡️',
+        '2 unconsumed meals converted to ₹450 MealsOn Balance (Valid 60 days on renewal).',
+        'success'
       );
     }
   };
 
   return (
     <div className="pb-28 px-4 pt-3 space-y-3.5">
-      {/* 1. Hero Card: Dynamic Credit Balance & Validity Ring */}
+      {/* 1. Hero Card: Dynamic Meal Quota & Validity Ring */}
       <div className="rounded-2xl p-4 bg-gradient-to-br from-[#064E3B] via-[#0b3d30] to-[#0F172A] text-white shadow-lg border border-emerald-500/30 relative overflow-hidden">
         <div className="flex items-center justify-between mb-2">
           <span className="text-[10px] font-extrabold uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 px-2 py-0.5 rounded-full flex items-center shadow-xs">
             <ShieldCheck className="w-3 h-3 mr-1 text-[#10B981]" />
-            Flexible Pass Guarantee
+            Active Pass Horizon
           </span>
 
           <span className="text-[10px] font-medium text-emerald-200/70">
@@ -65,13 +80,13 @@ export default function WalletTab({ credits, setCredits, onNotify, triggerConfet
         <div className="flex items-center justify-between">
           <div>
             <div className="text-[10px] font-semibold text-emerald-200/90 uppercase tracking-tight">
-              MealsOn Balance (Remaining Meals)
+              Remaining Meal Quota (In Pack)
             </div>
             <div className="text-3xl font-extrabold text-white tracking-tight mt-0.5">
               {credits} <span className="text-sm font-semibold text-emerald-300">Meals</span>
             </div>
             <p className="text-[11px] text-slate-300 mt-0.5">
-              Worth <strong>₹{credits * 190}</strong> in meal rollovers
+              Pass capacity: <strong>{credits} of {totalPassCredits}</strong> lunches active
             </p>
           </div>
 
@@ -102,7 +117,7 @@ export default function WalletTab({ credits, setCredits, onNotify, triggerConfet
             </svg>
             <div className="absolute flex flex-col items-center justify-center">
               <span className="text-xs font-extrabold text-white">{credits}/20</span>
-              <span className="text-[8px] text-emerald-300 font-semibold">Active</span>
+              <span className="text-[8px] text-emerald-300 font-semibold">In Pack</span>
             </div>
           </div>
         </div>
@@ -110,24 +125,24 @@ export default function WalletTab({ credits, setCredits, onNotify, triggerConfet
         <div className="mt-2.5 pt-2 border-t border-emerald-800/60 flex items-center justify-between text-[10px] text-emerald-200/90">
           <span className="flex items-center">
             <BadgeCheck className="w-3 h-3 mr-1 text-emerald-400" />
-            Zero Expiry Penalty
+            Zero Breakage Guarantee
           </span>
-          <span className="font-bold text-white">Valid to {extendedDateStr}</span>
+          <span className="font-bold text-white">Buffer Valid to {extendedDateStr}</span>
         </div>
       </div>
 
-      {/* 1.5 Educational Callout: Prepaid Rollover vs Mandate Cancellation */}
-      <div className={`rounded-2xl p-3 border shadow-sm space-y-2 ${
+      {/* 1.5 Educational Callout: Quota Preservation vs End-of-Cycle Safety Net */}
+      <div className={`rounded-2xl p-3 border shadow-sm space-y-2.5 ${
         paymentMode === 'prepaid'
           ? 'bg-emerald-50/70 border-emerald-200 text-emerald-950'
           : 'bg-blue-50/70 border-blue-200 text-blue-950'
       }`}>
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-1.5 font-extrabold text-xs">
-            <span className="text-base select-none">{paymentMode === 'prepaid' ? '💰' : '⚡'}</span>
+            <span className="text-base select-none">{paymentMode === 'prepaid' ? '🛡️' : '⚡'}</span>
             <span>
               {paymentMode === 'prepaid'
-                ? 'Prepaid Pass: 60-Day Rollover Balance'
+                ? 'Prepaid Pass: Quota Preserved in Pack'
                 : 'UPI Mandate: Zero-Debit Cancellation (₹0 Charged)'}
             </span>
           </div>
@@ -142,20 +157,39 @@ export default function WalletTab({ credits, setCredits, onNotify, triggerConfet
 
         <p className="text-[11px] leading-relaxed opacity-90">
           {paymentMode === 'prepaid'
-            ? 'Because you paid upfront, skipping a meal before 10:00 PM deposits 100% (₹190) into your MealsOn Balance. Your balance is valid for 60 days on pass renewal (up to 25% invoice offset).'
-            : 'Because you pay per-meal via UPI AutoPay, skipping a meal before 10:00 PM simply cancels the 10 PM debit. ₹0 is deducted from your bank, so no wallet credit is issued.'}
+            ? 'When you skip a meal before 10:00 PM, your meal is NOT consumed. It stays in your pack, extending your runway +1 day into your 20-day buffer. The wallet credit is only given as a Safety Net if your 20-day validity window expires with unconsumed meals!'
+            : 'Because you pay per-meal via UPI AutoPay, skipping a meal before 10:00 PM simply cancels that night\'s debit. ₹0 is deducted from your bank, so no wallet credit is needed.'}
         </p>
 
-        <div className="grid grid-cols-2 gap-1.5 pt-1 text-[10px]">
-          <div className="bg-white/80 rounded-lg p-1.5 border border-slate-200/60">
-            <span className="font-bold text-slate-700 block">💰 Prepaid Members</span>
-            <span className="text-slate-600">Upfront payment → 100% cash preserved in balance on skip.</span>
+        <div className="grid grid-cols-2 gap-1.5 pt-0.5 text-[10px]">
+          <div className="bg-white/90 rounded-lg p-2 border border-slate-200/70 space-y-0.5">
+            <span className="font-extrabold text-emerald-900 block">📅 Daily Skips</span>
+            <span className="text-slate-600">Meal stays in pack (e.g. 14/20 left). Zero accounting friction.</span>
           </div>
-          <div className="bg-white/80 rounded-lg p-1.5 border border-slate-200/60">
-            <span className="font-bold text-slate-700 block">⚡ Mandate Members</span>
-            <span className="text-slate-600">Per-meal debit → ₹0 debited on skip. Keep your money in bank.</span>
+          <div className="bg-white/90 rounded-lg p-2 border border-slate-200/70 space-y-0.5">
+            <span className="font-extrabold text-emerald-900 block">🛡️ End of Pass (Day 20)</span>
+            <span className="text-slate-600">Unused meals convert to ₹225/meal balance on renewal.</span>
           </div>
         </div>
+
+        {/* Safety Net Balance Display & Simulation Button */}
+        {paymentMode === 'prepaid' && (
+          <div className="bg-white rounded-xl p-2.5 border border-emerald-300 flex items-center justify-between text-xs">
+            <div>
+              <span className="text-[10px] text-slate-500 block font-semibold">End-of-Cycle Safety Net Balance:</span>
+              <span className="font-black text-emerald-700 text-sm">
+                ₹{safetyNetAccrued} <span className="text-[10px] font-normal text-slate-500">(from expired passes)</span>
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={handleSimulatePassExpiry}
+              className="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] rounded-lg shadow-xs transition-all active:scale-95"
+            >
+              ⚡ Test Safety Net Expiry
+            </button>
+          </div>
+        )}
       </div>
 
       {/* 2. Visual 10-Day Timeline & Vacation Slider */}

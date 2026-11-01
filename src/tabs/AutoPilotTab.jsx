@@ -304,11 +304,10 @@ export default function AutoPilotTab({
     setConfirmSkipDayIndex(null);
 
     if (onNotify) {
-      const dishPrice = playlist[dayIndex]?.options[playlist[dayIndex]?.currentIdx]?.price || 190;
       if (paymentMode === 'prepaid') {
         onNotify(
           `${playlist[dayIndex].day} Lunch Skipped 🛡️`,
-          `₹${dishPrice} preserved in MealsOn Balance • Valid 60 days on renewal.`,
+          `Meal quota preserved in your pass pack (Runway extended +1 day within buffer).`,
           'success'
         );
       } else {
@@ -321,14 +320,18 @@ export default function AutoPilotTab({
     }
   };
 
-  // Get 5 swap candidates for a specific day (curated or vault)
+  // Get 5 swap candidates for a specific day (curated or vault) filtered to similar-value dishes
   const getSwapCandidates = (currentDishId) => {
+    const currentDish = MASTER_DISH_CATALOG.find((d) => d.id === currentDishId) || playlist[multiSwapModalDay]?.options[0];
+    const currentPrice = currentDish?.price || 190;
+
+    // Smart Swap Engine: Filter candidates to similar-value dishes within plan budget (±₹25 of current meal)
     if (swapModalFilter === 'vault') {
-      const vList = vaultDishes.filter((d) => d.id !== currentDishId);
-      return vList.length > 0 ? vList : MASTER_DISH_CATALOG.filter((d) => d.id !== currentDishId).slice(0, 5);
+      const vList = vaultDishes.filter((d) => d.id !== currentDishId && Math.abs(d.price - currentPrice) <= 25);
+      return vList.length > 0 ? vList : vaultDishes.filter((d) => d.id !== currentDishId).slice(0, 5);
     }
-    const list = MASTER_DISH_CATALOG.filter((d) => d.id !== currentDishId);
-    return list.slice(0, 5);
+    const list = MASTER_DISH_CATALOG.filter((d) => d.id !== currentDishId && Math.abs(d.price - currentPrice) <= 25);
+    return (list.length >= 4 ? list : MASTER_DISH_CATALOG.filter((d) => d.id !== currentDishId)).slice(0, 5);
   };
 
   // Shift/Swap entire meal between two days
@@ -1053,19 +1056,19 @@ export default function AutoPilotTab({
                     {/* BOTTOM TOOLBAR: CONDITIONAL BASED ON SKIPPED STATE       */}
                     {/* ======================================================== */}
                     {isSkipped ? (
-                      /* OPTION B: PRD-ALIGNED MINIMAL SKIPPED STATE */
+                      /* OPTION B: PRD-ALIGNED MINIMAL SKIPPED STATE (QUOTA PRESERVED) */
                       <div className="bg-emerald-50/90 border-t border-emerald-200 -mx-4 -mb-4 p-3 rounded-b-3xl flex items-center justify-between animate-in fade-in duration-150">
                         <div className="flex items-center space-x-2">
                           <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
                           <div>
                             <span className="text-xs font-black text-emerald-950 block leading-tight">
                               {paymentMode === 'prepaid'
-                                ? `Meal Skipped • ₹${currentMeal.price} Saved`
+                                ? 'Meal Skipped • Quota Preserved in Pass'
                                 : '10 PM Debit Canceled • ₹0 Charged'}
                             </span>
                             <span className="text-[10px] font-medium text-emerald-700">
                               {paymentMode === 'prepaid'
-                                ? 'Credited to MealsOn Balance • Valid 60 days on renewal (max 25% offset).'
+                                ? 'Meal not consumed • Pass runway extended +1 day within 20d buffer.'
                                 : 'Per-meal mandate auto-debit canceled for this day.'}
                             </span>
                           </div>
@@ -1121,7 +1124,7 @@ export default function AutoPilotTab({
                           <span>Move</span>
                         </button>
 
-                        {/* 3. Skip (Banks Credit) */}
+                        {/* 3. Skip (Quota Preserved in Pass) */}
                         <button
                           type="button"
                           onClick={() => handleSkipDay(idx)}
@@ -1132,7 +1135,7 @@ export default function AutoPilotTab({
                           }`}
                         >
                           <SkipForward className="w-3.5 h-3.5 text-slate-500" />
-                          <span>{paymentMode === 'prepaid' ? 'Skip & Bank' : 'Skip (₹0)'}</span>
+                          <span>{paymentMode === 'prepaid' ? 'Skip (Preserve)' : 'Skip (₹0)'}</span>
                         </button>
                       </div>
                     )}
@@ -1162,7 +1165,7 @@ export default function AutoPilotTab({
                           <div className="bg-white/90 p-1.5 rounded-lg border border-amber-200/50">
                             <span className="font-extrabold text-amber-900 block">💵 Financial Action</span>
                             <span className="text-slate-700">
-                              {paymentMode === 'prepaid' ? `+₹${currentMeal.price} saved to Balance` : '₹0 debited at 10 PM'}
+                              {paymentMode === 'prepaid' ? 'Meal kept in pack (Not consumed)' : '₹0 debited at 10 PM'}
                             </span>
                           </div>
                           <div className="bg-white/90 p-1.5 rounded-lg border border-amber-200/50">
@@ -1170,14 +1173,16 @@ export default function AutoPilotTab({
                             <span className="text-slate-700">Free modifications before 10 PM</span>
                           </div>
                           <div className="bg-white/90 p-1.5 rounded-lg border border-amber-200/50">
-                            <span className="font-extrabold text-amber-900 block">🔄 Rollover Expiry</span>
+                            <span className="font-extrabold text-amber-900 block">🔄 Pass Runway</span>
                             <span className="text-slate-700">
-                              {paymentMode === 'prepaid' ? 'Valid 60 days on renewal' : 'No credit created'}
+                              {paymentMode === 'prepaid' ? 'Extends +1d into 20d buffer' : 'Per-meal pay-as-you-eat'}
                             </span>
                           </div>
                           <div className="bg-white/90 p-1.5 rounded-lg border border-amber-200/50">
-                            <span className="font-extrabold text-amber-900 block">↩️ Undo Policy</span>
-                            <span className="text-slate-700">Can restore anytime before lock-in</span>
+                            <span className="font-extrabold text-amber-900 block">🛡️ Safety Net</span>
+                            <span className="text-slate-700">
+                              {paymentMode === 'prepaid' ? 'Unused meals at d20 convert to balance' : 'Zero charge on skip'}
+                            </span>
                           </div>
                         </div>
 
@@ -1199,7 +1204,7 @@ export default function AutoPilotTab({
                             className="flex-1 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-black text-xs shadow-xs flex items-center justify-center space-x-1 cta-bounce"
                           >
                             <SkipForward className="w-3 h-3" />
-                            <span>{paymentMode === 'prepaid' ? `Confirm & Bank ₹${currentMeal.price}` : 'Confirm & Pay ₹0'}</span>
+                            <span>{paymentMode === 'prepaid' ? 'Confirm (Keep in Pass)' : 'Confirm (Pay ₹0)'}</span>
                           </button>
                         </div>
                       </div>
@@ -1476,7 +1481,7 @@ export default function AutoPilotTab({
                     </h4>
                     <span className="text-[10px] font-medium text-slate-500">
                       {playlist[selectedCalendarDay].status === 'skipped'
-                        ? '🛡️ Skipped • ₹190 Preserved in MealsOn Balance'
+                        ? '🛡️ Skipped • Meal Quota Preserved in Pass (Runway Extended)'
                         : `Scheduled • ${playlist[selectedCalendarDay].location === 'office' ? 'Cyber Park Tower B' : 'Green Valley Apt'}`}
                     </span>
                   </div>
@@ -1638,11 +1643,11 @@ export default function AutoPilotTab({
                       ? 'Restore Meal'
                       : confirmSkipDayIndex === selectedCalendarDay
                       ? paymentMode === 'prepaid'
-                        ? 'Click to Confirm Bank ₹190'
-                        : 'Click to Confirm Pay ₹0'
+                        ? 'Confirm (Keep in Pass)'
+                        : 'Confirm (Pay ₹0)'
                       : paymentMode === 'prepaid'
-                      ? 'Skip & Bank ₹190'
-                      : 'Skip & Pay ₹0'}
+                      ? 'Skip (Keep in Pass)'
+                      : 'Skip (Pay ₹0)'}
                   </span>
                 </button>
 
@@ -1788,6 +1793,24 @@ export default function AutoPilotTab({
                 <Heart className="w-3.5 h-3.5 fill-current" />
                 <span>From My Vault ({vaultDishes.length})</span>
               </button>
+            </div>
+
+            {/* Smart Swap Algorithm Callout */}
+            <div className="bg-emerald-50/80 border border-emerald-200/80 rounded-xl p-2.5 flex items-center justify-between text-xs text-emerald-950">
+              <div className="flex items-center space-x-1.5">
+                <span className="text-sm">🎯</span>
+                <div>
+                  <span className="font-extrabold text-[11px] block text-emerald-900 leading-tight">
+                    Smart Swap Algorithm: Similar-Value Match
+                  </span>
+                  <span className="text-[10px] text-emerald-700">
+                    Filtered to budget peer dishes (±₹25) • 100% Plan Covered • ₹0 Extra
+                  </span>
+                </div>
+              </div>
+              <span className="text-[9px] font-bold bg-emerald-600 text-white px-2 py-0.5 rounded-full shrink-0">
+                ₹0 Fee
+              </span>
             </div>
 
             <p className="text-[11px] text-slate-500">

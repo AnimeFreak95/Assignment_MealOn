@@ -125,9 +125,6 @@ export default function CutOffTab({
     playSuccessChime();
     setTomorrowStatus('confirmed');
     setShowUndoToast(false);
-    if (paymentMode === 'prepaid') {
-      setCredits((prev) => Math.max(0, prev - 1));
-    }
   };
 
   // Step 1: Open Skip Confirmation Sheet
@@ -137,17 +134,29 @@ export default function CutOffTab({
     setShowSkipConfirmation(true);
   };
 
-  // Step 2: Finalize Skip with user confirmation
+  // Step 2: Finalize Skip with user confirmation (Quota Preserved in Pass)
   const handleConfirmSkip = () => {
     playShieldBankChime();
     setTomorrowStatus('skipped');
     setShowSkipConfirmation(false);
-    if (paymentMode === 'prepaid') {
-      setCredits((prev) => prev + 1);
-      if (triggerFloatingCredit) triggerFloatingCredit();
-    }
-    // Show Toast with Undo
+    // In Quota Preservation model, meal is NOT consumed from pass; quota stays intact in pack!
+    if (triggerFloatingCredit) triggerFloatingCredit();
     setShowUndoToast(true);
+    if (onNotify) {
+      if (paymentMode === 'prepaid') {
+        onNotify(
+          'Meal Quota Preserved! 🛡️',
+          'Tomorrow lunch skipped. Meal stays in your pass pack (runway extended +1 day).',
+          'success'
+        );
+      } else {
+        onNotify(
+          '10 PM Debit Canceled! ⚡',
+          '₹0 charged to your bank. No wallet credit needed.',
+          'info'
+        );
+      }
+    }
   };
 
   return (
@@ -266,7 +275,7 @@ export default function CutOffTab({
                   className="py-1.5 px-2 rounded-lg border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-900 font-bold text-[11px] transition-all active:scale-95 text-center flex items-center justify-center space-x-1"
                 >
                   <span>⏭️</span>
-                  <span>{paymentMode === 'prepaid' ? 'Skip & Bank' : 'Skip (₹0)'}</span>
+                  <span>{paymentMode === 'prepaid' ? 'Skip (Preserve)' : 'Skip (₹0)'}</span>
                 </button>
               </div>
               <p className="text-[9px] text-slate-500 text-center italic">
@@ -336,7 +345,7 @@ export default function CutOffTab({
               </span>
             ) : tomorrowStatus === 'skipped' ? (
               <span className="text-[9px] font-extrabold bg-slate-800 text-white px-2 py-0.5 rounded-full flex items-center shadow-2xs">
-                Banked ₹{tomorrowMeal.price}
+                {paymentMode === 'prepaid' ? 'Quota Preserved' : 'Debit Canceled'}
               </span>
             ) : (
               <span className="text-[9px] font-extrabold bg-[#10B981] text-white px-2 py-0.5 rounded-full flex items-center shadow-2xs">
@@ -414,7 +423,7 @@ export default function CutOffTab({
                 }`}
               >
                 <SkipForward className="w-3.5 h-3.5" />
-                <span>{tomorrowStatus === 'skipped' ? 'Meal Skipped' : paymentMode === 'prepaid' ? 'Skip & Bank ₹190' : 'Skip & Pay ₹0'}</span>
+                <span>{tomorrowStatus === 'skipped' ? 'Meal Skipped' : paymentMode === 'prepaid' ? 'Skip (Preserve)' : 'Skip & Pay ₹0'}</span>
               </button>
             </div>
 
@@ -432,7 +441,7 @@ export default function CutOffTab({
             <div className="flex items-center space-x-2">
               <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
               <span className="font-medium text-slate-700">
-                ₹{tomorrowMeal.price} added to balance
+                {paymentMode === 'prepaid' ? 'Meal quota preserved in pass (Runway extended)' : '10:00 PM auto-debit canceled (₹0 charged)'}
               </span>
             </div>
             {secondsRemaining > 0 && (
@@ -446,12 +455,17 @@ export default function CutOffTab({
           </div>
         )}
 
-        {/* Inline Swap Carousel */}
+        {/* Inline Swap Carousel with Smart Swap Guarantee */}
         {showSwapCarousel && (
           <div className="pt-1.5 border-t border-slate-100 space-y-1.5 animate-in fade-in duration-200">
-            <span className="text-[10px] font-bold text-slate-500 uppercase">
-              Equal-value replacements (₹190)
-            </span>
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-bold text-slate-600 uppercase flex items-center">
+                <span className="mr-1">🎯</span> Smart Swap: Similar-Value Match
+              </span>
+              <span className="text-[9px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">
+                100% Plan Covered • ₹0 Extra
+              </span>
+            </div>
 
             <div className="space-y-1.5">
               {CUTOFF_ALTERNATIVES.map((alt) => (
@@ -563,18 +577,29 @@ export default function CutOffTab({
               </span>
             </div>
 
-            {/* 3. Outcome & Undo Lines */}
+            {/* 3. Outcome & Undo Lines (Quota Preservation) */}
             <div className="space-y-2 text-xs">
               <div className="flex items-center space-x-2 text-slate-800">
-                <Wallet className="w-4 h-4 text-[#047857] shrink-0" />
+                <ShieldCheck className="w-4 h-4 text-[#047857] shrink-0" />
                 <span className="font-medium">
-                  ₹{tomorrowMeal.price} goes to your MealsOn balance right away.
+                  {paymentMode === 'prepaid'
+                    ? 'Meal is NOT consumed. It stays in your pass pack (runway extended +1 day).'
+                    : '10:00 PM auto-debit canceled. ₹0 charged to your bank.'}
                 </span>
               </div>
 
+              {paymentMode === 'prepaid' && (
+                <div className="flex items-center space-x-2 text-slate-600 bg-emerald-50/60 p-2 rounded-xl border border-emerald-200/50">
+                  <Wallet className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span className="text-[11px] leading-snug">
+                    <strong>Zero-Waste Safety Net:</strong> Any unconsumed meals at the end of your 20-day validity convert to wallet balance at pass rate.
+                  </span>
+                </div>
+              )}
+
               <div className="flex items-center space-x-2 text-slate-500">
                 <Clock className="w-4 h-4 text-slate-400 shrink-0" />
-                <span>You can undo this until 10 PM tonight.</span>
+                <span>You can undo this anytime until 10 PM tonight.</span>
               </div>
             </div>
 
@@ -585,7 +610,7 @@ export default function CutOffTab({
                 onClick={handleConfirmSkip}
                 className="w-full min-h-[48px] py-3 px-4 rounded-xl bg-[#C2410C] hover:bg-[#9A3412] text-white font-bold text-sm shadow-md transition-all active:scale-[0.98] flex items-center justify-center cta-bounce"
               >
-                Skip and bank ₹{tomorrowMeal.price}
+                {paymentMode === 'prepaid' ? 'Skip Lunch (Keep in Pass Pack)' : 'Skip Lunch (Cancel ₹0 Debit)'}
               </button>
 
               <button

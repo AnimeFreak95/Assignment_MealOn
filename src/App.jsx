@@ -160,12 +160,12 @@ export default function App() {
               onClick={() => {
                 playPop();
                 setPaymentMode('prepaid');
-                showToast('Payment Rail: Prepaid', 'Skipped meals deposit 100% value into MealsOn Balance.', 'info');
+                showToast('Payment Rail: Prepaid Pass', 'Skipped meals are kept in your pass pack (runway extended within 20d buffer).', 'info');
               }}
               className={`px-2 py-1 rounded font-bold transition-all ${
                 paymentMode === 'prepaid' ? 'bg-emerald-600 text-white shadow-xs' : 'text-slate-400 hover:text-white'
               }`}
-              title="Prepaid Plan: Skipped meals bank ₹ value into MealsOn Balance"
+              title="Prepaid Pass: Skipped meals preserve quota in pack; safety net triggers at cycle end"
             >
               💰 Prepaid Pass
             </button>
