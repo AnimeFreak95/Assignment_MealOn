@@ -447,7 +447,7 @@ export default function AutoPilotTab({
   };
 
   return (
-    <div className="space-y-3.5 pb-24">
+    <div className="space-y-3.5 px-4 pt-3 pb-0 relative">
       {/* Food Vault Modal */}
       <FoodVaultModal
         isOpen={isVaultModalOpen}
@@ -1711,20 +1711,20 @@ export default function AutoPilotTab({
         </div>
       )}
 
-      {/* Sticky Bottom Footer */}
-      <div className="fixed bottom-[58px] left-0 right-0 max-w-[420px] mx-auto bg-white/95 backdrop-blur-md border-t border-slate-200 p-2.5 px-4 shadow-[0_-6px_20px_rgba(0,0,0,0.06)] z-20">
-        <div className="flex items-center justify-between mb-1.5">
+      {/* Sticky Bottom Footer Docked Directly Above BottomNav */}
+      <div className="sticky bottom-0 -mx-4 mt-6 bg-white/95 backdrop-blur-md border-t border-slate-200/90 p-3 px-4 shadow-[0_-4px_16px_rgba(0,0,0,0.06)] z-20">
+        <div className="flex items-center justify-between mb-2">
           <div className="text-[11px] font-semibold text-slate-600">
             {activeMealsCount} of 5 Lunches • Avg <strong className="text-slate-900 font-bold">{avgProtein}g</strong> Protein
           </div>
           <div className="text-right">
-            <span className="text-sm font-extrabold text-[#FF5A1F]">₹{totalCost}</span>
+            <span className="text-sm font-black text-[#FF5A1F]">₹{totalCost}</span>
           </div>
         </div>
 
         <button
           onClick={handleLockIn}
-          className="w-full bg-[#FF5A1F] hover:bg-[#E04812] text-white font-bold text-xs py-2.5 px-4 rounded-xl shadow-md transition-all active:scale-[0.97] cta-bounce flex items-center justify-center space-x-1.5 cursor-pointer"
+          className="w-full bg-[#FF5A1F] hover:bg-[#E04812] text-white font-extrabold text-xs py-3 px-4 rounded-xl shadow-md transition-all active:scale-[0.98] cta-bounce flex items-center justify-center space-x-1.5 cursor-pointer"
         >
           <span>Lock In Weekly Playlist</span>
           <ChevronRight className="w-4 h-4" />
