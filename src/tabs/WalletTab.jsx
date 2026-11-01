@@ -1,52 +1,40 @@
 import React, { useState } from 'react';
 import {
   ShieldCheck,
+  Wallet,
+  Calendar,
+  CheckCircle2,
+  Sparkles,
+  HelpCircle,
   ChevronDown,
   ChevronUp,
-  HelpCircle,
-  Plane,
-  BadgeCheck
+  RotateCcw,
+  BadgeCheck,
+  ArrowRight
 } from 'lucide-react';
 import { playPop, playSuccessChime } from '../utils/audioDelight';
 
-export default function WalletTab({ credits, setCredits, onNotify, triggerConfetti, paymentMode = 'prepaid' }) {
-  const [vacationDays, setVacationDays] = useState(2);
-  const [autoRolloverActive, setAutoRolloverActive] = useState(true);
-  const [expandedFaq, setExpandedFaq] = useState(true);
-  const [safetyNetAccrued, setSafetyNetAccrued] = useState(0);
+export default function WalletTab({
+  credits = 14,
+  setCredits,
+  onNotify,
+  triggerConfetti,
+  paymentMode = 'prepaid',
+  setPaymentMode
+}) {
+  const [safetyNetAccrued, setSafetyNetAccrued] = useState(50);
+  const [expandedFaq, setExpandedFaq] = useState(false);
 
-  // Compute extended date based on base date + credits + vacation days
-  const baseDate = new Date();
-  baseDate.setDate(baseDate.getDate() + 20 + vacationDays);
-  const extendedDateStr = baseDate.toLocaleDateString('en-US', {
+  // Compute 20-day pass validity window
+  const passExpiryDate = new Date();
+  passExpiryDate.setDate(passExpiryDate.getDate() + 20);
+  const validityDateStr = passExpiryDate.toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric'
   });
 
   const totalPassCredits = 20;
   const progressPercent = Math.min(Math.round((credits / totalPassCredits) * 100), 100);
-  const radius = 38;
-  const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference - (progressPercent / 100) * circumference;
-
-  const handleSliderChange = (e) => {
-    const val = parseInt(e.target.value, 10);
-    setVacationDays(val);
-    playPop();
-  };
-
-  const toggleAutoRollover = () => {
-    const nextVal = !autoRolloverActive;
-    setAutoRolloverActive(nextVal);
-    playSuccessChime();
-    if (onNotify) {
-      onNotify(
-        nextVal ? 'Auto-Rollover Guaranteed 🛡️' : 'Manual Mode',
-        nextVal ? 'Unused meals at cycle end roll over automatically.' : 'Manual rollover activated.',
-        'info'
-      );
-    }
-  };
 
   // Simulate end of pass cycle expiry safety net
   const handleSimulatePassExpiry = () => {
@@ -56,315 +44,296 @@ export default function WalletTab({ credits, setCredits, onNotify, triggerConfet
     if (onNotify) {
       onNotify(
         'Safety Net Triggered! 🛡️',
-        '2 unconsumed meals converted to ₹450 MealsOn Balance (Valid 60 days on renewal).',
+        '2 unconsumed meals converted to ₹450 MealsOn Balance (Valid on renewal).',
         'success'
       );
     }
   };
 
   return (
-    <div className="pb-28 px-4 pt-3 space-y-3.5">
-      {/* 1. Hero Card: Dynamic Meal Quota & Validity Ring */}
-      <div className="rounded-2xl p-4 bg-gradient-to-br from-[#064E3B] via-[#0b3d30] to-[#0F172A] text-white shadow-lg border border-emerald-500/30 relative overflow-hidden">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-[10px] font-extrabold uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 px-2 py-0.5 rounded-full flex items-center shadow-xs">
-            <ShieldCheck className="w-3 h-3 mr-1 text-[#10B981]" />
-            Active Pass Horizon
+    <div className="pb-28 px-4 pt-3 space-y-3.5 max-w-lg mx-auto">
+      {/* 1. HERO CARD: Active Meal Pass Quota */}
+      <div className="rounded-2xl p-4 bg-gradient-to-br from-[#064E3B] via-[#0B3D30] to-[#0F172A] text-white shadow-lg border border-emerald-500/30 relative overflow-hidden">
+        {/* Subtle decorative glow */}
+        <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none" />
+
+        <div className="flex items-center justify-between mb-3 relative z-10">
+          <span className="text-[10px] font-extrabold uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 px-2.5 py-0.5 rounded-full flex items-center shadow-xs">
+            <ShieldCheck className="w-3 h-3 mr-1 text-emerald-400" />
+            Active Meal Pass
           </span>
 
-          <span className="text-[10px] font-medium text-emerald-200/70">
+          <span className="text-[10px] font-mono text-emerald-300/80 bg-white/10 px-2 py-0.5 rounded-md">
             #MO-8842
           </span>
         </div>
 
-        <div className="flex items-center justify-between">
+        {/* Big numbers + Progress Ring */}
+        <div className="flex items-center justify-between relative z-10">
           <div>
-            <div className="text-[10px] font-semibold text-emerald-200/90 uppercase tracking-tight">
-              Remaining Meal Quota (In Pack)
+            <div className="text-[10px] font-bold text-emerald-200/90 uppercase tracking-wider">
+              Remaining Meal Quota
             </div>
-            <div className="text-3xl font-extrabold text-white tracking-tight mt-0.5">
-              {credits} <span className="text-sm font-semibold text-emerald-300">Meals</span>
+            <div className="text-3xl font-black text-white tracking-tight mt-0.5 flex items-baseline gap-1.5">
+              <span>{credits}</span>
+              <span className="text-xs font-semibold text-emerald-300">/ {totalPassCredits} lunches in pack</span>
             </div>
-            <p className="text-[11px] text-slate-300 mt-0.5">
-              Pass capacity: <strong>{credits} of {totalPassCredits}</strong> lunches active
+            <p className="text-[11px] text-slate-300 mt-1 font-medium">
+              Corporate Thalis Tier • ₹250/meal cap
             </p>
           </div>
 
-          {/* Circular SVG Ring */}
-          <div className="relative w-20 h-20 flex items-center justify-center">
-            <svg className="w-20 h-20 transform -rotate-90">
+          {/* Clean Circular Gauge */}
+          <div className="relative w-18 h-18 flex items-center justify-center shrink-0">
+            <svg className="w-18 h-18 transform -rotate-90">
               <circle
-                cx="40"
-                cy="40"
-                r={32}
+                cx="36"
+                cy="36"
+                r="28"
                 stroke="currentColor"
                 strokeWidth="5"
-                className="text-slate-700/50"
+                className="text-slate-700/60"
                 fill="transparent"
               />
               <circle
-                cx="40"
-                cy="40"
-                r={32}
+                cx="36"
+                cy="36"
+                r="28"
                 stroke="#10B981"
                 strokeWidth="5"
-                strokeDasharray={2 * Math.PI * 32}
-                strokeDashoffset={2 * Math.PI * 32 - (progressPercent / 100) * 2 * Math.PI * 32}
+                strokeDasharray={2 * Math.PI * 28}
+                strokeDashoffset={2 * Math.PI * 28 - (progressPercent / 100) * 2 * Math.PI * 28}
                 strokeLinecap="round"
                 fill="transparent"
                 className="transition-all duration-700 ease-out"
               />
             </svg>
             <div className="absolute flex flex-col items-center justify-center">
-              <span className="text-xs font-extrabold text-white">{credits}/20</span>
-              <span className="text-[8px] text-emerald-300 font-semibold">In Pack</span>
+              <span className="text-xs font-black text-white">{progressPercent}%</span>
+              <span className="text-[7.5px] text-emerald-300 font-bold uppercase">Left</span>
             </div>
           </div>
         </div>
 
-        <div className="mt-2.5 pt-2 border-t border-emerald-800/60 flex items-center justify-between text-[10px] text-emerald-200/90">
-          <span className="flex items-center">
-            <BadgeCheck className="w-3 h-3 mr-1 text-emerald-400" />
-            Zero Breakage Guarantee
+        {/* Validity Footer Strip */}
+        <div className="mt-3.5 pt-2.5 border-t border-emerald-800/60 flex items-center justify-between text-[11px] relative z-10">
+          <span className="flex items-center text-emerald-200 font-medium">
+            <Calendar className="w-3.5 h-3.5 mr-1.5 text-emerald-400" />
+            Valid for 20 calendar days
           </span>
-          <span className="font-bold text-white">Buffer Valid to {extendedDateStr}</span>
+          <span className="font-bold text-white bg-white/10 px-2 py-0.5 rounded-md">
+            Until {validityDateStr}
+          </span>
         </div>
       </div>
 
-      {/* 1.5 Educational Callout: Quota Preservation vs End-of-Cycle Safety Net */}
-      <div className={`rounded-2xl p-3 border shadow-sm space-y-2.5 ${
-        paymentMode === 'prepaid'
-          ? 'bg-emerald-50/70 border-emerald-200 text-emerald-950'
-          : 'bg-blue-50/70 border-blue-200 text-blue-950'
-      }`}>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-1.5 font-extrabold text-xs">
-            <span className="text-base select-none">{paymentMode === 'prepaid' ? '🛡️' : '⚡'}</span>
-            <span>
-              {paymentMode === 'prepaid'
-                ? 'Prepaid Pass: Quota Preserved in Pack'
-                : 'UPI Mandate: Zero-Debit Cancellation (₹0 Charged)'}
-            </span>
-          </div>
-          <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full uppercase ${
-            paymentMode === 'prepaid'
-              ? 'bg-emerald-600 text-white'
-              : 'bg-blue-600 text-white'
-          }`}>
-            {paymentMode === 'prepaid' ? 'Prepaid Active' : 'Mandate Active'}
-          </span>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
-          {paymentMode === 'prepaid' ? (
-            <>
-              <span className="inline-flex items-center gap-1 text-[10px] font-semibold bg-emerald-100 text-emerald-900 px-2 py-0.5 rounded-md border border-emerald-300">
-                🛡️ Quota Preserved on Skip
-              </span>
-              <span className="inline-flex items-center gap-1 text-[10px] font-semibold bg-white text-slate-700 px-2 py-0.5 rounded-md border border-emerald-200">
-                📅 +1 Day Buffer Runway
-              </span>
-              <span className="inline-flex items-center gap-1 text-[10px] font-semibold bg-white text-slate-700 px-2 py-0.5 rounded-md border border-emerald-200">
-                ⚡ Safety Net on Expiry
-              </span>
-            </>
-          ) : (
-            <>
-              <span className="inline-flex items-center gap-1 text-[10px] font-semibold bg-blue-100 text-blue-900 px-2 py-0.5 rounded-md border border-blue-300">
-                ⚡ ₹0 Nightly Auto-Debit
-              </span>
-              <span className="inline-flex items-center gap-1 text-[10px] font-semibold bg-white text-slate-700 px-2 py-0.5 rounded-md border border-blue-200">
-                💳 Zero Bank Deduction
-              </span>
-              <span className="inline-flex items-center gap-1 text-[10px] font-semibold bg-white text-slate-700 px-2 py-0.5 rounded-md border border-blue-200">
-                🔒 10 PM Cut-off Protection
-              </span>
-            </>
-          )}
-        </div>
-
-        <div className="grid grid-cols-2 gap-1.5 pt-0.5 text-[10px]">
-          <div className="bg-white/90 rounded-lg p-2 border border-slate-200/70 space-y-0.5">
-            <span className="font-extrabold text-emerald-900 block">📅 Daily Skips</span>
-            <span className="text-slate-600">Meal stays in pack (e.g. 14/20 left). Zero accounting friction.</span>
-          </div>
-          <div className="bg-white/90 rounded-lg p-2 border border-slate-200/70 space-y-0.5">
-            <span className="font-extrabold text-emerald-900 block">🛡️ End of Pass (Day 20)</span>
-            <span className="text-slate-600">Unused meals convert to ₹225/meal balance on renewal.</span>
-          </div>
-        </div>
-
-        {/* Safety Net Balance Display & Simulation Button */}
-        {paymentMode === 'prepaid' && (
-          <div className="bg-white rounded-xl p-2.5 border border-emerald-300 flex items-center justify-between text-xs">
-            <div>
-              <span className="text-[10px] text-slate-500 block font-semibold">End-of-Cycle Safety Net Balance:</span>
-              <span className="font-black text-emerald-700 text-sm">
-                ₹{safetyNetAccrued} <span className="text-[10px] font-normal text-slate-500">(from expired passes)</span>
-              </span>
-            </div>
-            <button
-              type="button"
-              onClick={handleSimulatePassExpiry}
-              className="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] rounded-lg shadow-xs transition-all active:scale-95"
-            >
-              ⚡ Test Safety Net Expiry
-            </button>
-          </div>
-        )}
-      </div>
-
-      {/* 2. Visual 10-Day Timeline & Vacation Slider */}
-      <div className="bg-white rounded-2xl p-3.5 border border-slate-200 shadow-sm space-y-2.5">
-        <h3 className="text-xs font-bold text-slate-900">
-          10-Day Horizon & Rollover Track
-        </h3>
-
-        {/* Horizontal Track */}
-        <div className="overflow-x-auto pb-1 hide-scrollbar">
-          <div className="flex space-x-1.5 min-w-[480px]">
-            {[1, 2].map((d) => (
-              <div key={d} className="flex-1 bg-emerald-50 border border-emerald-200 rounded-xl p-1.5 text-center">
-                <div className="text-[9px] font-bold text-emerald-800">D{d}</div>
-                <div className="text-sm">✓</div>
-                <div className="text-[8px] font-bold text-emerald-700">Delivered</div>
-              </div>
-            ))}
-            {[3, 4].map((d) => (
-              <div key={d} className="flex-1 bg-amber-50 border border-amber-200 rounded-xl p-1.5 text-center">
-                <div className="text-[9px] font-bold text-amber-800">D{d}</div>
-                <div className="text-sm">🛡️</div>
-                <div className="text-[8px] font-bold text-amber-700">Shielded</div>
-              </div>
-            ))}
-            {[5, 6, 7, 8].map((d) => (
-              <div key={d} className="flex-1 bg-slate-50 border border-slate-200 rounded-xl p-1.5 text-center">
-                <div className="text-[9px] font-bold text-slate-700">D{d}</div>
-                <div className="text-sm">📅</div>
-                <div className="text-[8px] text-slate-500 font-semibold">Planned</div>
-              </div>
-            ))}
-            {[9, 10].map((d) => (
-              <div key={d} className="flex-1 bg-[#ECFDF5] border-2 border-[#10B981] rounded-xl p-1.5 text-center">
-                <div className="text-[9px] font-extrabold text-emerald-900">D{d}</div>
-                <div className="text-sm">🎁</div>
-                <div className="text-[8px] font-extrabold text-[#10B981]">+Rollover</div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Rollover badge */}
-        <div className="bg-[#ECFDF5] border border-[#10B981]/30 rounded-xl p-2 flex items-center justify-between text-xs">
-          <span className="text-[10px] font-bold text-emerald-900 flex items-center">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] mr-1.5 animate-ping" />
-            +2 Free Rollover Days Added
-          </span>
-          <span className="text-[9px] font-bold text-emerald-700 bg-emerald-100/60 px-1.5 py-0.2 rounded">
-            ₹0 Fee
-          </span>
-        </div>
-
-        {/* Vacation Pause Slider */}
-        <div className="bg-[#F8FAFC] rounded-xl p-2.5 border border-slate-200/80 space-y-1.5">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-800 flex items-center">
-              <Plane className="w-3 h-3 mr-1 text-[#FF5A1F]" />
-              Vacation Pause Slider
-            </span>
-            <span className="text-xs font-extrabold text-[#FF5A1F] bg-[#FFF5F0] border border-[#FF5A1F]/30 px-2 py-0.2 rounded-full">
-              {vacationDays} Days
-            </span>
-          </div>
-
-          <div className="py-2 flex items-center">
-            <input
-              type="range"
-              min="1"
-              max="5"
-              step="1"
-              aria-label="Vacation pause days slider"
-              value={vacationDays}
-              onChange={handleSliderChange}
-              className="w-full accent-[#FF5A1F] cursor-pointer h-2 min-h-[32px]"
-            />
-          </div>
-
-          <div className="flex justify-between text-[9px] font-semibold text-slate-400">
-            <span>1d</span>
-            <span>2d</span>
-            <span>3d</span>
-            <span>4d</span>
-            <span>5d</span>
-          </div>
-
-          <div className="bg-white p-2 rounded-lg border border-slate-200 text-xs flex items-center justify-between">
-            <span className="text-[10px] font-medium text-slate-600">Buffer Valid Until:</span>
-            <span className="text-xs font-extrabold text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded">
-              {extendedDateStr} (+{vacationDays}d Pause Shield)
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* 3. Auto-Rollover Guarantee Toggle */}
-      <div className="bg-white rounded-2xl p-3.5 border border-slate-200 shadow-sm space-y-2.5">
+      {/* 2. WALLET CASH ACCOUNT (Rupee Balance) */}
+      <div className="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-sm space-y-2.5">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <div className="w-7 h-7 rounded-lg bg-emerald-50 text-[#10B981] flex items-center justify-center">
-              <ShieldCheck className="w-4 h-4" />
+            <div className="w-8 h-8 rounded-xl bg-orange-50 text-[#FF5A1F] flex items-center justify-center">
+              <Wallet className="w-4 h-4" />
             </div>
             <div>
-              <h4 className="text-xs font-bold text-slate-900 leading-tight">
-                Auto-Rollover Guarantee
-              </h4>
-              <p className="text-[10px] text-slate-500">100% money protected</p>
+              <span className="text-[10px] font-extrabold uppercase text-slate-400 tracking-wider block">
+                MealsOn Wallet Cash
+              </span>
+              <div className="text-xl font-black text-slate-900 leading-tight">
+                ₹{safetyNetAccrued}
+              </div>
             </div>
           </div>
 
           <button
-            onClick={toggleAutoRollover}
-            className={`w-10 h-5 rounded-full transition-colors relative p-0.5 focus:outline-none cta-bounce ${
-              autoRolloverActive ? 'bg-[#10B981]' : 'bg-slate-200'
-            }`}
+            type="button"
+            onClick={handleSimulatePassExpiry}
+            className="text-[10px] font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/80 px-2.5 py-1.5 rounded-lg transition-all active:scale-95 flex items-center gap-1 cursor-pointer"
+            title="Simulate end of 20-day pass refund"
           >
-            <div
-              className={`w-4 h-4 rounded-full bg-white shadow-sm transition-transform ${
-                autoRolloverActive ? 'translate-x-5' : 'translate-x-0'
-              }`}
-            />
+            <Sparkles className="w-3 h-3 text-emerald-600" />
+            <span>Test Unused Refund</span>
           </button>
         </div>
 
-        {/* Concise FAQ */}
-        <div className="border-t border-slate-100 pt-1.5">
-          <button
-            onClick={() => {
-              playPop();
-              setExpandedFaq(!expandedFaq);
-            }}
-            className="w-full flex items-center justify-between text-left py-0.5 text-xs font-bold text-slate-800 hover:text-[#10B981] transition-colors"
-          >
-            <span className="flex items-center">
-              <HelpCircle className="w-3.5 h-3.5 mr-1.5 text-slate-400" />
-              Pass Rules & Zero-Expiry
-            </span>
-            {expandedFaq ? <ChevronUp className="w-3.5 h-3.5 text-slate-400" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-400" />}
-          </button>
+        <p className="text-[11px] text-slate-500 font-medium leading-relaxed">
+          Wallet cash automatically discounts your next pass renewal or premium dish add-ons.
+        </p>
 
-          {expandedFaq && (
-            <div className="grid grid-cols-2 gap-1.5 pt-1 text-[10px] animate-in fade-in duration-150">
-              <div className="bg-slate-50 p-2 rounded-lg border border-slate-200 text-slate-700">
-                <span className="font-bold text-emerald-800 block">✓ Dynamic Buffer Window</span>
-                Banked meals never expire during your pass.
-              </div>
-              <div className="bg-slate-50 p-2 rounded-lg border border-slate-200 text-slate-700">
-                <span className="font-bold text-emerald-800 block">✓ Instant Pause</span>
-                Pause trips without losing subscription discounts.
+        <div className="flex items-center gap-1.5 pt-0.5 text-[10px]">
+          <span className="inline-flex items-center gap-1 bg-slate-50 text-slate-700 px-2 py-0.5 rounded-md border border-slate-200">
+            🎁 Spin Wheel Rewards
+          </span>
+          <span className="inline-flex items-center gap-1 bg-slate-50 text-slate-700 px-2 py-0.5 rounded-md border border-slate-200">
+            🛡️ Safety Net Credits
+          </span>
+          <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-800 font-semibold px-2 py-0.5 rounded-md border border-emerald-200">
+            ✨ Never Expires
+          </span>
+        </div>
+      </div>
+
+      {/* 3. HOW SKIPS & VALIDITY WORK (Crystal Clear, Zero Jargon) */}
+      <div className="bg-slate-50/80 rounded-2xl p-4 border border-slate-200/90 space-y-3">
+        <h3 className="text-xs font-extrabold text-slate-900 flex items-center gap-1.5">
+          <BadgeCheck className="w-4 h-4 text-emerald-600" />
+          <span>How Skips & Quota Work</span>
+        </h3>
+
+        <div className="grid grid-cols-2 gap-2 text-xs">
+          {/* Card 1: Daily Skip */}
+          <div className="bg-white rounded-xl p-3 border border-slate-200/90 shadow-2xs space-y-1">
+            <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-900">
+              <span className="text-emerald-600 font-black">1.</span>
+              <span>Daily Skips</span>
+            </div>
+            <p className="text-[10px] text-slate-600 leading-snug">
+              Skipping before 10 PM preserves your meal in the pack. It is not consumed or wasted.
+            </p>
+            <span className="inline-block text-[9px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">
+              Quota Saved in Pack
+            </span>
+          </div>
+
+          {/* Card 2: End of 20-Day Cycle */}
+          <div className="bg-white rounded-xl p-3 border border-slate-200/90 shadow-2xs space-y-1">
+            <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-900">
+              <span className="text-emerald-600 font-black">2.</span>
+              <span>Pass Expiry</span>
+            </div>
+            <p className="text-[10px] text-slate-600 leading-snug">
+              If your 20 days expire with unused meals, they convert to ₹225/meal wallet cash on renewal.
+            </p>
+            <span className="inline-block text-[9px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">
+              Zero Money Lost
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* 4. PAYMENT MODE STATUS */}
+      <div className="bg-white rounded-2xl p-3.5 border border-slate-200/90 shadow-sm flex items-center justify-between">
+        <div className="flex items-center space-x-2.5">
+          <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${
+            paymentMode === 'prepaid' ? 'bg-emerald-50 text-emerald-600' : 'bg-blue-50 text-blue-600'
+          }`}>
+            <CheckCircle2 className="w-4 h-4" />
+          </div>
+          <div>
+            <div className="text-xs font-extrabold text-slate-900">
+              {paymentMode === 'prepaid' ? 'Prepaid Meal Pass' : 'UPI AutoPay Mandate'}
+            </div>
+            <div className="text-[10px] text-slate-500 font-medium">
+              {paymentMode === 'prepaid'
+                ? 'Upfront discount locked • Quota saved on skips'
+                : 'Pay-per-meal • ₹0 debited when you skip'}
+            </div>
+          </div>
+        </div>
+
+        <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full border ${
+          paymentMode === 'prepaid'
+            ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
+            : 'bg-blue-50 text-blue-700 border-blue-300'
+        }`}>
+          Active
+        </span>
+      </div>
+
+      {/* 5. RECENT PASS ACTIVITY LEDGER */}
+      <div className="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-sm space-y-2.5">
+        <h4 className="text-xs font-black text-slate-900 flex items-center justify-between">
+          <span>Recent Activity</span>
+          <span className="text-[10px] text-slate-400 font-normal">Last 5 events</span>
+        </h4>
+
+        <div className="divide-y divide-slate-100 text-xs">
+          <div className="py-2 flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <span className="text-base">🥗</span>
+              <div>
+                <p className="font-bold text-slate-900 text-[11px]">Thursday Lunch Delivered</p>
+                <p className="text-[9px] text-slate-500">Paneer Makhani • 1:15 PM</p>
               </div>
             </div>
-          )}
+            <span className="text-[11px] font-bold text-slate-700">-1 Lunch</span>
+          </div>
+
+          <div className="py-2 flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <span className="text-base">🛡️</span>
+              <div>
+                <p className="font-bold text-emerald-900 text-[11px]">Wednesday Meal Skipped</p>
+                <p className="text-[9px] text-slate-500">Preserved in pack before 10 PM</p>
+              </div>
+            </div>
+            <span className="text-[10px] font-extrabold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">
+              Quota Kept
+            </span>
+          </div>
+
+          <div className="py-2 flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <span className="text-base">🎡</span>
+              <div>
+                <p className="font-bold text-amber-900 text-[11px]">Friday Roulette Reward</p>
+                <p className="text-[9px] text-slate-500">Credited to wallet cash</p>
+              </div>
+            </div>
+            <span className="text-[11px] font-extrabold text-emerald-600">+₹50 Cash</span>
+          </div>
+
+          <div className="py-2 flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <span className="text-base">📦</span>
+              <div>
+                <p className="font-bold text-slate-900 text-[11px]">20-Meal Pass Activated</p>
+                <p className="text-[9px] text-slate-500">Corporate Thalis Tier (₹250/meal)</p>
+              </div>
+            </div>
+            <span className="text-[11px] font-bold text-emerald-700">+20 Lunches</span>
+          </div>
         </div>
+      </div>
+
+      {/* 6. CONCISE FAQ ACCORDION */}
+      <div className="bg-white rounded-2xl p-3 border border-slate-200/90 shadow-xs">
+        <button
+          type="button"
+          onClick={() => {
+            playPop();
+            setExpandedFaq(!expandedFaq);
+          }}
+          className="w-full flex items-center justify-between text-left py-0.5 text-xs font-bold text-slate-800 hover:text-[#10B981] transition-colors cursor-pointer"
+        >
+          <span className="flex items-center">
+            <HelpCircle className="w-3.5 h-3.5 mr-1.5 text-slate-400" />
+            Frequently Asked Questions
+          </span>
+          {expandedFaq ? <ChevronUp className="w-3.5 h-3.5 text-slate-400" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-400" />}
+        </button>
+
+        {expandedFaq && (
+          <div className="pt-2.5 space-y-2 text-[10px] text-slate-600 animate-in fade-in duration-150 border-t border-slate-100 mt-2">
+            <div>
+              <strong className="text-slate-800 block text-[11px]">What happens when I skip a meal?</strong>
+              <p className="mt-0.5 text-slate-500">
+                Your meal is not consumed. It stays in your pack, so you can have lunch on another weekday within your 20-day validity window.
+              </p>
+            </div>
+            <div>
+              <strong className="text-slate-800 block text-[11px]">What happens if my 20-day window expires?</strong>
+              <p className="mt-0.5 text-slate-500">
+                You never lose your money. Any leftover meals in your pack convert to wallet cash at ₹225/meal that applies automatically to your renewal.
+              </p>
+            </div>
+            <div>
+              <strong className="text-slate-800 block text-[11px]">Can I pause for vacations?</strong>
+              <p className="mt-0.5 text-slate-500">
+                Simply tap "Skip" on the days you will be away before the 10:00 PM cutoff. Your meal quota stays 100% intact.
+              </p>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
