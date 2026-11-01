@@ -26,7 +26,8 @@ export default function CutOffTab({
   setCredits,
   onNotify,
   triggerConfetti,
-  triggerFloatingCredit
+  triggerFloatingCredit,
+  paymentMode = 'prepaid'
 }) {
   const [viewMode, setViewMode] = useState('inapp'); // 'inapp' | 'whatsapp'
   const [secondsRemaining, setSecondsRemaining] = useState(1 * 3600 + 48 * 60 + 12); // 01h : 48m : 12s
@@ -101,19 +102,30 @@ export default function CutOffTab({
     }
   };
 
-  // Button 3: Skip & Bank Credit
+  // Button 3: Skip Meal (Prepaid vs Mandate logic)
   const handleSkipMeal = () => {
     playShieldBankChime();
     setTomorrowStatus('skipped');
     setShowSwapCarousel(false);
-    setCredits((prev) => prev + 1);
-    if (triggerFloatingCredit) triggerFloatingCredit();
-    if (onNotify) {
-      onNotify(
-        'Credit Banked! 🛡️',
-        '₹190 preserved in your MealsOn Balance • Valid across your 20-day pass buffer.',
-        'warning'
-      );
+    if (paymentMode === 'prepaid') {
+      setCredits((prev) => prev + 1);
+      if (triggerFloatingCredit) triggerFloatingCredit();
+      if (onNotify) {
+        onNotify(
+          '₹190 Banked to Balance! 🛡️',
+          'Prepaid meal preserved in MealsOn Balance • Valid 60 days on pass renewal.',
+          'warning'
+        );
+      }
+    } else {
+      // Mandate mode: ₹0 charged, 10 PM auto-debit canceled
+      if (onNotify) {
+        onNotify(
+          '10 PM Debit Canceled! ⚡',
+          '₹0 charged to your bank. No wallet credit issued since payment is per-meal.',
+          'info'
+        );
+      }
     }
   };
 
@@ -203,7 +215,7 @@ export default function CutOffTab({
                   onClick={handleSkipMeal}
                   className="py-1 px-1 rounded border border-amber-300 bg-amber-50 text-amber-900 font-bold text-[10px] transition-all active:scale-95 text-center truncate"
                 >
-                  ⏭️ Skip
+                  {paymentMode === 'prepaid' ? '⏭️ Skip & Bank' : '⏭️ Skip (₹0)'}
                 </button>
               </div>
             </div>
@@ -344,16 +356,24 @@ export default function CutOffTab({
             }`}
           >
             <SkipForward className="w-3.5 h-3.5" />
-            <span>Skip & Bank</span>
+            <span>{paymentMode === 'prepaid' ? 'Skip & Bank ₹190' : 'Skip & Pay ₹0'}</span>
           </button>
         </div>
 
         {/* Skipped Banner */}
         {tomorrowStatus === 'skipped' && (
-          <div className="bg-[#ECFDF5] border border-[#10B981] rounded-xl p-2.5 text-xs text-emerald-900 animate-in fade-in duration-200">
+          <div className={`rounded-xl p-2.5 text-xs border animate-in fade-in duration-200 ${
+            paymentMode === 'prepaid'
+              ? 'bg-[#ECFDF5] border-[#10B981] text-emerald-900'
+              : 'bg-blue-50 border-blue-300 text-blue-900'
+          }`}>
             <div className="flex items-center space-x-1.5 font-bold">
-              <ShieldCheck className="w-4 h-4 text-[#10B981] shrink-0" />
-              <span>₹190 Saved in MealsOn Balance • Valid across your 20-day pass buffer</span>
+              <ShieldCheck className={`w-4 h-4 shrink-0 ${paymentMode === 'prepaid' ? 'text-[#10B981]' : 'text-blue-600'}`} />
+              <span>
+                {paymentMode === 'prepaid'
+                  ? '₹190 Saved in MealsOn Balance • Valid 60 days on pass renewal'
+                  : '10:00 PM Auto-Debit Canceled • ₹0 charged to bank (No credit needed)'}
+              </span>
             </div>
           </div>
         )}
