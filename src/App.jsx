@@ -386,7 +386,7 @@ export default function App() {
       </div>
 
       {/* Presenter Footer Helper */}
-      <div className="mt-4 text-center text-xs text-slate-400 max-w-[640px]">
+      <div className="mt-4 text-center text-xs text-slate-400 max-w-[640px] px-4">
         <p className="leading-relaxed">
           <strong className="text-slate-200">GTM Simulator Active:</strong> Test Push, WhatsApp & SMS acquisition triggers with direct CTAs into the pass customizer.
         </p>

@@ -54,26 +54,23 @@ const TIERS = [
     id: 160,
     label: 'Rasoi',
     price: 160,
-    subtext: 'Homestyle • Dal Khichdi',
-    sampleDish: "Rajshree's Bhakri • ₹155",
-    tag: 'HOMESTYLE',
+    badge: 'Homestyle',
+    description: 'Homestyle comfort meals · Dal Khichdi, Phulkas, Curries & Regional Thalis (e.g. Rajshree\'s Bhakri)',
   },
   {
     id: 250,
     label: 'Bistro',
     price: 250,
-    subtext: 'Corporate Thalis • Bowls',
-    sampleDish: 'Paneer Quinoa Bowl • ₹230',
-    tag: 'MOST POPULAR',
+    badge: 'Most popular',
     isPopular: true,
+    description: 'Corporate Thalis, High-Protein Bowls & Fresh Salads (e.g. Paneer Quinoa Bowl)',
   },
   {
     id: 320,
     label: "Chef's Table",
     price: 320,
-    subtext: 'Artisanal • Pan-Asian • Craft',
-    sampleDish: 'Zen Teriyaki Soba • ₹310',
-    tag: 'SIGNATURE',
+    badge: "Chef's choice",
+    description: 'Artisanal, Pan-Asian Bowls, Grill Platters & Gourmet Specials (e.g. Zen Teriyaki Soba)',
   }
 ];
 
@@ -81,37 +78,39 @@ const DURATIONS = [
   {
     id: 5,
     days: 5,
-    label: '5-Meal Pass',
-    sublabel: '1 Workweek',
+    label: '5 lunches',
     discountPct: 5,
     validityDays: 10,
     extraBufferDays: 5,
-    discountBadge: '5% OFF + FREE DELIVERY',
     tag: null
   },
   {
     id: 10,
     days: 10,
-    label: '10-Meal Pass',
-    sublabel: '2 Workweeks',
+    label: '10 lunches',
     discountPct: 10,
     validityDays: 20,
     extraBufferDays: 10,
-    discountBadge: '10% OFF + FREE DELIVERY',
-    tag: 'RECOMMENDED'
+    tag: 'Recommended'
   },
   {
     id: 20,
     days: 20,
-    label: '20-Meal Pass',
-    sublabel: '4 Workweeks',
+    label: '20 lunches',
     discountPct: 15,
     validityDays: 35,
     extraBufferDays: 15,
-    discountBadge: '15% OFF + FREE DELIVERY',
-    tag: 'MAX SAVINGS'
+    tag: 'Best value'
   }
 ];
+
+const SLOTS = [
+  { id: '12:30 PM – 1:00 PM', time: '12:30 – 1:00 PM', label: 'Early lunch' },
+  { id: '1:00 PM – 1:30 PM', time: '1:00 – 1:30 PM', label: 'Peak pod' },
+  { id: '1:30 PM – 2:00 PM', time: '1:30 – 2:00 PM', label: 'Post-standup' }
+];
+
+const formatINR = (val) => Number(val).toLocaleString('en-IN');
 
 export default function SubscriptionFTUXFlow({ onCompleteActivation, onOpenIntroSheet, onClose }) {
   const [stage, setStage] = useState(1);
