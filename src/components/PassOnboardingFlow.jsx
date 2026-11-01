@@ -159,6 +159,11 @@ export default function SubscriptionFTUXFlow({ onCompleteActivation, onOpenIntro
     setStage(2);
   };
 
+  const handleBackToConfig = () => {
+    playPop();
+    setStage(1);
+  };
+
   const handleBackStage = () => {
     playPop();
     if (stage === 3) setStage(2);
