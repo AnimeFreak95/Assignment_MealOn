@@ -90,6 +90,7 @@ export default function SubscriptionFTUXFlow({ onCompleteActivation, onClose }) 
   // Selections
   const [selectedTier, setSelectedTier] = useState(250);
   const [selectedDuration, setSelectedDuration] = useState(10);
+  const [selectedLunchSlot, setSelectedLunchSlot] = useState('1:00 PM – 1:30 PM');
   const [paymentOption, setPaymentOption] = useState('prepaid'); // 'prepaid' | 'mandate' | 'pluxee'
   const [pluxeeLoadFull, setPluxeeLoadFull] = useState(true);
 
@@ -375,6 +376,53 @@ export default function SubscriptionFTUXFlow({ onCompleteActivation, onClose }) 
                 );
               })}
             </div>
+          </div>
+
+          {/* C. Step 3: Preferred 30-Min Lunch Window (Batched Milk-Run Drop) */}
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-extrabold text-slate-800 uppercase tracking-wider flex items-center">
+                <span>3. 30-Min Drop Window</span>
+              </span>
+              <span className="text-[10px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 px-1.5 py-0.2 rounded-full">
+                Eco-Batching ₹0 Fee
+              </span>
+            </div>
+
+            <div className="grid grid-cols-3 gap-1.5">
+              {[
+                { id: '12:30 PM – 1:00 PM', label: '12:30 – 1:00 PM', sub: 'Early Lunch' },
+                { id: '1:00 PM – 1:30 PM', label: '1:00 – 1:30 PM', sub: '🔥 Peak Pod', badge: 'Default' },
+                { id: '1:30 PM – 2:00 PM', label: '1:30 – 2:00 PM', sub: 'Post-Standup' }
+              ].map((slot) => {
+                const isSelected = selectedLunchSlot === slot.id;
+                return (
+                  <button
+                    key={slot.id}
+                    type="button"
+                    onClick={() => {
+                      playPop();
+                      setSelectedLunchSlot(slot.id);
+                    }}
+                    className={`p-2 rounded-xl border text-center transition-all cta-bounce ${
+                      isSelected
+                        ? 'bg-indigo-50/90 border-2 border-indigo-600 shadow-xs ring-1 ring-indigo-600/20'
+                        : 'bg-white border-slate-200 hover:border-slate-300'
+                    }`}
+                  >
+                    <div className="text-[10px] font-extrabold text-slate-900 leading-tight">
+                      {slot.label}
+                    </div>
+                    <div className="text-[9px] font-bold text-indigo-600 mt-0.5">
+                      {slot.sub}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+            <p className="text-[9px] text-slate-500 italic px-0.5">
+              💡 30-min windows batch deliveries into your office lobby, eliminating delivery charges.
+            </p>
           </div>
 
           {/* D. Live Savings Receipt Card (Visual Design Language) */}

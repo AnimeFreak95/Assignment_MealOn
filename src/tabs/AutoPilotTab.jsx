@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   Sparkles,
   RefreshCw,
@@ -9,9 +9,16 @@ import {
   ChefHat,
   GripVertical,
   SlidersHorizontal,
-  ArrowRightLeft
+  ArrowRightLeft,
+  Heart,
+  Plus,
+  Dice5,
+  ShieldCheck,
+  AlertCircle
 } from 'lucide-react';
 import { playPop, playSuccessChime, playCelebrationFanfare } from '../utils/audioDelight';
+import { MASTER_DISH_CATALOG, INITIAL_VAULT_IDS } from '../data/mockData';
+import FoodVaultModal from '../components/FoodVaultModal';
 
 const FILTER_CHIPS = [
   { id: 'protein', label: 'High Protein (>20g)', text: 'High-protein (>20g)' },
@@ -28,6 +35,12 @@ export default function AutoPilotTab({
   triggerConfetti,
   onNotify
 }) {
+  // Mode: 'ai' (AI Auto-Pilot) vs 'vault' (My Food Vault)
+  const [schedulerMode, setSchedulerMode] = useState('vault'); // Default to Vault to highlight user curation
+  const [vaultIds, setVaultIds] = useState(INITIAL_VAULT_IDS);
+  const [isVaultModalOpen, setIsVaultModalOpen] = useState(false);
+  const [fridayWildcard, setFridayWildcard] = useState(true);
+
   const [promptText, setPromptText] = useState(
     'High-protein vegetarian lunches under 500 kcal, no mushrooms, under ₹250/meal'
   );
@@ -41,6 +54,84 @@ export default function AutoPilotTab({
   const [dragOverDayIndex, setDragOverDayIndex] = useState(null);
   const [activeShiftDay, setActiveShiftDay] = useState(null);
   const [shiftSliderVal, setShiftSliderVal] = useState(0);
+
+  // Calculate vault statistics
+  const vaultDishes = useMemo(() => {
+    return vaultIds.map((id) => MASTER_DISH_CATALOG.find((d) => d.id === id)).filter(Boolean);
+  }, [vaultIds]);
+
+  const vaultAvgKcal = useMemo(() => {
+    if (!vaultDishes.length) return 0;
+    return Math.round(vaultDishes.reduce((acc, d) => acc + d.kcal, 0) / vaultDishes.length);
+  }, [vaultDishes]);
+
+  const vaultAvgProtein = useMemo(() => {
+    if (!vaultDishes.length) return 0;
+    return Math.round(vaultDishes.reduce((acc, d) => acc + d.protein, 0) / vaultDishes.length);
+  }, [vaultDishes]);
+
+  const vaultAvgPrice = useMemo(() => {
+    if (!vaultDishes.length) return 0;
+    return Math.round(vaultDishes.reduce((acc, d) => acc + d.price, 0) / vaultDishes.length);
+  }, [vaultDishes]);
+
+  // Toggle dish in/out of vault
+  const handleToggleVaultDish = (dishId) => {
+    setVaultIds((prev) => {
+      if (prev.includes(dishId)) {
+        return prev.filter((id) => id !== dishId);
+      } else {
+        if (prev.length >= 20) return prev;
+        return [...prev, dishId];
+      }
+    });
+  };
+
+  // Shuffle schedule from vault dishes
+  const handleShuffleVaultSchedule = () => {
+    playSuccessChime();
+    setIsLoading(true);
+
+    setTimeout(() => {
+      // Pick 5 distinct dishes from vault (or fewer if vault < 5)
+      const shuffledVault = [...vaultDishes].sort(() => 0.5 - Math.random());
+      
+      setPlaylist((prev) => {
+        return prev.map((dayItem, idx) => {
+          let chosenDish;
+          let isWildcardSlot = idx === 4 && fridayWildcard; // Friday Wildcard
+
+          if (isWildcardSlot) {
+            // Pick a high-rated dish from outside the vault or special treat
+            const wildcardCandidates = MASTER_DISH_CATALOG.filter((d) => !vaultIds.includes(d.id));
+            chosenDish = wildcardCandidates[Math.floor(Math.random() * wildcardCandidates.length)] || shuffledVault[idx % shuffledVault.length];
+          } else {
+            chosenDish = shuffledVault[idx % shuffledVault.length] || MASTER_DISH_CATALOG[idx];
+          }
+
+          // Build candidate options: chosenDish + other vault items for quick swapping
+          const remainingVault = vaultDishes.filter((d) => d.id !== chosenDish.id);
+          const alt1 = remainingVault[0] || MASTER_DISH_CATALOG[(idx + 1) % MASTER_DISH_CATALOG.length];
+          const alt2 = remainingVault[1] || MASTER_DISH_CATALOG[(idx + 2) % MASTER_DISH_CATALOG.length];
+
+          return {
+            ...dayItem,
+            isVaultScheduled: !isWildcardSlot,
+            isWildcard: isWildcardSlot,
+            currentIdx: 0,
+            options: [chosenDish, alt1, alt2]
+          };
+        });
+      });
+
+      setIsLoading(false);
+      playCelebrationFanfare();
+      if (triggerConfetti) triggerConfetti();
+      if (onNotify) {
+        onNotify('Vault Plan Generated! 💖', '5-day balanced lunch rotation ready from your approved vault.', 'success');
+      }
+    }, 400);
+  };
 
   // Toggle filter chip and update prompt
   const toggleChip = (chipId) => {
@@ -62,16 +153,23 @@ export default function AutoPilotTab({
     }
   };
 
-  // Trigger shimmer loading with delight
-  const handleGenerate = () => {
+  // Trigger shimmer loading with delight for AI mode
+  const handleGenerateAI = () => {
     playSuccessChime();
     setIsLoading(true);
     setTimeout(() => {
+      setPlaylist((prev) => {
+        return prev.map((dayItem, idx) => ({
+          ...dayItem,
+          isVaultScheduled: false,
+          isWildcard: false
+        }));
+      });
       setIsLoading(false);
       playCelebrationFanfare();
       if (triggerConfetti) triggerConfetti();
       if (onNotify) {
-        onNotify('Curated 5-Day Menu! ✨', 'High-protein, multi-kitchen balanced lunches ready.', 'success');
+        onNotify('AI Discovery Plan Curated! ✨', 'High-protein, multi-kitchen balanced lunches ready.', 'success');
       }
     }, 500);
   };
@@ -96,7 +194,7 @@ export default function AutoPilotTab({
     }, 160);
   };
 
-  // Shift/Swap entire meal between two days (e.g. Tuesday -> Monday)
+  // Shift/Swap entire meal between two days
   const handleShiftMeal = (sourceIdx, targetIdx) => {
     if (sourceIdx === targetIdx || sourceIdx == null || targetIdx == null) return;
     const sourceDay = playlist[sourceIdx]?.day;
@@ -107,16 +205,19 @@ export default function AutoPilotTab({
       const source = next[sourceIdx];
       const target = next[targetIdx];
 
-      // Swap the meal data (options & current selection) while preserving the day/slot structure
       const newSource = {
         ...source,
         options: target.options,
         currentIdx: target.currentIdx,
+        isVaultScheduled: target.isVaultScheduled,
+        isWildcard: target.isWildcard
       };
       const newTarget = {
         ...target,
         options: source.options,
         currentIdx: source.currentIdx,
+        isVaultScheduled: source.isVaultScheduled,
+        isWildcard: source.isWildcard
       };
 
       next[sourceIdx] = newSource;
@@ -125,385 +226,337 @@ export default function AutoPilotTab({
     });
 
     playSuccessChime();
-    setJustSwappedDay(targetIdx);
-    setActiveShiftDay(null);
-    setTimeout(() => setJustSwappedDay(null), 1600);
-
     if (onNotify) {
-      onNotify(
-        'Meal Shifted! 🔄',
-        `Shifted ${sourceDay}'s meal to ${targetDay}.`,
-        'success'
-      );
+      onNotify('Meals Swapped! 🔄', `Moved ${sourceDay}'s meal to ${targetDay}.`, 'info');
     }
   };
+
+  // Calculate live totals
+  const totalCost = playlist.reduce((acc, day) => {
+    const meal = day.options[day.currentIdx] || day.options[0];
+    return acc + (meal?.price || 0);
+  }, 0);
+
+  const avgProtein = Math.round(
+    playlist.reduce((acc, day) => {
+      const meal = day.options[day.currentIdx] || day.options[0];
+      return acc + (meal?.protein || 0);
+    }, 0) / playlist.length
+  );
+
+  const avgKcal = Math.round(
+    playlist.reduce((acc, day) => {
+      const meal = day.options[day.currentIdx] || day.options[0];
+      return acc + (meal?.kcal || 0);
+    }, 0) / playlist.length
+  );
 
   const handleLockIn = () => {
     playCelebrationFanfare();
     if (triggerConfetti) triggerConfetti();
-    onLockInPlaylist();
+    if (onLockInPlaylist) onLockInPlaylist();
+    if (onNotify) {
+      onNotify('Weekly Playlist Locked! 🔒', 'Your kitchen orders are scheduled.', 'success');
+    }
   };
 
-  // Compute live stats for sticky footer
-  const totalCost = playlist.reduce((sum, item) => {
-    const meal = item.options[item.currentIdx];
-    return sum + (meal ? meal.price : 0);
-  }, 0);
-
-  const avgProtein = Math.round(
-    playlist.reduce((sum, item) => {
-      const meal = item.options[item.currentIdx];
-      return sum + (meal ? meal.protein : 0);
-    }, 0) / (playlist.length || 1)
-  );
-
   return (
-    <div className="pb-28 px-4 pt-3 space-y-3.5">
-      {/* 1. Concise AI Prompt Box (Less Text, High Visual Impact) */}
-      <div className="bg-white rounded-2xl p-3.5 border-2 border-[#FF5A1F] shadow-sm relative overflow-hidden group">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center space-x-2">
-            <div className="w-6 h-6 rounded-lg bg-[#FFF5F0] flex items-center justify-center text-[#FF5A1F]">
-              <Sparkles className="w-3.5 h-3.5 animate-pulse" />
-            </div>
-            <h2 className="text-xs font-bold text-slate-900 tracking-tight">
-              AI Playlist Auto-Pilot
-            </h2>
-          </div>
-          <span className="text-[10px] font-bold bg-[#FFF5F0] text-[#FF5A1F] px-2 py-0.5 rounded-full border border-[#FF5A1F]/30">
-            Smart Agent
-          </span>
+    <div className="space-y-4 pb-20">
+      {/* Food Vault Modal */}
+      <FoodVaultModal
+        isOpen={isVaultModalOpen}
+        onClose={() => setIsVaultModalOpen(false)}
+        vaultIds={vaultIds}
+        onToggleVaultDish={handleToggleVaultDish}
+        onNotify={onNotify}
+      />
+
+      {/* Hero Mode Selector: AI Auto-Pilot vs. My Food Vault */}
+      <div className="bg-slate-900 rounded-2xl p-1.5 shadow-md border border-slate-800">
+        <div className="grid grid-cols-2 gap-1.5">
+          <button
+            onClick={() => {
+              playPop();
+              setSchedulerMode('vault');
+            }}
+            className={`py-2.5 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all ${
+              schedulerMode === 'vault'
+                ? 'bg-rose-500 text-white shadow-md'
+                : 'text-slate-300 hover:text-white hover:bg-slate-800'
+            }`}
+          >
+            <Heart className={`w-3.5 h-3.5 ${schedulerMode === 'vault' ? 'fill-white text-white' : 'text-rose-400'}`} />
+            <span>My Food Vault ({vaultIds.length}/20)</span>
+          </button>
+
+          <button
+            onClick={() => {
+              playPop();
+              setSchedulerMode('ai');
+            }}
+            className={`py-2.5 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all ${
+              schedulerMode === 'ai'
+                ? 'bg-orange-500 text-white shadow-md'
+                : 'text-slate-300 hover:text-white hover:bg-slate-800'
+            }`}
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>AI Auto-Pilot</span>
+          </button>
         </div>
-
-        {/* Editable Prompt Area */}
-        <textarea
-          value={promptText}
-          onChange={(e) => setPromptText(e.target.value)}
-          rows={2}
-          className="w-full text-xs text-slate-800 bg-[#F8FAFC] border border-slate-200 rounded-xl p-2.5 focus:outline-none focus:ring-2 focus:ring-[#FF5A1F]/30 focus:border-[#FF5A1F] resize-none font-medium leading-snug"
-          placeholder="Describe your dietary goals..."
-        />
-
-        {/* Quick-toggle Filter Chips */}
-        <div className="flex items-center gap-1.5 overflow-x-auto py-1.5 hide-scrollbar">
-          {FILTER_CHIPS.map((chip) => {
-            const active = activeChips.includes(chip.id);
-            return (
-              <button
-                key={chip.id}
-                onClick={() => toggleChip(chip.id)}
-                className={`text-[10px] font-bold px-2.5 py-1 rounded-full whitespace-nowrap transition-all border cta-bounce ${
-                  active
-                    ? 'bg-[#FF5A1F] text-white border-[#FF5A1F] shadow-xs'
-                    : 'bg-[#F8FAFC] text-slate-600 border-slate-200 hover:border-slate-300'
-                }`}
-              >
-                {active && <Check className="w-2.5 h-2.5 inline mr-1 -mt-0.5 stroke-[3]" />}
-                {chip.label}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Primary CTA Button */}
-        <button
-          onClick={handleGenerate}
-          disabled={isLoading}
-          className="w-full mt-1 bg-gradient-to-r from-[#FF5A1F] to-[#FF7B47] hover:from-[#E04812] hover:to-[#FF5A1F] text-white font-bold text-xs py-2 px-4 rounded-xl shadow-md transition-all active:scale-[0.97] cta-bounce flex items-center justify-center space-x-1.5"
-        >
-          {isLoading ? (
-            <div className="flex items-center space-x-2">
-              <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-              <span>Curating 5-Day Menu...</span>
-            </div>
-          ) : (
-            <>
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Generate 5-Day Playlist ✨</span>
-            </>
-          )}
-        </button>
       </div>
 
-      {/* 2. Streamlined Mon–Fri Schedule (Reduced Text Density) */}
-      <div className="space-y-2.5">
-        <div className="flex items-center justify-between px-1">
-          <h3 className="text-xs font-bold text-slate-800">
-            Mon – Fri Schedule
-          </h3>
-          <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full flex items-center">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1" />
-            Fresh Kitchen Drops
-          </span>
-        </div>
+      {/* Mode B Surface: My Food Vault Controller */}
+      {schedulerMode === 'vault' ? (
+        <div className="bg-gradient-to-br from-rose-50/80 via-white to-orange-50/60 rounded-2xl p-4 border border-rose-200 shadow-sm space-y-3">
+          <div className="flex items-start justify-between">
+            <div>
+              <div className="flex items-center gap-1.5">
+                <span className="text-[10px] font-black uppercase tracking-wider text-rose-600 bg-rose-100 px-2 py-0.5 rounded-full">
+                  Zero-Surprise Guarantee
+                </span>
+                <span className="text-[10px] font-bold text-slate-500">
+                  {vaultIds.length} of 20 Approved
+                </span>
+              </div>
+              <h2 className="text-sm font-extrabold text-slate-900 mt-1">
+                Lunches from Your Trusted Vault
+              </h2>
+              <p className="text-[11px] text-slate-500 mt-0.5">
+                Every meal is pre-vetted by you. Anti-monotony auto-shuffle ensures zero repeats.
+              </p>
+            </div>
 
-        {/* Tip Pill for Drag & Shift */}
-        <div className="flex items-center justify-between bg-amber-50/80 border border-amber-200/90 px-2.5 py-1.5 rounded-xl text-[10px] text-amber-900 shadow-2xs">
-          <div className="flex items-center space-x-1.5">
-            <GripVertical className="w-3.5 h-3.5 text-amber-700 shrink-0" />
-            <span>
-              <strong>Shift Meals:</strong> Drag cards or use the <strong>Shift slider ⠿</strong> on the right to swap days (e.g. Tue ➔ Mon)
+            <button
+              onClick={() => {
+                playPop();
+                setIsVaultModalOpen(true);
+              }}
+              className="bg-white hover:bg-rose-50 text-rose-600 border border-rose-300 hover:border-rose-400 text-[11px] font-extrabold px-2.5 py-1.5 rounded-xl shadow-xs transition-all flex items-center gap-1 shrink-0"
+            >
+              <Plus className="w-3 h-3" />
+              <span>Manage Vault</span>
+            </button>
+          </div>
+
+          {/* Quick Metrics Bar across the Vault */}
+          <div className="grid grid-cols-3 gap-2 bg-white/90 p-2.5 rounded-xl border border-rose-100 text-center text-[10px]">
+            <div>
+              <span className="text-slate-400 block font-medium">Avg Calories</span>
+              <strong className="text-slate-800 font-extrabold text-xs">{vaultAvgKcal} kcal</strong>
+            </div>
+            <div className="border-x border-slate-100">
+              <span className="text-slate-400 block font-medium">Avg Protein</span>
+              <strong className="text-amber-600 font-extrabold text-xs">{vaultAvgProtein}g</strong>
+            </div>
+            <div>
+              <span className="text-slate-400 block font-medium">Avg Dish Price</span>
+              <strong className="text-emerald-700 font-extrabold text-xs">₹{vaultAvgPrice}</strong>
+            </div>
+          </div>
+
+          {/* Friday Wildcard Toggle */}
+          <div className="flex items-center justify-between pt-1 text-xs">
+            <div className="flex items-center gap-1.5 text-slate-700">
+              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+              <span className="font-semibold text-[11px]">Friday AI Discovery Wildcard (1 surprise chef treat)</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                playPop();
+                setFridayWildcard(!fridayWildcard);
+              }}
+              className={`w-9 h-5 flex items-center rounded-full p-0.5 transition-colors ${
+                fridayWildcard ? 'bg-orange-500' : 'bg-slate-300'
+              }`}
+            >
+              <div
+                className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${
+                  fridayWildcard ? 'translate-x-4' : 'translate-x-0'
+                }`}
+              />
+            </button>
+          </div>
+
+          {/* Re-shuffle CTA */}
+          <button
+            onClick={handleShuffleVaultSchedule}
+            disabled={isLoading}
+            className="w-full bg-rose-500 hover:bg-rose-600 text-white font-extrabold text-xs py-2.5 rounded-xl shadow-md transition-all active:scale-[0.98] flex items-center justify-center gap-1.5"
+          >
+            <Dice5 className="w-4 h-4" />
+            <span>Auto-Shuffle 5-Day Plan from My Vault</span>
+          </button>
+        </div>
+      ) : (
+        /* Mode A Surface: AI Auto-Pilot Controller */
+        <div className="bg-gradient-to-br from-orange-50/80 via-white to-amber-50/40 rounded-2xl p-4 border border-orange-200/80 shadow-sm space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-1.5">
+              <Sparkles className="w-4 h-4 text-[#FF5A1F]" />
+              <h2 className="text-sm font-extrabold text-slate-900 tracking-tight">
+                AI Meal Playlist Auto-Pilot
+              </h2>
+            </div>
+            <span className="text-[10px] font-bold bg-[#FF5A1F]/10 text-[#FF5A1F] px-2 py-0.5 rounded-full border border-[#FF5A1F]/20">
+              5-Day Discovery
             </span>
           </div>
+
+          {/* Dynamic AI Prompt Box */}
+          <div className="relative">
+            <textarea
+              value={promptText}
+              onChange={(e) => setPromptText(e.target.value)}
+              rows={2}
+              className="w-full text-xs p-2.5 rounded-xl border border-slate-200 bg-white shadow-xs focus:ring-2 focus:ring-[#FF5A1F]/40 focus:border-[#FF5A1F] text-slate-800 placeholder-slate-400 font-medium leading-relaxed resize-none transition-all"
+              placeholder="E.g., High-protein veg lunches under 500 kcal, no mushrooms, under ₹250/meal"
+            />
+          </div>
+
+          {/* Preset Filter Chips */}
+          <div className="flex flex-wrap gap-1.5">
+            {FILTER_CHIPS.map((chip) => {
+              const active = activeChips.includes(chip.id);
+              return (
+                <button
+                  key={chip.id}
+                  onClick={() => toggleChip(chip.id)}
+                  className={`text-[10px] font-bold px-2.5 py-1 rounded-full transition-all active:scale-95 flex items-center space-x-1 ${
+                    active
+                      ? 'bg-[#FF5A1F] text-white shadow-xs'
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  }`}
+                >
+                  {active && <Check className="w-2.5 h-2.5 stroke-[3]" />}
+                  <span>{chip.label}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Generate Button */}
+          <button
+            onClick={handleGenerateAI}
+            disabled={isLoading}
+            className="w-full bg-[#FF5A1F] hover:bg-[#E04812] text-white font-bold text-xs py-2.5 px-4 rounded-xl shadow-md transition-all active:scale-[0.98] cta-bounce flex items-center justify-center space-x-1.5"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Generate 5-Day Auto-Pilot Plan</span>
+          </button>
+        </div>
+      )}
+
+      {/* Weekday Schedule List */}
+      <div className="space-y-2.5">
+        <div className="flex items-center justify-between px-1">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
+            {schedulerMode === 'vault' ? '💖 Vault Weekly Schedule' : '🤖 AI Curated Schedule'}
+          </h3>
+          <span className="text-[10px] text-slate-500 font-medium">
+            Drag card or tap Swap ↻
+          </span>
         </div>
 
         {isLoading ? (
-          // Shimmer loading state
-          <div className="space-y-2.5">
-            {[1, 2, 3, 4, 5].map((idx) => (
-              <div
-                key={idx}
-                className="bg-white rounded-2xl p-3 border border-slate-200 shadow-xs space-y-2 animate-pulse"
-              >
-                <div className="flex justify-between items-center">
-                  <div className="h-4 w-24 bg-slate-200 rounded-md" />
-                  <div className="h-4 w-10 bg-slate-200 rounded-md" />
-                </div>
-                <div className="h-5 w-40 bg-slate-200 rounded-md" />
-                <div className="flex space-x-2 pt-1">
-                  <div className="h-4 w-12 bg-slate-100 rounded-full" />
-                  <div className="h-4 w-16 bg-slate-100 rounded-full" />
+          // Shimmer Skeleton
+          <div className="space-y-2.5 animate-pulse">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="bg-white rounded-2xl p-3 border border-slate-200 h-24">
+                <div className="flex items-center space-x-2">
+                  <div className="w-8 h-8 bg-slate-200 rounded-full"></div>
+                  <div className="flex-1 space-y-1.5">
+                    <div className="h-3 bg-slate-200 rounded w-1/3"></div>
+                    <div className="h-2.5 bg-slate-200 rounded w-1/2"></div>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
         ) : (
           playlist.map((dayItem, idx) => {
-            const currentMeal = dayItem.options[dayItem.currentIdx];
-            const isFading = swappingDay === idx;
+            const currentMeal = dayItem.options[dayItem.currentIdx] || dayItem.options[0];
+            const isSwapping = swappingDay === idx;
             const isJustSwapped = justSwappedDay === idx;
             const isDragging = draggedDayIndex === idx;
-            const isDragOver = dragOverDayIndex === idx && draggedDayIndex !== idx;
+            const isDragOver = dragOverDayIndex === idx;
+
+            const isVaultItem = dayItem.isVaultScheduled ?? (schedulerMode === 'vault' && idx !== 4);
+            const isWildcardItem = dayItem.isWildcard ?? (schedulerMode === 'vault' && idx === 4 && fridayWildcard);
 
             return (
               <div
                 key={dayItem.day}
-                draggable={true}
-                onDragStart={(e) => {
-                  setDraggedDayIndex(idx);
-                  e.dataTransfer.effectAllowed = 'move';
-                  e.dataTransfer.setData('text/plain', String(idx));
-                }}
+                draggable
+                onDragStart={() => setDraggedDayIndex(idx)}
                 onDragOver={(e) => {
                   e.preventDefault();
-                  e.dataTransfer.dropEffect = 'move';
-                  if (dragOverDayIndex !== idx) {
-                    setDragOverDayIndex(idx);
-                  }
-                }}
-                onDragLeave={() => {
-                  if (dragOverDayIndex === idx) {
-                    setDragOverDayIndex(null);
-                  }
-                }}
-                onDrop={(e) => {
-                  e.preventDefault();
-                  const source =
-                    draggedDayIndex !== null
-                      ? draggedDayIndex
-                      : parseInt(e.dataTransfer.getData('text/plain'), 10);
-                  if (!isNaN(source) && source !== idx) {
-                    handleShiftMeal(source, idx);
-                  }
-                  setDraggedDayIndex(null);
-                  setDragOverDayIndex(null);
+                  setDragOverDayIndex(idx);
                 }}
                 onDragEnd={() => {
+                  if (draggedDayIndex !== null && dragOverDayIndex !== null) {
+                    handleShiftMeal(draggedDayIndex, dragOverDayIndex);
+                  }
                   setDraggedDayIndex(null);
                   setDragOverDayIndex(null);
                 }}
-                className={`bg-white rounded-2xl p-3 border transition-all relative ${
-                  isDragging
-                    ? 'opacity-40 border-dashed border-[#FF5A1F] scale-[0.98]'
+                className={`bg-white rounded-2xl p-3 border transition-all duration-200 shadow-xs relative ${
+                  isJustSwapped
+                    ? 'border-[#10B981] bg-[#ECFDF5]/30 scale-[1.01]'
                     : isDragOver
-                    ? 'border-[#FF5A1F] ring-2 ring-[#FF5A1F]/30 bg-[#FFF5F0]/70 scale-[1.01] shadow-md'
-                    : isFading
-                    ? 'opacity-40 scale-[0.99]'
-                    : isJustSwapped
-                    ? 'border-[#FF5A1F] ring-2 ring-[#FF5A1F]/20 shadow-md'
-                    : 'border-slate-200/90 shadow-sm opacity-100 scale-100 hover:border-[#FF5A1F]/40'
+                    ? 'border-[#FF5A1F] bg-[#FFF5F0] border-dashed ring-2 ring-[#FF5A1F]/30'
+                    : isDragging
+                    ? 'opacity-40 border-slate-300'
+                    : 'border-slate-200 hover:border-slate-300'
                 }`}
               >
-                {/* Drag-over dropzone overlay */}
-                {isDragOver && (
-                  <div className="absolute inset-0 bg-[#FFF5F0]/95 rounded-2xl border-2 border-dashed border-[#FF5A1F] flex flex-col items-center justify-center z-20 p-2 animate-in fade-in">
-                    <ArrowRightLeft className="w-5 h-5 text-[#FF5A1F] animate-bounce mb-1" />
-                    <span className="text-xs font-extrabold text-[#FF5A1F]">
-                      Drop here to swap with {playlist[draggedDayIndex]?.day}!
-                    </span>
-                    <span className="text-[10px] text-slate-600 font-medium">
-                      {playlist[draggedDayIndex]?.options[playlist[draggedDayIndex]?.currentIdx]?.name}
-                    </span>
-                  </div>
-                )}
-
-                {/* Micro delight pop badge on swap */}
-                {isJustSwapped && (
-                  <div className="absolute -top-2 right-3 bg-[#FF5A1F] text-white text-[9px] font-extrabold px-2 py-0.5 rounded-full shadow-md flex items-center space-x-1 animate-in zoom-in-75 z-10">
-                    <ChefHat className="w-3 h-3" />
-                    <span>Shifted! 🔄</span>
-                  </div>
-                )}
-
-                {/* Day Badge, Price & Drag Handle */}
-                <div className="flex items-center justify-between mb-1.5">
-                  <div className="flex items-center space-x-1.5">
-                    <span className="text-[10px] font-extrabold text-slate-800 bg-slate-100 px-2 py-0.5 rounded-md">
-                      {dayItem.day} • {dayItem.slot.split('–')[0].trim()}
-                    </span>
-                    <span className="text-[10px] font-semibold text-slate-400">
-                      {dayItem.currentIdx + 1}/{dayItem.options.length}
-                    </span>
-                  </div>
-
+                {/* Header: Day, Location & Source Badge */}
+                <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-100">
                   <div className="flex items-center space-x-2">
-                    <span className="text-xs font-extrabold text-[#FF5A1F]">
-                      ₹{currentMeal.price}
-                    </span>
+                    <GripVertical className="w-3.5 h-3.5 text-slate-300 cursor-grab active:cursor-grabbing hover:text-slate-500" />
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-xs font-extrabold text-slate-800">{dayItem.day}</span>
+                        <span className="text-[10px] text-slate-600 font-semibold">• {dayItem.dateStr}</span>
+                      </div>
+                      <span className="text-[10px] text-slate-600 font-semibold block">{dayItem.slot}</span>
+                    </div>
+                  </div>
 
-                    {/* Drag & Drop Shift Slider Handle at Right Corner */}
-                    <button
-                      type="button"
-                      title="Drag to swap or tap to open Day Shifter Slider"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        playPop();
-                        if (activeShiftDay === idx) {
-                          setActiveShiftDay(null);
-                        } else {
-                          setActiveShiftDay(idx);
-                          // Default target is previous day (e.g. Tuesday -> Monday) or next day
-                          setShiftSliderVal(idx === 0 ? 1 : idx - 1);
-                        }
-                      }}
-                      className={`p-1 px-1.5 rounded-lg border flex items-center space-x-1 transition-all cursor-grab active:cursor-grabbing cta-bounce ${
-                        activeShiftDay === idx
-                          ? 'bg-[#FF5A1F] text-white border-[#FF5A1F] shadow-xs ring-1 ring-[#FF5A1F]'
-                          : 'bg-slate-50 hover:bg-slate-100 text-slate-600 border-slate-200'
+                  <div className="flex items-center space-x-1.5">
+                    {/* Source Pill */}
+                    {isWildcardItem ? (
+                      <span className="text-[9px] font-extrabold bg-amber-100 text-amber-800 border border-amber-300 px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
+                        <Sparkles className="w-2.5 h-2.5" /> Wildcard
+                      </span>
+                    ) : isVaultItem ? (
+                      <span className="text-[9px] font-extrabold bg-rose-100 text-rose-700 border border-rose-200 px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
+                        <Heart className="w-2.5 h-2.5 fill-rose-500 text-rose-500" /> Vault
+                      </span>
+                    ) : (
+                      <span className="text-[9px] font-extrabold bg-orange-100 text-orange-700 border border-orange-200 px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
+                        <Sparkles className="w-2.5 h-2.5" /> AI Pick
+                      </span>
+                    )}
+
+                    {/* Location Badge */}
+                    <span
+                      className={`text-[9px] font-bold px-2 py-0.5 rounded-full border ${
+                        dayItem.location === 'office'
+                          ? 'bg-blue-50 text-blue-700 border-blue-200'
+                          : 'bg-emerald-50 text-emerald-700 border-emerald-200'
                       }`}
                     >
-                      <GripVertical className="w-3.5 h-3.5 text-slate-400" />
-                      <SlidersHorizontal className="w-2.5 h-2.5 text-[#FF5A1F] group-hover:text-white" />
-                      <span className="text-[9px] font-extrabold">Shift</span>
-                    </button>
+                      {dayItem.location === 'office' ? '🏢 Office' : '🏠 Home'}
+                    </span>
                   </div>
                 </div>
 
-                {/* In-Card Day Shifter Slider & 1-Tap Swapper */}
-                {activeShiftDay === idx && (
-                  <div className="my-2.5 p-2.5 bg-gradient-to-r from-[#FFF5F0] to-[#FFF1EB] rounded-xl border border-[#FF5A1F]/30 animate-in fade-in slide-in-from-top-1 shadow-inner">
-                    <div className="flex items-center justify-between mb-1.5">
-                      <div className="flex items-center space-x-1">
-                        <ArrowRightLeft className="w-3 h-3 text-[#FF5A1F]" />
-                        <span className="text-[10px] font-extrabold text-slate-900">
-                          Shift {dayItem.day}'s Meal to another day:
-                        </span>
-                      </div>
-                      <span className="text-[9px] font-bold text-[#FF5A1F] bg-white border border-[#FF5A1F]/30 px-1.5 py-0.5 rounded-md">
-                        Drag or Tap
-                      </span>
-                    </div>
-
-                    {/* Interactive Slider */}
-                    <div className="space-y-1 pt-1">
-                      <div className="flex items-center justify-between text-[9px] font-bold text-slate-500 px-1">
-                        {playlist.map((d, dIdx) => (
-                          <span
-                            key={d.day}
-                            className={shiftSliderVal === dIdx ? 'text-[#FF5A1F] font-extrabold' : ''}
-                          >
-                            {d.dayCode || d.day.slice(0, 3)}
-                          </span>
-                        ))}
-                      </div>
-                      <input
-                        type="range"
-                        min="0"
-                        max="4"
-                        step="1"
-                        value={shiftSliderVal}
-                        onChange={(e) => {
-                          playPop();
-                          setShiftSliderVal(parseInt(e.target.value, 10));
-                        }}
-                        className="w-full accent-[#FF5A1F] h-1.5 bg-slate-200 rounded-lg cursor-pointer"
-                      />
-                    </div>
-
-                    {/* Target Day Preview & Quick CTA */}
-                    <div className="mt-2 pt-2 border-t border-[#FF5A1F]/20 flex items-center justify-between">
-                      <div className="text-[10px] text-slate-700">
-                        Shift to: <strong className="text-slate-950 font-bold">{playlist[shiftSliderVal]?.day}</strong>
-                        <span className="text-[9px] text-slate-500 block truncate max-w-[150px]">
-                          Swaps with: {playlist[shiftSliderVal]?.options[playlist[shiftSliderVal]?.currentIdx]?.name}
-                        </span>
-                      </div>
-
-                      <div className="flex items-center space-x-1.5">
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setActiveShiftDay(null);
-                          }}
-                          className="text-[10px] font-bold text-slate-500 hover:text-slate-700 px-2 py-1 rounded-lg"
-                        >
-                          Cancel
-                        </button>
-                        <button
-                          type="button"
-                          disabled={shiftSliderVal === idx}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleShiftMeal(idx, shiftSliderVal);
-                          }}
-                          className={`text-[10px] font-bold px-2.5 py-1 rounded-lg transition-all cta-bounce flex items-center space-x-1 shadow-xs ${
-                            shiftSliderVal === idx
-                              ? 'bg-slate-200 text-slate-400 border border-slate-300 cursor-not-allowed'
-                              : 'bg-[#FF5A1F] hover:bg-[#E04812] text-white'
-                          }`}
-                        >
-                          <span>Shift to {playlist[shiftSliderVal]?.dayCode || playlist[shiftSliderVal]?.day.slice(0, 3)} ➔</span>
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Quick 1-Tap Day Buttons */}
-                    <div className="grid grid-cols-5 gap-1 mt-2">
-                      {playlist.map((targetDay, tIdx) => {
-                        const isSelf = tIdx === idx;
-                        const isSelected = shiftSliderVal === tIdx;
-                        return (
-                          <button
-                            key={targetDay.day}
-                            type="button"
-                            disabled={isSelf}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              playPop();
-                              setShiftSliderVal(tIdx);
-                              handleShiftMeal(idx, tIdx);
-                            }}
-                            className={`py-1 rounded-md text-[9px] font-bold border transition-all text-center ${
-                              isSelf
-                                ? 'bg-slate-100 text-slate-300 border-slate-200 cursor-not-allowed'
-                                : isSelected
-                                ? 'bg-[#FF5A1F] text-white border-[#FF5A1F] shadow-xs'
-                                : 'bg-white hover:bg-slate-50 text-slate-700 border-slate-200'
-                            }`}
-                          >
-                            {targetDay.dayCode || targetDay.day.slice(0, 3)}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-
-                {/* Dish Name & Kitchen Rating (Text trimmed for elegance) */}
+                {/* Dish Name & Kitchen Rating */}
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <span className="text-2xl select-none">{currentMeal.image}</span>
+                  <div className="flex items-center space-x-2.5">
+                    <span className="text-2xl select-none p-1 bg-slate-50 rounded-lg">{currentMeal.image}</span>
                     <div>
                       <h4 className="text-xs font-bold text-slate-900 leading-tight">
                         {currentMeal.name}
@@ -517,6 +570,10 @@ export default function AutoPilotTab({
                         </span>
                       </div>
                     </div>
+                  </div>
+
+                  <div className="text-right">
+                    <span className="text-xs font-extrabold text-slate-900">₹{currentMeal.price}</span>
                   </div>
                 </div>
 

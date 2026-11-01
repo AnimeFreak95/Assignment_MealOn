@@ -176,7 +176,7 @@ export default function CutOffTab({
                 🔔 Tomorrow's Lunch Check-In
               </p>
               <p className="text-[11px] text-slate-600 leading-snug">
-                🥗 <strong>{tomorrowMeal.name}</strong> • Cyber Park (1:00 PM)
+                🥗 <strong>{tomorrowMeal.name}</strong> • Cyber Park (1:00 PM – 1:30 PM Pod)
               </p>
               <p className="text-[10px] text-amber-800 font-semibold bg-amber-50 p-1 rounded">
                 ⏳ Modify or skip before 10:00 PM cutoff
@@ -220,7 +220,7 @@ export default function CutOffTab({
                   Tomorrow: {tomorrowMeal.name}
                 </p>
                 <p className="text-[10px] text-slate-400">
-                  Office • 1:00 PM. Cut-off at 10:00 PM.
+                  Office • 1:00 PM – 1:30 PM Window. Cut-off at 10:00 PM.
                 </p>
               </div>
             </div>
@@ -425,8 +425,8 @@ export default function CutOffTab({
             {/* Micro Pipeline */}
             <div className="grid grid-cols-3 gap-1 text-center text-[9px] bg-slate-50 p-1.5 rounded-lg border border-slate-200 text-slate-600">
               <div><strong className="text-amber-800 block">10:00 PM</strong> Lock-In</div>
-              <div><strong className="text-emerald-800 block">6:00 AM</strong> Fresh Cook</div>
-              <div><strong className="text-[#FF5A1F] block">12:30 PM</strong> Drop</div>
+              <div><strong className="text-emerald-800 block">6:00 AM</strong> Batch Cook</div>
+              <div><strong className="text-[#FF5A1F] block">12:30–2:00 PM</strong> 30m Waves</div>
             </div>
           </div>
         )}
