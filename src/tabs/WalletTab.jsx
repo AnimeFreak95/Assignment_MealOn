@@ -11,7 +11,6 @@ import {
   RotateCcw,
   BadgeCheck,
   ArrowRight,
-  ExternalLink,
   Clock,
   AlertCircle
 } from 'lucide-react';
