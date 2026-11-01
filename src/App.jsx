@@ -342,6 +342,7 @@ export default function App() {
                     onNotify={showToast}
                     paymentMode={paymentMode}
                     savedLocations={savedLocations}
+                    onNavigateTab={setActiveTab}
                   />
                 )}
 
