@@ -66,8 +66,12 @@ class PrototypeErrorBoundary extends React.Component {
 }
 
 export default function App() {
-  const [appMode, setAppMode] = useState('dashboard'); // 'dashboard' | 'ftux' | 'gtm'
-  const [activeTab, setActiveTab] = useState('autopilot');
+  const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+  const initialMode = searchParams?.get('mode') || 'dashboard';
+  const initialTab = searchParams?.get('tab') || 'autopilot';
+
+  const [appMode, setAppMode] = useState(initialMode); // 'dashboard' | 'ftux' | 'gtm'
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [credits, setCredits] = useState(14);
   const [paymentMode, setPaymentMode] = useState('prepaid'); // 'prepaid' | 'mandate'
   const [playlist, setPlaylist] = useState(INITIAL_PLAYLIST);
