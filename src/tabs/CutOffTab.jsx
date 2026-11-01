@@ -537,8 +537,8 @@ export default function CutOffTab({
             <div className="grid grid-cols-2 gap-2 text-center text-xs">
               <div className="bg-[#ECFDF5] border border-emerald-200 rounded-xl p-2">
                 <span className="text-base">🥗</span>
-                <div className="text-[11px] font-extrabold text-emerald-950 mt-0.5">0% Food Waste</div>
-                <div className="text-[9px] text-emerald-800">Fresh night-before procurement</div>
+                <div className="text-[11px] font-extrabold text-emerald-950 mt-0.5">&lt;3% Food Waste</div>
+                <div className="text-[9px] text-emerald-800">Cuts 28% waste via 10 PM lock</div>
               </div>
 
               <div className="bg-[#FFF5F0] border border-[#FF5A1F]/30 rounded-xl p-2">
