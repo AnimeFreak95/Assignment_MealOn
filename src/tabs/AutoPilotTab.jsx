@@ -23,7 +23,8 @@ import {
   SkipForward,
   X,
   MapPin,
-  Move
+  Move,
+  RotateCcw
 } from 'lucide-react';
 import { playPop, playSuccessChime, playCelebrationFanfare } from '../utils/audioDelight';
 import { MASTER_DISH_CATALOG, INITIAL_VAULT_IDS, SAVED_LOCATIONS } from '../data/mockData';
@@ -321,9 +322,12 @@ export default function AutoPilotTab({
 
   // Calculate live totals
   const totalCost = playlist.reduce((acc, day) => {
+    if (day.status === 'skipped') return acc;
     const meal = day.options[day.currentIdx] || day.options[0];
     return acc + (meal?.price || 0);
   }, 0);
+
+  const activeMealsCount = playlist.filter((d) => d.status !== 'skipped').length;
 
   const avgProtein = Math.round(
     playlist.reduce((acc, day) => {
@@ -388,7 +392,7 @@ export default function AutoPilotTab({
       {/* V2: NEW FEATURE SECTION (DIRECTLY FROM SCREENSHOT DESIGN) */}
       {/* ======================================================== */}
       {viewVersion === 'v2' ? (
-        <div className="space-y-4 animate-in fade-in duration-200">
+        <div className="space-y-3.5 animate-in fade-in duration-200">
           {/* Main Title: Your week */}
           <div className="flex items-center justify-between px-1">
             <h1 className="text-2xl font-black text-slate-900 tracking-tight">
@@ -396,7 +400,7 @@ export default function AutoPilotTab({
             </h1>
             <div className="flex items-center space-x-1.5">
               <span className="text-[10px] font-extrabold text-[#FF5A1F] bg-[#FFF5F0] border border-[#FF5A1F]/30 px-2.5 py-0.5 rounded-full">
-                5 Meals • ₹0 Delivery
+                {activeMealsCount} Meals Active • ₹0 Delivery
               </span>
             </div>
           </div>
@@ -488,7 +492,7 @@ export default function AutoPilotTab({
                 <button
                   onClick={handleGenerateAI}
                   disabled={isLoading}
-                  className="w-full bg-[#FF5A1F] hover:bg-[#E04812] text-white font-extrabold text-xs py-3 px-4 rounded-2xl shadow-md transition-all active:scale-[0.98] cta-bounce flex items-center justify-center space-x-2"
+                  className="w-full bg-[#FF5A1F] hover:bg-[#E04812] text-white font-extrabold text-xs py-3 px-4 rounded-2xl shadow-md transition-all active:scale-[0.98] cta-bounce flex items-center justify-center space-x-2 cursor-pointer"
                 >
                   {isLoading ? (
                     <div className="flex items-center space-x-2">
@@ -516,7 +520,7 @@ export default function AutoPilotTab({
                     <button
                       type="button"
                       onClick={() => setIsVaultModalOpen(true)}
-                      className="text-[11px] font-extrabold text-rose-600 hover:underline flex items-center space-x-1"
+                      className="text-[11px] font-extrabold text-rose-600 hover:underline flex items-center space-x-1 cursor-pointer"
                     >
                       <span>Manage 20 Dishes</span>
                       <ChevronRight className="w-3 h-3" />
@@ -558,7 +562,7 @@ export default function AutoPilotTab({
                       playPop();
                       setFridayWildcard(!fridayWildcard);
                     }}
-                    className={`w-9 h-5 rounded-full transition-colors relative p-0.5 ${
+                    className={`w-9 h-5 rounded-full transition-colors relative p-0.5 cursor-pointer ${
                       fridayWildcard ? 'bg-[#FF5A1F]' : 'bg-slate-300'
                     }`}
                   >
@@ -574,7 +578,7 @@ export default function AutoPilotTab({
                 <button
                   onClick={handleShuffleVaultSchedule}
                   disabled={isLoading}
-                  className="w-full bg-gradient-to-r from-rose-500 to-[#FF5A1F] hover:from-rose-600 hover:to-[#E04812] text-white font-extrabold text-xs py-3 px-4 rounded-2xl shadow-md transition-all active:scale-[0.98] cta-bounce flex items-center justify-center space-x-2"
+                  className="w-full bg-gradient-to-r from-rose-500 to-[#FF5A1F] hover:from-rose-600 hover:to-[#E04812] text-white font-extrabold text-xs py-3 px-4 rounded-2xl shadow-md transition-all active:scale-[0.98] cta-bounce flex items-center justify-center space-x-2 cursor-pointer"
                 >
                   {isLoading ? (
                     <div className="flex items-center space-x-2">
@@ -592,6 +596,15 @@ export default function AutoPilotTab({
             )}
           </div>
 
+          {/* Mobile UX Helper Tip Banner */}
+          <div className="flex items-center justify-between px-2 py-0.5 text-[11px] text-slate-500 font-medium">
+            <span className="flex items-center space-x-1.5">
+              <span>💡</span>
+              <span>Tap <strong>Move</strong> to shift days, or <strong>Flip</strong> to switch Home/Office</span>
+            </span>
+            <span className="text-[10px] font-bold text-slate-400">1-Tap Controls</span>
+          </div>
+
           {/* Active Drag-and-Drop Banner Indicator */}
           {draggedDayIndex !== null && (
             <div className="bg-amber-100/90 border border-amber-300 rounded-2xl p-2.5 text-center text-xs font-bold text-amber-900 animate-pulse flex items-center justify-center space-x-2 shadow-xs">
@@ -602,7 +615,7 @@ export default function AutoPilotTab({
             </div>
           )}
 
-          {/* 2. Meal Cards List (Matching Screenshot Design Language) */}
+          {/* 2. Meal Cards List (Matching Screenshot Design Language + Mobile Ergonomics) */}
           <div className="space-y-3.5">
             {isLoading ? (
               <div className="space-y-3 animate-pulse">
@@ -644,7 +657,7 @@ export default function AutoPilotTab({
                         : isDragOverTarget
                         ? 'border-2 border-dashed border-[#FF5A1F] bg-orange-50/70 ring-4 ring-[#FF5A1F]/20 scale-[1.01]'
                         : isSkipped
-                        ? 'opacity-60 border-slate-300 bg-slate-50/60'
+                        ? 'opacity-70 border-slate-300 bg-slate-50/70'
                         : isJustSwapped
                         ? 'border-[#10B981] ring-2 ring-[#10B981]/20 shadow-md'
                         : 'border-slate-200/90 hover:border-slate-300'
@@ -719,20 +732,41 @@ export default function AutoPilotTab({
                       </div>
                     )}
 
-                    {/* Middle Content Row: Round Avatar + Details */}
-                    <div className="flex items-center space-x-3">
-                      {/* Round Avatar with gray circle background */}
-                      <div className="w-12 h-12 rounded-full bg-slate-100 border border-slate-200/80 flex items-center justify-center text-2xl shrink-0 shadow-inner">
-                        {currentMeal.image}
+                    {/* Middle Content Row: Round Avatar + Details + PROMINENT PRICE BADGE */}
+                    <div className="flex items-start justify-between space-x-2">
+                      <div className="flex items-center space-x-3 min-w-0 flex-1">
+                        {/* Round Avatar with gray circle background */}
+                        <div className="w-12 h-12 rounded-full bg-slate-100 border border-slate-200/80 flex items-center justify-center text-2xl shrink-0 shadow-inner">
+                          {currentMeal.image}
+                        </div>
+
+                        <div className="min-w-0 flex-1">
+                          <h3 className="text-sm font-extrabold text-slate-900 leading-snug truncate">
+                            {currentMeal.name}
+                          </h3>
+                          <p className="text-[11px] text-slate-500 font-medium truncate mt-0.5">
+                            {currentMeal.kitchen}
+                          </p>
+                          {/* Clean Macro Badges on Mobile */}
+                          <div className="flex items-center space-x-1.5 mt-1">
+                            <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200/80 px-1.5 py-0.5 rounded-md flex items-center space-x-0.5">
+                              <span>🔥 {currentMeal.protein}g Protein</span>
+                            </span>
+                            <span className="text-[10px] font-semibold text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded-md">
+                              {currentMeal.kcal} kcal
+                            </span>
+                          </div>
+                        </div>
                       </div>
 
-                      <div className="flex-1 min-w-0">
-                        <h3 className="text-sm font-extrabold text-slate-900 leading-snug truncate">
-                          {currentMeal.name}
-                        </h3>
-                        <p className="text-[11px] text-slate-500 font-medium truncate mt-0.5">
-                          {currentMeal.kitchen} • {currentMeal.protein}g • {currentMeal.kcal} kcal • ₹{currentMeal.price}
-                        </p>
+                      {/* Standalone Price Badge with Pass Included tag (Brought from V1) */}
+                      <div className="text-right shrink-0 pt-0.5">
+                        <div className="text-sm font-black text-slate-900">
+                          ₹{currentMeal.price}
+                        </div>
+                        <span className="text-[9px] font-extrabold text-[#059669] bg-[#ECFDF5] border border-[#A7F3D0] px-1.5 py-0.5 rounded-full inline-block mt-0.5">
+                          ✓ In Pass
+                        </span>
                       </div>
                     </div>
 
@@ -752,7 +786,7 @@ export default function AutoPilotTab({
                           onClick={() =>
                             setActiveSlotPickerDay(activeSlotPickerDay === idx ? null : idx)
                           }
-                          className="text-[10px] font-extrabold text-[#FF5A1F] hover:underline flex items-center space-x-0.5"
+                          className="text-[10px] font-extrabold text-[#FF5A1F] hover:underline flex items-center space-x-0.5 cursor-pointer"
                         >
                           <span>{activeSlotPickerDay === idx ? 'Close' : 'Change Window →'}</span>
                         </button>
@@ -760,7 +794,7 @@ export default function AutoPilotTab({
 
                       {/* Expandable 30-Min Slot Selector */}
                       {activeSlotPickerDay === idx && (
-                        <div className="grid grid-cols-3 gap-1 pt-1 animate-in fade-in duration-150">
+                        <div className="grid grid-cols-3 gap-1.5 pt-1 animate-in fade-in duration-150">
                           {[
                             { id: '12:30 PM – 1:00 PM', label: '12:30–1:00 PM' },
                             { id: '1:00 PM – 1:30 PM', label: '1:00–1:30 PM (Pod)' },
@@ -772,7 +806,7 @@ export default function AutoPilotTab({
                                 key={tw.id}
                                 type="button"
                                 onClick={() => selectTimeSlot(idx, tw.id)}
-                                className={`py-1 px-1 rounded-lg text-[9px] font-extrabold border transition-all text-center ${
+                                className={`py-1.5 px-1 rounded-xl text-[9px] font-extrabold border transition-all text-center cursor-pointer ${
                                   isCurrentSlot
                                     ? 'bg-[#FF5A1F] text-white border-[#FF5A1F] shadow-xs'
                                     : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300'
@@ -786,31 +820,31 @@ export default function AutoPilotTab({
                       )}
                     </div>
 
-                    {/* Move / Shift Drawer (Tap-friendly alternate for Drag-and-Drop) */}
+                    {/* Move / Shift Drawer (Large, Thumb-Friendly Alternate for Drag-and-Drop) */}
                     {activeShiftDay === idx && (
-                      <div className="p-2.5 bg-gradient-to-r from-orange-50 to-amber-50 rounded-2xl border border-[#FF5A1F]/30 space-y-1.5 animate-in fade-in duration-150">
-                        <div className="flex items-center justify-between text-[10px]">
+                      <div className="p-3 bg-gradient-to-r from-orange-50 to-amber-50 rounded-2xl border border-[#FF5A1F]/30 space-y-2 animate-in fade-in duration-150">
+                        <div className="flex items-center justify-between text-[11px]">
                           <span className="font-extrabold text-slate-900 flex items-center space-x-1">
                             <GripVertical className="w-3.5 h-3.5 text-[#FF5A1F]" />
-                            <span>Drag the "Move" button or tap a day to swap:</span>
+                            <span>Shift {dayItem.dayCode}'s meal to:</span>
                           </span>
                           <button
                             onClick={() => setActiveShiftDay(null)}
-                            className="text-slate-400 hover:text-slate-600 font-bold"
+                            className="text-slate-400 hover:text-slate-600 font-bold p-1 cursor-pointer"
                           >
                             ✕
                           </button>
                         </div>
-                        <div className="grid grid-cols-5 gap-1">
+                        <div className="grid grid-cols-5 gap-1.5">
                           {playlist.map((d, dIdx) => (
                             <button
                               key={d.day}
                               disabled={dIdx === idx}
                               onClick={() => handleShiftMeal(idx, dIdx)}
-                              className={`py-1 rounded-lg text-[10px] font-bold border transition-all ${
+                              className={`py-2 rounded-xl text-xs font-black border transition-all cursor-pointer ${
                                 dIdx === idx
                                   ? 'bg-slate-200 text-slate-400 border-slate-300 cursor-not-allowed'
-                                  : 'bg-white text-slate-800 hover:bg-[#FF5A1F] hover:text-white border-slate-200 shadow-2xs'
+                                  : 'bg-white text-slate-800 hover:bg-[#FF5A1F] hover:text-white border-slate-200 shadow-2xs active:scale-95'
                               }`}
                             >
                               {d.dayCode}
@@ -820,70 +854,85 @@ export default function AutoPilotTab({
                       </div>
                     )}
 
-                    {/* Skipped Notice */}
-                    {isSkipped && (
-                      <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-1.5 px-2 text-[10px] text-emerald-800 font-bold flex items-center justify-between">
-                        <span>🛡️ Meal Skipped. ₹190 credited to MealsOn Wallet.</span>
-                        <span className="text-[9px] underline cursor-pointer" onClick={() => handleSkipDay(idx)}>
-                          Undo
-                        </span>
+                    {/* ======================================================== */}
+                    {/* BOTTOM TOOLBAR: CONDITIONAL BASED ON SKIPPED STATE       */}
+                    {/* ======================================================== */}
+                    {isSkipped ? (
+                      /* SIMPLIFIED HIGH-CONTRAST SKIPPED CARD STATE FOR MOBILE */
+                      <div className="bg-emerald-50/90 border-t border-emerald-200 -mx-4 -mb-4 p-3 rounded-b-3xl flex items-center justify-between animate-in fade-in duration-150">
+                        <div className="flex items-center space-x-2">
+                          <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+                          <div>
+                            <span className="text-xs font-black text-emerald-950 block leading-tight">
+                              Meal Skipped • ₹190 Preserved
+                            </span>
+                            <span className="text-[10px] font-medium text-emerald-700">
+                              Credited to MealsOn Wallet. Pass extended +1 day.
+                            </span>
+                          </div>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => handleSkipDay(idx)}
+                          className="bg-white hover:bg-emerald-100 text-emerald-800 font-black text-xs px-3.5 py-1.5 rounded-xl border border-emerald-300 shadow-xs transition-all active:scale-95 shrink-0 cta-bounce cursor-pointer flex items-center space-x-1"
+                        >
+                          <RotateCcw className="w-3 h-3 text-emerald-600" />
+                          <span>Restore</span>
+                        </button>
+                      </div>
+                    ) : (
+                      /* REGULAR 3-ACTION TOOLBAR: Swap, Move, Skip */
+                      <div className="grid grid-cols-3 divide-x divide-slate-200 border-t border-slate-200/90 -mx-4 -mb-4 mt-2">
+                        {/* 1. Swap (Opens 4-5 alternative choices, including Vault items) */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            playPop();
+                            setMultiSwapModalDay(idx);
+                          }}
+                          className="py-3 text-xs font-bold text-slate-700 hover:text-[#FF5A1F] hover:bg-slate-50/80 rounded-bl-3xl flex items-center justify-center space-x-1.5 transition-colors active:scale-95 cta-bounce cursor-pointer"
+                        >
+                          <Repeat className="w-3.5 h-3.5 text-slate-500" />
+                          <span>Swap</span>
+                        </button>
+
+                        {/* 2. Move (DRAG-AND-DROP CONTROLLER WITH GRIP ICON) */}
+                        <button
+                          type="button"
+                          draggable={true}
+                          onDragStart={(e) => {
+                            playPop();
+                            e.dataTransfer.setData('text/plain', String(idx));
+                            e.dataTransfer.effectAllowed = 'move';
+                            setDraggedDayIndex(idx);
+                          }}
+                          onDragEnd={() => {
+                            setDraggedDayIndex(null);
+                            setDragOverDayIndex(null);
+                          }}
+                          onClick={() => {
+                            playPop();
+                            setActiveShiftDay(activeShiftDay === idx ? null : idx);
+                          }}
+                          title="Drag this button to drop onto another day, or tap to choose"
+                          className="group py-3 text-xs font-bold text-slate-700 hover:text-[#FF5A1F] hover:bg-orange-50/60 flex items-center justify-center space-x-1.5 transition-colors active:scale-95 cta-bounce cursor-grab active:cursor-grabbing select-none"
+                        >
+                          <GripVertical className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#FF5A1F] transition-colors" />
+                          <span>Move</span>
+                        </button>
+
+                        {/* 3. Skip (Banks Credit) */}
+                        <button
+                          type="button"
+                          onClick={() => handleSkipDay(idx)}
+                          className="py-3 text-xs font-bold transition-colors active:scale-95 rounded-br-3xl flex items-center justify-center space-x-1.5 cta-bounce cursor-pointer text-slate-700 hover:text-amber-600 hover:bg-slate-50/80"
+                        >
+                          <SkipForward className="w-3.5 h-3.5 text-slate-500" />
+                          <span>Skip</span>
+                        </button>
                       </div>
                     )}
-
-                    {/* Bottom 3-Action Toolbar (EXACT CTAs: Swap, Move, Skip) */}
-                    <div className="grid grid-cols-3 divide-x divide-slate-200 border-t border-slate-200/90 -mx-4 -mb-4 mt-2">
-                      {/* 1. Swap (Opens 4-5 alternative choices, including Vault items) */}
-                      <button
-                        type="button"
-                        onClick={() => {
-                          playPop();
-                          setMultiSwapModalDay(idx);
-                        }}
-                        className="py-2.5 text-xs font-bold text-slate-700 hover:text-[#FF5A1F] hover:bg-slate-50/80 rounded-bl-3xl flex items-center justify-center space-x-1.5 transition-colors active:scale-95 cta-bounce cursor-pointer"
-                      >
-                        <Repeat className="w-3.5 h-3.5 text-slate-500" />
-                        <span>Swap</span>
-                      </button>
-
-                      {/* 2. Move (DRAG-AND-DROP CONTROLLER WITH GRIP ICON) */}
-                      <button
-                        type="button"
-                        draggable={true}
-                        onDragStart={(e) => {
-                          playPop();
-                          e.dataTransfer.setData('text/plain', String(idx));
-                          e.dataTransfer.effectAllowed = 'move';
-                          setDraggedDayIndex(idx);
-                        }}
-                        onDragEnd={() => {
-                          setDraggedDayIndex(null);
-                          setDragOverDayIndex(null);
-                        }}
-                        onClick={() => {
-                          playPop();
-                          setActiveShiftDay(activeShiftDay === idx ? null : idx);
-                        }}
-                        title="Drag this button to drop onto another day, or tap to choose"
-                        className="group py-2.5 text-xs font-bold text-slate-700 hover:text-[#FF5A1F] hover:bg-orange-50/60 flex items-center justify-center space-x-1.5 transition-colors active:scale-95 cta-bounce cursor-grab active:cursor-grabbing select-none"
-                      >
-                        <GripVertical className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#FF5A1F] transition-colors" />
-                        <span>Move</span>
-                      </button>
-
-                      {/* 3. Skip (Banks Credit) */}
-                      <button
-                        type="button"
-                        onClick={() => handleSkipDay(idx)}
-                        className={`py-2.5 text-xs font-bold transition-colors active:scale-95 rounded-br-3xl flex items-center justify-center space-x-1.5 cta-bounce cursor-pointer ${
-                          isSkipped
-                            ? 'text-emerald-700 bg-emerald-50 hover:bg-emerald-100'
-                            : 'text-slate-700 hover:text-amber-600 hover:bg-slate-50/80'
-                        }`}
-                      >
-                        <SkipForward className="w-3.5 h-3.5 text-slate-500" />
-                        <span>{isSkipped ? 'Skipped ✓' : 'Skip'}</span>
-                      </button>
-                    </div>
                   </div>
                 );
               })
@@ -1165,7 +1214,7 @@ export default function AutoPilotTab({
       {/* ======================================================== */}
       {multiSwapModalDay !== null && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-end justify-center p-0 animate-in fade-in duration-150">
-          <div className="w-full max-w-[420px] bg-white rounded-t-3xl p-4 space-y-3 max-h-[85vh] overflow-y-auto animate-in slide-in-from-bottom duration-200 shadow-2xl">
+          <div className="w-full max-w-[420px] bg-white rounded-t-3xl p-4 pb-8 space-y-3.5 max-h-[85vh] overflow-y-auto animate-in slide-in-from-bottom duration-200 shadow-2xl">
             {/* Modal Header */}
             <div className="flex items-center justify-between pb-2 border-b border-slate-100">
               <div>
@@ -1192,7 +1241,7 @@ export default function AutoPilotTab({
                   playPop();
                   setSwapModalFilter('curated');
                 }}
-                className={`flex-1 py-1.5 rounded-lg transition-all flex items-center justify-center space-x-1 ${
+                className={`flex-1 py-2 rounded-lg transition-all flex items-center justify-center space-x-1 cursor-pointer ${
                   swapModalFilter === 'curated'
                     ? 'bg-white text-slate-900 font-extrabold shadow-2xs'
                     : 'text-slate-500 hover:text-slate-700'
@@ -1207,7 +1256,7 @@ export default function AutoPilotTab({
                   playPop();
                   setSwapModalFilter('vault');
                 }}
-                className={`flex-1 py-1.5 rounded-lg transition-all flex items-center justify-center space-x-1 ${
+                className={`flex-1 py-2 rounded-lg transition-all flex items-center justify-center space-x-1 cursor-pointer ${
                   swapModalFilter === 'vault'
                     ? 'bg-rose-500 text-white font-extrabold shadow-2xs'
                     : 'text-slate-500 hover:text-slate-700'
@@ -1227,7 +1276,7 @@ export default function AutoPilotTab({
             </p>
 
             {/* List of Alternative Dishes */}
-            <div className="space-y-2">
+            <div className="space-y-2.5">
               {getSwapCandidates(playlist[multiSwapModalDay]?.options[playlist[multiSwapModalDay]?.currentIdx]?.id).map((candidate) => (
                 <div
                   key={candidate.id}
@@ -1285,7 +1334,7 @@ export default function AutoPilotTab({
                         e.stopPropagation();
                         handleSelectSwapDish(multiSwapModalDay, candidate);
                       }}
-                      className="bg-[#FF5A1F] hover:bg-[#E04812] text-white font-extrabold text-[10px] px-2.5 py-1 rounded-lg shadow-xs transition-all active:scale-95 cursor-pointer"
+                      className="bg-[#FF5A1F] hover:bg-[#E04812] text-white font-extrabold text-[10px] px-3 py-1.5 rounded-xl shadow-xs transition-all active:scale-95 cursor-pointer"
                     >
                       Swap ➔
                     </button>
@@ -1301,7 +1350,7 @@ export default function AutoPilotTab({
       <div className="fixed bottom-[58px] left-0 right-0 max-w-[420px] mx-auto bg-white/95 backdrop-blur-md border-t border-slate-200 p-2.5 px-4 shadow-[0_-6px_20px_rgba(0,0,0,0.06)] z-20">
         <div className="flex items-center justify-between mb-1.5">
           <div className="text-[11px] font-semibold text-slate-600">
-            5 Lunches • Avg <strong className="text-slate-900 font-bold">{avgProtein}g</strong> Protein
+            {activeMealsCount} of 5 Lunches • Avg <strong className="text-slate-900 font-bold">{avgProtein}g</strong> Protein
           </div>
           <div className="text-right">
             <span className="text-sm font-extrabold text-[#FF5A1F]">₹{totalCost}</span>
@@ -1310,7 +1359,7 @@ export default function AutoPilotTab({
 
         <button
           onClick={handleLockIn}
-          className="w-full bg-[#FF5A1F] hover:bg-[#E04812] text-white font-bold text-xs py-2 px-4 rounded-xl shadow-md transition-all active:scale-[0.97] cta-bounce flex items-center justify-center space-x-1.5 cursor-pointer"
+          className="w-full bg-[#FF5A1F] hover:bg-[#E04812] text-white font-bold text-xs py-2.5 px-4 rounded-xl shadow-md transition-all active:scale-[0.97] cta-bounce flex items-center justify-center space-x-1.5 cursor-pointer"
         >
           <span>Lock In Weekly Playlist</span>
           <ChevronRight className="w-4 h-4" />
