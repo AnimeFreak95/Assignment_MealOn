@@ -202,7 +202,7 @@ export default function RoutingTab({ playlist, setPlaylist, onNotify }) {
                 playPop();
                 setSelectedPillDay(index);
               }}
-              className={`flex-1 py-1 rounded-lg text-center transition-all cta-bounce ${
+              className={`flex-1 py-2 px-1 min-h-[44px] rounded-lg text-center transition-all cta-bounce flex flex-col justify-center ${
                 isSelected
                   ? 'bg-white shadow-xs font-bold text-slate-900 border border-slate-200'
                   : 'text-slate-500 hover:text-slate-700 font-semibold text-[11px]'
