@@ -624,7 +624,7 @@ export default function StreaksTab({ onNotify, triggerConfetti, onOpenWowModal }
                     <div className="bg-slate-100 p-0.5 rounded-lg flex items-center">
                       <button
                         onClick={() => { playPop(); setFridayLocation('office'); }}
-                        className={`px-2 py-0.5 rounded-md font-bold transition-all ${
+                        className={`px-3 py-1.5 min-h-[36px] rounded-md font-bold transition-all ${
                           fridayLocation === 'office'
                             ? 'bg-white text-emerald-800 shadow-2xs'
                             : 'text-slate-500'
@@ -634,7 +634,7 @@ export default function StreaksTab({ onNotify, triggerConfetti, onOpenWowModal }
                       </button>
                       <button
                         onClick={() => { playPop(); setFridayLocation('wfh'); }}
-                        className={`px-2 py-0.5 rounded-md font-bold transition-all ${
+                        className={`px-3 py-1.5 min-h-[36px] rounded-md font-bold transition-all ${
                           fridayLocation === 'wfh'
                             ? 'bg-white text-[#FF5A1F] shadow-2xs'
                             : 'text-slate-500'

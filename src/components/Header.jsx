@@ -28,16 +28,16 @@ export default function Header({
       </div>
 
       {/* Right Controls: Story Reel + Pass FTUX + Pause Shield Pill + Bell */}
-      <div className="flex items-center space-x-1.5">
+      <div className="flex items-center space-x-1 sm:space-x-1.5">
         {onOpenIntroSheet && (
           <button
             onClick={onOpenIntroSheet}
             title="Watch 15s Story / Video Preview"
             aria-label="Watch 15-second product story"
-            className="flex items-center space-x-1 bg-amber-50 hover:bg-amber-100 text-amber-950 px-2.5 py-1 min-h-[36px] rounded-full border border-amber-300 transition-all text-[11px] font-bold"
+            className="flex items-center space-x-1 bg-amber-50 hover:bg-amber-100 text-amber-950 px-2 sm:px-2.5 py-1 min-h-[36px] rounded-full border border-amber-300 transition-all text-[11px] font-bold"
           >
-            <Play className="w-2.5 h-2.5 fill-current text-amber-600" />
-            <span>Story</span>
+            <Play className="w-2.5 h-2.5 fill-current text-amber-600 shrink-0" />
+            <span className="hidden min-[380px]:inline">Story</span>
           </button>
         )}
 
@@ -46,10 +46,10 @@ export default function Header({
             onClick={onOpenFtux}
             title="Open Subscription FTUX Pass Flow"
             aria-label="Open pass onboarding flow"
-            className="flex items-center space-x-1 bg-[#FFF5F0] hover:bg-[#FFE6DC] text-[#C2410C] px-2.5 py-1 min-h-[36px] rounded-full border border-[#FF5A1F]/40 transition-all text-[11px] font-extrabold"
+            className="flex items-center space-x-1 bg-[#FFF5F0] hover:bg-[#FFE6DC] text-[#C2410C] px-2 sm:px-2.5 py-1 min-h-[36px] rounded-full border border-[#FF5A1F]/40 transition-all text-[11px] font-extrabold"
           >
-            <Ticket className="w-3 h-3" />
-            <span>Pass Flow</span>
+            <Ticket className="w-3 h-3 shrink-0" />
+            <span className="hidden min-[380px]:inline">Pass Flow</span>
           </button>
         )}
 
@@ -58,11 +58,12 @@ export default function Header({
           onClick={() => onNavigateTab('wallet')}
           title="Open MealsOn Balance"
           aria-label="View wallet and meal credits"
-          className="flex items-center space-x-1 bg-[#ECFDF5] hover:bg-[#D1FAE5] text-[#047857] px-2.5 py-1 min-h-[36px] rounded-full border border-[#10B981]/30 transition-all shadow-xs group"
+          className="flex items-center space-x-1 bg-[#ECFDF5] hover:bg-[#D1FAE5] text-[#047857] px-2 sm:px-2.5 py-1 min-h-[36px] rounded-full border border-[#10B981]/30 transition-all shadow-xs group"
         >
-          <ShieldCheck className="w-3 h-3 text-[#10B981] group-hover:scale-110 transition-transform" />
+          <ShieldCheck className="w-3 h-3 text-[#10B981] group-hover:scale-110 transition-transform shrink-0" />
           <span className="text-[10px] font-bold tracking-tight">
-            Meals: <strong className="font-extrabold text-[#065F46]">{credits}</strong>
+            <span className="hidden min-[380px]:inline">Meals: </span>
+            <strong className="font-extrabold text-[#065F46]">{credits}</strong>
           </span>
         </button>
 

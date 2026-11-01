@@ -186,48 +186,7 @@ export default function RoutingTab({ playlist, setPlaylist, onNotify }) {
         </div>
       </div>
 
-      {/* Hybrid Policy & Economics Guardrails Card (Guardrail 1: 7km Geofence & Guardrail 4: 10PM Lock) */}
-      <div className="bg-white rounded-2xl p-3 border border-slate-200 shadow-sm space-y-2">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <div className="w-6 h-6 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center">
-              <ShieldCheck className="w-3.5 h-3.5" />
-            </div>
-            <div>
-              <h4 className="text-xs font-bold text-slate-900 leading-tight">
-                Hybrid Routing Policy & Guardrails
-              </h4>
-              <p className="text-[10px] text-slate-500">Protecting ₹0 delivery via batch clustering</p>
-            </div>
-          </div>
-          <span className="text-[9px] font-extrabold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">
-            Active
-          </span>
-        </div>
-
-        <div className="bg-slate-50 rounded-xl p-2.5 space-y-2 text-[10px]">
-          <div className="flex items-start space-x-2">
-            <MapPin className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
-            <div>
-              <strong className="text-slate-900">1. 7 km Kitchen-Cluster Limit:</strong>
-              <span className="text-slate-600 block">
-                Home (Green Valley Apt) is <strong>4.2 km</strong> from kitchen hub (≤ 7 km limit). Verified for ₹0 delivery.
-              </span>
-            </div>
-          </div>
-
-          <div className="flex items-start space-x-2 pt-1.5 border-t border-slate-200/80">
-            <Clock className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
-            <div>
-              <strong className="text-slate-900">2. 10:00 PM Night-Before Routing Lock:</strong>
-              <span className="text-slate-600 block">
-                Tomorrow's location locks at 10 PM tonight. Same-day morning address flips are disabled to protect batch manifests.
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
+      
       {/* Smart Calendar Sync Card (Sleek, Glanceable) */}
       <div className="bg-white rounded-2xl p-3 border border-slate-200 shadow-sm space-y-2">
         <div className="flex items-center justify-between">
@@ -243,18 +202,21 @@ export default function RoutingTab({ playlist, setPlaylist, onNotify }) {
             </div>
           </div>
 
-          <button
-            onClick={handleToggleCalendar}
-            className={`w-10 h-5 rounded-full transition-colors relative p-0.5 focus:outline-none cta-bounce ${
-              calendarSyncActive ? 'bg-[#FF5A1F]' : 'bg-slate-200'
-            }`}
-          >
-            <div
-              className={`w-4 h-4 rounded-full bg-white shadow-sm transition-transform ${
-                calendarSyncActive ? 'translate-x-5' : 'translate-x-0'
+          <div className="min-w-[44px] min-h-[44px] flex items-center justify-end">
+            <button
+              onClick={handleToggleCalendar}
+              aria-label="Toggle calendar auto-reroute"
+              className={`w-11 h-6 rounded-full transition-colors relative p-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF5A1F] cta-bounce cursor-pointer ${
+                calendarSyncActive ? 'bg-[#FF5A1F]' : 'bg-slate-300'
               }`}
-            />
-          </button>
+            >
+              <div
+                className={`w-5 h-5 rounded-full bg-white shadow-sm transition-transform ${
+                  calendarSyncActive ? 'translate-x-5' : 'translate-x-0'
+                }`}
+              />
+            </button>
+          </div>
         </div>
 
         {/* Compact Alert Banner */}
@@ -330,7 +292,7 @@ export default function RoutingTab({ playlist, setPlaylist, onNotify }) {
                     onClick={() => {
                       if (!isOffice) toggleDayLocation(index);
                     }}
-                    className={`flex items-center space-x-1 px-2 py-0.5 rounded-md text-[10px] font-bold transition-all cta-bounce ${
+                    className={`flex items-center space-x-1 px-2.5 py-1.5 min-h-[36px] rounded-md text-[10px] font-bold transition-all cta-bounce ${
                       isOffice ? 'bg-[#FF5A1F] text-white shadow-xs' : 'text-slate-500 hover:text-slate-800'
                     }`}
                   >
@@ -342,7 +304,7 @@ export default function RoutingTab({ playlist, setPlaylist, onNotify }) {
                     onClick={() => {
                       if (isOffice) toggleDayLocation(index);
                     }}
-                    className={`flex items-center space-x-1 px-2 py-0.5 rounded-md text-[10px] font-bold transition-all cta-bounce ${
+                    className={`flex items-center space-x-1 px-2.5 py-1.5 min-h-[36px] rounded-md text-[10px] font-bold transition-all cta-bounce ${
                       !isOffice ? 'bg-[#10B981] text-white shadow-xs' : 'text-slate-500 hover:text-slate-800'
                     }`}
                   >
@@ -384,7 +346,7 @@ export default function RoutingTab({ playlist, setPlaylist, onNotify }) {
                   <select
                     value={dayItem.slot}
                     onChange={(e) => changeSlot(index, e.target.value)}
-                    className="text-[10px] font-semibold text-slate-900 bg-slate-100 border border-slate-200 rounded px-1 py-0.5 focus:outline-none focus:ring-1 focus:ring-[#FF5A1F]"
+                    className="text-[16px] sm:text-[10px] font-semibold text-slate-900 bg-slate-100 border border-slate-200 rounded px-2 py-1 min-h-[36px] focus:outline-none focus:ring-1 focus:ring-[#FF5A1F]"
                   >
                     {TIME_WINDOWS.map((tw) => (
                       <option key={tw} value={tw}>

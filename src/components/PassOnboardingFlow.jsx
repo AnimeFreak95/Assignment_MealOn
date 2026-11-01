@@ -217,7 +217,7 @@ export default function SubscriptionFTUXFlow({ onCompleteActivation, onOpenIntro
           {stage > 1 && (
             <button
               onClick={handleBackStage}
-              className="p-1 -ml-1 text-slate-500 hover:text-slate-800 rounded-lg hover:bg-slate-100 transition-colors"
+              aria-label="Back to previous step" className="p-2 -ml-1.5 min-w-[44px] min-h-[44px] flex items-center justify-center text-slate-500 hover:text-slate-800 rounded-lg hover:bg-slate-100 transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
             </button>
@@ -432,7 +432,7 @@ export default function SubscriptionFTUXFlow({ onCompleteActivation, onOpenIntro
                           )}
                         </div>
 
-                        <div className="flex items-center space-x-1.5 mt-0.5 text-[9px]">
+                        <div className="flex items-center flex-wrap gap-1 mt-0.5 text-[9px]">
                           <span className="font-bold text-emerald-700 bg-emerald-50 px-1 rounded">
                             {dur.discountBadge}
                           </span>
@@ -481,7 +481,7 @@ export default function SubscriptionFTUXFlow({ onCompleteActivation, onOpenIntro
                       playPop();
                       setSelectedLunchSlot(slot.id);
                     }}
-                    className={`p-2 rounded-xl border text-center transition-all cta-bounce ${
+                    className={`p-2 min-h-[44px] flex flex-col justify-center rounded-xl border text-center transition-all cta-bounce ${
                       isSelected
                         ? 'bg-indigo-50/90 border-2 border-indigo-600 shadow-xs ring-1 ring-indigo-600/20'
                         : 'bg-white border-slate-200 hover:border-slate-300'
@@ -1010,7 +1010,7 @@ export default function SubscriptionFTUXFlow({ onCompleteActivation, onOpenIntro
         {stage === 1 ? (
           <button
             onClick={handleGoToPayment}
-            className="w-full bg-[#FF5A1F] hover:bg-[#E04812] text-white font-extrabold text-xs py-3 px-4 rounded-xl shadow-md transition-all active:scale-[0.98] cta-bounce flex items-center justify-center space-x-1.5 cursor-pointer"
+            className="w-full min-h-[48px] bg-[#FF5A1F] hover:bg-[#E04812] text-white font-extrabold text-xs py-3 px-4 rounded-xl shadow-md transition-all active:scale-[0.98] cta-bounce flex items-center justify-center space-x-1.5 cursor-pointer"
           >
             <span>Continue to Payment • ₹{netPrice}</span>
             <ChevronRight className="w-4 h-4" />
