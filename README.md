@@ -16,6 +16,22 @@ Subscription and scheduled meal programs typically face three major failure poin
 
 ---
 
+## 🎟️ New: Subscription FTUX & Checkout Flow (`feat/subscription-ftux-checkout`)
+
+### 1. Stage 1: Pass Configurator & First-Time User Experience
+- **FTUX Value Banner:** Dark gradient hero card highlighting *Up to 35-Day Validity Buffer*, *Unused ₹ Rolls to Wallet*, and *Free Skip till 10 PM*.
+- **Daily Meal Allowance Cap:** 3-tier selector (`₹160 Comfort`, `₹250 Balanced [Most Popular]`, `₹320 Macro Pro`) with sample dishes.
+- **Pass Duration Selector:** 5-Meal (5% off, 10d buffer), 10-Meal (10% off, 20d buffer), 20-Meal (15% off, 35d buffer).
+- **Live Savings Receipt:** Dashed receipt card computing base value, progressive pass discount, waived delivery fees (₹40/meal saved), net pass price, and instant +5% prepaid bonus callout.
+
+### 2. Stage 2: Conversion-Optimized Checkout
+- **Upfront Prepaid Pass (Hero Focus):** +5% bonus wallet credits, Pause Shield protection, quick GPay/PhonePe/Card pills.
+- **UPI AutoPay Mandate (10:00 PM Deduction):** ₹0 upfront today with explicit 10:00 PM night-before deduction transparency (₹0 deducted if skipped before 10 PM).
+- **Corporate Meal Cards (Pluxee / Sodexo / Zaggle):** Linked tax-free corporate food card balance with 1-tap full reload toggle.
+- **Success & Pass Activation Modal:** Confirms active pass and seamlessly transitions to the 5-day AI Auto-Pilot menu generator.
+
+---
+
 ## 🚀 Core Features & Architectural Walkthrough
 
 ### 1. 🤖 AI Meal Playlist Auto-Pilot (Tab 1: "Auto-Pilot")

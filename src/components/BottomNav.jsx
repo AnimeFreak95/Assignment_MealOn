@@ -2,8 +2,7 @@ import React from 'react';
 import { Sparkles, MapPin, Clock, ShieldCheck, Flame } from 'lucide-react';
 
 const TABS = [
-  { id: 'autopilot', label: 'Auto-Pilot', icon: Sparkles },
-  { id: 'routing', label: 'Routing', icon: MapPin },
+  { id: 'autopilot', label: 'Planner', icon: Sparkles },
   { id: 'cutoff', label: '8PM Cut-Off', icon: Clock, badge: 'Live' },
   { id: 'wallet', label: 'Wallet', icon: ShieldCheck },
   { id: 'streaks', label: 'Streaks & Pods', icon: Flame, badge: '🔥' },

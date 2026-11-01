@@ -4,10 +4,9 @@ import { SAVED_LOCATIONS } from '../data/mockData';
 import { playPop, playSuccessChime } from '../utils/audioDelight';
 
 const TIME_WINDOWS = [
-  '12:30 PM – 12:45 PM',
-  '1:00 PM – 1:15 PM',
-  '1:30 PM – 1:45 PM',
-  '2:00 PM – 2:15 PM'
+  '12:30 PM – 1:00 PM',
+  '1:00 PM – 1:30 PM',
+  '1:30 PM – 2:00 PM'
 ];
 
 export default function RoutingTab({ playlist, setPlaylist, onNotify }) {
@@ -32,7 +31,7 @@ export default function RoutingTab({ playlist, setPlaylist, onNotify }) {
     });
   };
 
-  // Change 15-min delivery slot
+  // Change 30-min batched delivery slot
   const changeSlot = (index, slot) => {
     playPop();
     setPlaylist((prev) => {
@@ -40,6 +39,9 @@ export default function RoutingTab({ playlist, setPlaylist, onNotify }) {
       next[index] = { ...next[index], slot };
       return next;
     });
+    if (onNotify) {
+      onNotify('Slot Updated ⏰', `Delivery scheduled for ${slot} window.`, 'info');
+    }
   };
 
   // Calendar Sync Toggle
@@ -55,14 +57,14 @@ export default function RoutingTab({ playlist, setPlaylist, onNotify }) {
           next[3] = {
             ...next[3],
             location: 'home',
-            slot: '1:30 PM – 1:45 PM'
+            slot: '1:30 PM – 2:00 PM'
           };
         }
         return next;
       });
       setAutoSwitchedThursday(true);
       if (onNotify) {
-        onNotify('Calendar Synced 📅', 'Thursday switched to Home for WFH event.', 'info');
+        onNotify('Calendar Synced 📅', 'Thursday switched to Home (1:30–2:00 PM) for WFH event.', 'info');
       }
     } else {
       setAutoSwitchedThursday(false);
@@ -78,14 +80,14 @@ export default function RoutingTab({ playlist, setPlaylist, onNotify }) {
         next[3] = {
           ...next[3],
           location: 'office',
-          slot: '1:00 PM – 1:15 PM'
+          slot: '1:00 PM – 1:30 PM'
         };
       }
       return next;
     });
     setAutoSwitchedThursday(false);
     if (onNotify) {
-      onNotify('Reverted', 'Thursday reset to Office delivery.', 'info');
+      onNotify('Reverted', 'Thursday reset to Office delivery (1:00–1:30 PM).', 'info');
     }
   };
 
@@ -95,6 +97,27 @@ export default function RoutingTab({ playlist, setPlaylist, onNotify }) {
 
   return (
     <div className="pb-28 px-4 pt-3 space-y-3.5">
+      {/* 30-Min Batched Window & Unit Economics Banner */}
+      <div className="bg-indigo-50/80 border border-indigo-200/80 rounded-2xl p-2.5 flex items-center justify-between shadow-2xs">
+        <div className="flex items-center space-x-2">
+          <div className="w-6 h-6 rounded-lg bg-indigo-600 text-white flex items-center justify-center shrink-0">
+            <Clock className="w-3.5 h-3.5" />
+          </div>
+          <div>
+            <div className="flex items-center space-x-1.5">
+              <span className="text-[10px] font-extrabold text-indigo-900">
+                30-Min Batched Delivery Windows
+              </span>
+              <span className="text-[9px] font-bold bg-indigo-100 text-indigo-700 px-1.5 py-0.2 rounded-full">
+                ₹0 Delivery Fee
+              </span>
+            </div>
+            <p className="text-[10px] text-indigo-700 leading-tight">
+              Consolidated 30-min milk-run clusters reduce last-mile cost by ~65% (₹14 vs ₹48/drop).
+            </p>
+          </div>
+        </div>
+      </div>
       {/* Route Summary Bar (Clean & Visual) */}
       <div className="bg-white rounded-2xl p-3.5 border border-slate-200 shadow-sm space-y-2">
         <div className="flex items-center justify-between text-xs font-bold text-slate-800">

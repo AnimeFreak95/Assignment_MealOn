@@ -1,0 +1,80 @@
+# 🥊 Competitor Landscape & Strategic Market Positioning
+> **Document Status:** `APPROVED FOR IMPLEMENTATION`
+> **Author:** Sachin Shinde
+> **Parent Hub:** [🍱 MealsOn — Scheduled Meals Master PRD](https://app.notion.com/p/40a80bcda1298038960bc414a931d754)
+
+---
+
+> 💡 **Market Context & Opportunity Gap:**
+> Traditional aggregators were engineered for spontaneous dinner splurges, saddling weekday lunch with ₹45–₹65 delivery/platform surcharges. While newer subscription experiments attempt to solve fee friction, they fall into the trap of single-merchant silos and rigid operational constraints. MealsOn bridges this gap with a multi-kitchen, habit-automated subscription engine designed specifically for modern hybrid workforces.
+
+### 6.1 The Competitive Dilemma: Why Prior Models Failed
+
+* **Local Tiffins & Dabbawalas:** Zero technology, single-kitchen monotony, cash-only transactions, and complete inflexibility when hybrid employees work from home.
+* **First-Gen App Subscriptions (Swiggy Daily):** Strict calendar locks with forfeited meals. Users felt penalized whenever 2–3 lunches were missed, driving rapid monthly churn.
+* **Diet & Health Subscriptions (EatFit / Food Darzee):** Niche and expensive (₹300–₹450/meal) with rigid single-commissary menus leading to fast palate fatigue.
+* **Standard On-Demand Aggregators (Swiggy / Zomato On-Demand):** Infinite variety, but ₹45–₹65 in delivery, platform, and surge fees per lunch order makes daily usage economically unviable.
+* **Zomato Subscriptions (Live Single-Merchant Model):** Solves delivery fee friction via flat-rate prepaid bundles, but **locks the user into a single restaurant**, forces **100% upfront capital commitment**, **disables Pluxee/Sodexo**, and **binds all days to a single delivery address**.
+
+---
+
+### 6.2 Deep Dive Teardown: Zomato Subscriptions vs. MealsOn
+
+<table header-row="true">
+<tr>
+<td>Strategic Dimension</td>
+<td>Zomato Subscriptions (Live Model Teardown)</td>
+<td>MealsOn Scheduled Meals (Our Product)</td>
+<td>Competitive Advantage / Defensibility</td>
+</tr>
+<tr>
+<td><strong>Merchant & Kitchen Scope</strong></td>
+<td>❌ <strong>Single-Restaurant Lock-In:</strong> User commits 100% of their 3/5/15 meals to 1 kitchen (e.g., <em>GharSe</em> or <em>Charcoal Eats</em>).</td>
+<td>✅ <strong>Platform-Wide Multi-Kitchen Playlist:</strong> Rotates across top-rated local kitchens & partner brands (4.2★+).</td>
+<td><strong>Eliminates Palate Fatigue:</strong> Users enjoy authentic regional rotation (e.g., Punjabi Mon, Bengali Wed, South Indian Fri) without switching subscriptions.</td>
+</tr>
+<tr>
+<td><strong>Daily Menu Experience</strong></td>
+<td>⚠️ <strong>Manual Daily Substitution:</strong> Fixed restaurant menu requiring manual day-by-day swaps via radio buttons.</td>
+<td>✅ <strong>Dual-Engine Habit Automation:</strong> Mode A (AI Auto-Pilot with anti-monotony rules) OR Mode B (20-item curated Food Vault).</td>
+<td><strong>Zero Daily Decision Fatigue:</strong> Lunch runs automatically on background rails without requiring daily app visits.</td>
+</tr>
+<tr>
+<td><strong>Hybrid Location Routing</strong></td>
+<td>❌ <strong>Single Static Address:</strong> All 5 or 15 days locked to one address and delivery slot.</td>
+<td>✅ <strong>Mon–Fri Split-Location Matrix:</strong> Mon/Tue/Thu mapped to Office Pod; Wed/Fri mapped to Home with Calendar sync.</td>
+<td><strong>Built for 3-2 Hybrid Reality:</strong> Seamlessly routes food to where the employee actually sits each day.</td>
+</tr>
+<tr>
+<td><strong>Payment & Working Capital</strong></td>
+<td>❌ <strong>100% Upfront Only:</strong> ₹567–₹2,235 collected upfront via UPI/Cards.</td>
+<td>✅ <strong>Dual Financial Rail:</strong> Pay-per-meal via UPI AutoPay (₹0 upfront barrier) OR Upfront Prepaid with +5% bonus credit.</td>
+<td><strong>Zero Commitment Anxiety:</strong> Dramatic reduction in upfront FTUX checkout drop-off.</td>
+</tr>
+<tr>
+<td><strong>Corporate Tax-Free Meal Cards</strong></td>
+<td>❌ <strong>Disabled / Unsupported:</strong> Pluxee (Sodexo) and Amex explicitly disabled at checkout.</td>
+<td>✅ <strong>Native 1-Tap Corporate Rails:</strong> Native Pluxee, Zaggle, and corporate expense card binding.</td>
+<td><strong>Unlocks Corporate Budgets:</strong> Taps into ₹2,500–₹3,500 monthly tax-free employee meal allocations.</td>
+</tr>
+<tr>
+<td><strong>Perceived Value & Dish Pricing</strong></td>
+<td>⚠️ <strong>Flat SKU Pricing Trap:</strong> Swapping a ₹410 dish for a ₹305 dish charges the same ₹199 flat rate.</td>
+<td>✅ <strong>Allowance Cap + Difference Rollover:</strong> Unused dish budget is instantly refunded to lifetime wallet.</td>
+<td><strong>Fair Value Guarantee:</strong> Users never feel financially penalized on simpler homestyle meal days.</td>
+</tr>
+<tr>
+<td><strong>Operational Cut-Off SLA</strong></td>
+<td>⚠️ <strong>Rolling 2-Hour Pre-Slot Window:</strong> Kitchens receive dispatch alerts 2 hours prior to slot.</td>
+<td>✅ <strong>Proactive 8:00 PM Ping + 10:00 PM Batch Lock:</strong> Morning batch cooking (9:00–11:30 AM).</td>
+<td><strong>Supply Predictability:</strong> Cuts kitchen food waste to &lt;3% and unlocks 25% lower base procurement prices.</td>
+</tr>
+<tr>
+<td><strong>Fulfillment Economics</strong></td>
+<td>❌ <strong>Individual Fleet Dispatches:</strong> Point-to-point rider dispatches per order.</td>
+<td>✅ <strong>Office Pod Consolidated Batch Drops:</strong> 1 rider drops 15–25 meals in corporate towers at 1:00 PM.</td>
+<td><strong>63% Lower Logistics CAC:</strong> Slashes per-drop last-mile cost from ₹65 down to ₹24/delivery.</td>
+</tr>
+</table>
+
+---

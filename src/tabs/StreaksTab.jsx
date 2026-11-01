@@ -226,7 +226,7 @@ export default function StreaksTab({ onNotify, triggerConfetti, onOpenWowModal }
             </div>
             <div>
               <h3 className="text-xs font-bold text-slate-900 leading-tight">
-                Cyber Park Pod • 1:00 PM Wave
+                Cyber Park Pod • 1:00 PM – 1:30 PM Wave
               </h3>
             </div>
           </div>
@@ -274,7 +274,7 @@ export default function StreaksTab({ onNotify, triggerConfetti, onOpenWowModal }
           ) : (
             <>
               <Users className="w-3.5 h-3.5" />
-              <span>Join 1:00 PM Pod (Save ₹45)</span>
+              <span>Join 1:00–1:30 PM Pod (Save ₹45)</span>
             </>
           )}
         </button>
@@ -286,7 +286,7 @@ export default function StreaksTab({ onNotify, triggerConfetti, onOpenWowModal }
               📍 <strong>Smart Locker Bay 3:</strong> Use OTP <strong>8842</strong>
             </span>
             <span className="text-[9px] font-bold text-[#FF5A1F] bg-[#FFF5F0] border border-[#FF5A1F]/40 px-1.5 py-0.2 rounded">
-              1:00 PM Sharp
+              1:00–1:30 PM Window
             </span>
           </div>
         )}
@@ -302,7 +302,7 @@ export default function StreaksTab({ onNotify, triggerConfetti, onOpenWowModal }
           >
             <span className="flex items-center text-[#FF5A1F]">
               <TrendingDown className="w-3 h-3 mr-1" />
-              PM Economics: 62% Last-Mile Savings
+              PM Economics: 30-Min Batching Saves 62% Delivery Cost
             </span>
             {showUnitEconomics ? <ChevronUp className="w-3 h-3 text-slate-400" /> : <ChevronDown className="w-3 h-3 text-slate-400" />}
           </button>
@@ -315,14 +315,17 @@ export default function StreaksTab({ onNotify, triggerConfetti, onOpenWowModal }
                   <span className="font-bold text-rose-400">₹65</span>
                 </div>
                 <div className="bg-slate-800 p-1.5 rounded">
-                  <span className="text-slate-400 block text-[8px]">Batched Pod</span>
+                  <span className="text-slate-400 block text-[8px]">30m Pod Wave</span>
                   <span className="font-bold text-emerald-400">₹24</span>
                 </div>
                 <div className="bg-slate-800 p-1.5 rounded">
-                  <span className="text-slate-400 block text-[8px]">Saved</span>
+                  <span className="text-slate-400 block text-[8px]">Savings</span>
                   <span className="font-bold text-[#FF5A1F]">62%</span>
                 </div>
               </div>
+              <p className="text-[9px] text-slate-400 text-center leading-tight pt-0.5">
+                30-min milk-run windows increase rider drops from 1.8/hr to 5.2/hr.
+              </p>
             </div>
           )}
         </div>

@@ -4,7 +4,10 @@ import Header from './components/Header';
 import BottomNav from './components/BottomNav';
 import Toast from './components/Toast';
 import { ConfettiCanvas, FloatingCreditBadge, WowDelightModal } from './components/DelightEffects';
-import { setSoundEnabled, playPop } from './utils/audioDelight';
+import { isSoundEnabled, setSoundEnabled, playPop, playCelebrationFanfare } from './utils/audioDelight';
+import SubscriptionFTUXFlow from './components/SubscriptionFTUXFlow';
+import GtmIntroBottomSheet from './components/GtmIntroBottomSheet';
+import GtmCampaignHub from './components/GtmCampaignHub';
 
 import AutoPilotTab from './tabs/AutoPilotTab';
 import RoutingTab from './tabs/RoutingTab';
@@ -21,26 +24,20 @@ import {
   Flame,
   RotateCcw,
   Volume2,
-  VolumeX
+  VolumeX,
+  Ticket,
+  Layers,
+  Play
 } from 'lucide-react';
 
-const getNextCutoffDeadline = () => {
-  const deadline = new Date();
-  deadline.setHours(22, 0, 0, 0);
-  if (deadline <= new Date()) deadline.setDate(deadline.getDate() + 1);
-  return deadline.getTime();
-};
-
 export default function App() {
+  const [appMode, setAppMode] = useState('dashboard'); // 'dashboard' | 'ftux' | 'gtm'
   const [activeTab, setActiveTab] = useState('autopilot');
   const [credits, setCredits] = useState(14);
-  const [autoRolloverActive, setAutoRolloverActive] = useState(true);
-  const [cutoffDeadline, setCutoffDeadline] = useState(getNextCutoffDeadline);
-  const [cutoffStatus, setCutoffStatus] = useState('pending');
-  const [cutoffCreditBanked, setCutoffCreditBanked] = useState(false);
+  const [paymentMode, setPaymentMode] = useState('prepaid'); // 'prepaid' | 'mandate'
   const [playlist, setPlaylist] = useState(INITIAL_PLAYLIST);
-  const [prototypeResetKey, setPrototypeResetKey] = useState(0);
   const [toast, setToast] = useState(null);
+  const [showIntroSheet, setShowIntroSheet] = useState(false);
 
   // Delight Effects State
   const [confettiActive, setConfettiActive] = useState(false);
@@ -70,21 +67,34 @@ export default function App() {
   const handleLockInPlaylist = () => {
     showToast(
       'Weekly Playlist Locked In! ✨',
-      '5 personalized lunches scheduled. Now verify your hybrid office/home routing.',
+      '5 personalized lunches scheduled across your office & home locations.',
       'success'
     );
-    setActiveTab('routing');
+  };
+
+  const handleCompleteActivation = (passData) => {
+    setCredits(passData.meals);
+    if (passData.paymentOption) {
+      setPaymentMode(passData.paymentOption === 'mandate' ? 'mandate' : 'prepaid');
+    }
+    setAppMode('dashboard');
+    setActiveTab('autopilot');
+    triggerConfetti();
+    playCelebrationFanfare();
+    showToast(
+      'Pass Activated! 🎉',
+      `${passData.meals} Meal Credits loaded (${passData.validityDays}d buffer). Now curating your playlist!`,
+      'success'
+    );
   };
 
   const resetAllState = () => {
     setCredits(14);
-    setAutoRolloverActive(true);
-    setCutoffStatus('pending');
-    setCutoffCreditBanked(false);
-    setCutoffDeadline(getNextCutoffDeadline());
+    setPaymentMode('prepaid');
     setPlaylist(INITIAL_PLAYLIST);
-    setPrototypeResetKey((prev) => prev + 1);
     setActiveTab('autopilot');
+    setAppMode('dashboard');
+    setShowIntroSheet(false);
     setConfettiActive(false);
     setFloatingCreditActive(false);
     setWowModal(null);
@@ -102,35 +112,110 @@ export default function App() {
           <div>
             <div className="flex items-center space-x-2">
               <h1 className="text-sm font-extrabold text-white tracking-tight">
-                MealsOn Scheduled Meals — Product Prototype
+                MealsOn Scheduled Meals — Product Prototype & GTM
               </h1>
               <span className="text-[10px] font-bold bg-[#FF5A1F]/20 text-[#FF5A1F] border border-[#FF5A1F]/40 px-2 py-0.5 rounded-full">
                 Entain PM Case
               </span>
             </div>
             <p className="text-[11px] text-slate-400">
-              Cohesive interactive mobile experience with delight feedback, 10 PM zero-waste cut-off & Pause Shield rollovers
+              Complete FTUX Pass Configurator, Multi-Channel GTM Acquisition Simulator & Interactive Flow
             </p>
           </div>
         </div>
 
-        {/* Quick Jump Buttons & Audio Controls */}
+        {/* Quick Jump Buttons & Controls */}
         <div className="flex items-center gap-1.5 flex-wrap justify-center">
+          {/* Video Teaser Sheet Button */}
+          <button
+            onClick={() => {
+              playPop();
+              setShowIntroSheet(true);
+            }}
+            className="text-[11px] font-bold px-2.5 py-1.5 rounded-lg bg-amber-950/40 text-amber-300 border border-amber-600/40 hover:bg-amber-900/40 flex items-center space-x-1 cta-bounce"
+          >
+            <Play className="w-3 h-3 text-amber-400" />
+            <span>🎬 Video Teaser</span>
+          </button>
+
+          {/* GTM Simulator Mode */}
+          <button
+            onClick={() => {
+              playPop();
+              setAppMode('gtm');
+            }}
+            className={`text-[11px] font-bold px-2.5 py-1.5 rounded-lg transition-all flex items-center space-x-1 border cta-bounce ${
+              appMode === 'gtm'
+                ? 'bg-purple-600 text-white border-purple-500 shadow-sm'
+                : 'bg-purple-950/40 text-purple-300 border-purple-600/40 hover:bg-purple-900/40'
+            }`}
+          >
+            <Layers className="w-3 h-3" />
+            <span>📣 GTM Hub</span>
+          </button>
+
+          {/* Active Payment Rail Switcher for PM Test / Walkthrough */}
+          <div className="flex items-center bg-slate-800/90 rounded-lg p-0.5 border border-slate-700 text-[10px]">
+            <button
+              onClick={() => {
+                playPop();
+                setPaymentMode('prepaid');
+                showToast('Payment Rail: Prepaid', 'Skipped meals deposit 100% value into MealsOn Balance.', 'info');
+              }}
+              className={`px-2 py-1 rounded font-bold transition-all ${
+                paymentMode === 'prepaid' ? 'bg-emerald-600 text-white shadow-xs' : 'text-slate-400 hover:text-white'
+              }`}
+              title="Prepaid Plan: Skipped meals bank ₹ value into MealsOn Balance"
+            >
+              💰 Prepaid Pass
+            </button>
+            <button
+              onClick={() => {
+                playPop();
+                setPaymentMode('mandate');
+                showToast('Payment Rail: UPI AutoPay Mandate', 'Skipped meals cancel 10 PM debit (₹0 charged, no wallet credit).', 'info');
+              }}
+              className={`px-2 py-1 rounded font-bold transition-all ${
+                paymentMode === 'mandate' ? 'bg-indigo-600 text-white shadow-xs' : 'text-slate-400 hover:text-white'
+              }`}
+              title="UPI Mandate: Skipped meals cancel 10 PM debit (₹0 charged)"
+            >
+              ⚡ UPI Mandate
+            </button>
+          </div>
+
+          {/* FTUX & Pass Checkout Mode */}
+          <button
+            onClick={() => {
+              playPop();
+              setAppMode('ftux');
+            }}
+            className={`text-[11px] font-bold px-2.5 py-1.5 rounded-lg transition-all flex items-center space-x-1 border cta-bounce ${
+              appMode === 'ftux'
+                ? 'bg-gradient-to-r from-[#FF5A1F] to-[#FF7B47] text-white border-[#FF5A1F] shadow-sm'
+                : 'bg-emerald-950/40 text-emerald-300 border-emerald-600/40 hover:bg-emerald-900/40'
+            }`}
+          >
+            <Ticket className="w-3 h-3" />
+            <span>🎟️ Pass Flow</span>
+          </button>
+
+          {/* 4 Core Feature Tabs */}
           {[
-            { id: 'autopilot', label: '1. Auto-Pilot', icon: Sparkles },
-            { id: 'routing', label: '2. Routing', icon: MapPin },
-            { id: 'cutoff', label: '3. 8PM Cut-Off', icon: Clock },
-            { id: 'wallet', label: '4. Wallet', icon: ShieldCheck },
-            { id: 'streaks', label: '5. Streaks & Pods', icon: Flame },
+            { id: 'autopilot', label: 'Planner', icon: Sparkles },
+            { id: 'cutoff', label: '8PM Cut-Off', icon: Clock },
+            { id: 'wallet', label: 'Wallet', icon: ShieldCheck },
+            { id: 'streaks', label: 'Streaks', icon: Flame },
           ].map((item) => (
             <button
               key={item.id}
               onClick={() => {
                 playPop();
+                setAppMode('dashboard');
                 setActiveTab(item.id);
               }}
-              className={`text-[11px] font-bold px-2.5 py-1.5 rounded-lg transition-all flex items-center space-x-1 border cta-bounce ${
-                activeTab === item.id
+              className={`text-[11px] font-bold px-2 py-1.5 rounded-lg transition-all flex items-center space-x-1 border cta-bounce ${
+                appMode === 'dashboard' && activeTab === item.id
                   ? 'bg-[#FF5A1F] text-white border-[#FF5A1F] shadow-sm'
                   : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700 hover:text-white'
               }`}
@@ -164,23 +249,18 @@ export default function App() {
         </div>
       </div>
 
-      {/* Main Centered Mobile Device Frame */}
+      {/* Main Centered Mobile Device Frame (420px x 880px) */}
       <div className="relative">
-        {/* Glow behind device */}
-        <div className="absolute -inset-1 bg-gradient-to-tr from-[#FF5A1F]/20 via-[#10B981]/15 to-[#FF5A1F]/20 rounded-[38px] blur-xl opacity-75 pointer-events-none" />
+        <div className="absolute -inset-1 bg-gradient-to-tr from-[#FF5A1F]/20 via-[#10B981]/15 to-[#4F46E5]/15 rounded-[38px] blur-xl opacity-75 pointer-events-none" />
 
-        {/* 
-          Device Viewport:
-          max-width: 420px, height: 860px, rounded-3xl, 8px border in #1E293B, subtle drop shadow
-        */}
-        <div className="relative w-[calc(100vw-1rem)] max-w-[390px] sm:w-[420px] sm:max-w-[420px] h-[860px] bg-[#F8FAFC] rounded-[36px] border-[8px] border-[#1E293B] shadow-2xl overflow-hidden flex flex-col text-slate-900 select-none">
+        <div className="relative w-full max-w-[420px] w-[390px] sm:w-[420px] h-[880px] bg-[#F8FAFC] rounded-[36px] border-[8px] border-[#1E293B] shadow-2xl overflow-hidden flex flex-col text-slate-900 select-none">
           {/* Confetti Canvas Overlay */}
           <ConfettiCanvas
             active={confettiActive}
             onComplete={() => setConfettiActive(false)}
           />
 
-          {/* Floating +1 Credit Badge targeting header */}
+          {/* Floating +1 Credit Badge */}
           <FloatingCreditBadge
             active={floatingCreditActive}
             onComplete={() => setFloatingCreditActive(false)}
@@ -192,6 +272,17 @@ export default function App() {
             onClose={() => setWowModal(null)}
           />
 
+          {/* Video / GIF Intro Bottom Sheet Modal */}
+          {showIntroSheet && (
+            <GtmIntroBottomSheet
+              onClaimPass={() => {
+                setShowIntroSheet(false);
+                setAppMode('ftux');
+              }}
+              onClose={() => setShowIntroSheet(false)}
+            />
+          )}
+
           {/* Top Notch / Camera pill */}
           <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-24 h-4 bg-[#1E293B] rounded-full z-50 flex items-center justify-center">
             <div className="w-2.5 h-2.5 rounded-full bg-slate-900 ring-1 ring-slate-800 ml-10" />
@@ -200,88 +291,97 @@ export default function App() {
           {/* Sticky Top Status Bar */}
           <StatusBar />
 
-          {/* MealsOn Brand Header with Shared Credits Pill */}
-          <Header
-            credits={credits}
-            onNavigateTab={setActiveTab}
-            notificationCount={1}
-            onBellClick={() => setActiveTab('cutoff')}
-          />
-
           {/* Toast Notification Container */}
           <Toast toast={toast} onClose={() => setToast(null)} />
 
-          {/* Scrollable App Body Canvas (#F8FAFC) */}
-          <main className="flex-1 overflow-y-auto bg-[#F8FAFC] hide-scrollbar relative">
-            <div hidden={activeTab !== 'autopilot'}>
-              <AutoPilotTab
-                key={prototypeResetKey}
-                playlist={playlist}
-                setPlaylist={setPlaylist}
-                onLockInPlaylist={handleLockInPlaylist}
-                triggerConfetti={triggerConfetti}
-                onNotify={showToast}
+          {/* VIEW MODE 1: GTM CAMPAIGN HUB */}
+          {appMode === 'gtm' ? (
+            <main className="flex-1 overflow-y-auto bg-[#F8FAFC] hide-scrollbar relative">
+              <GtmCampaignHub
+                onTriggerFtux={() => setAppMode('ftux')}
+                onTriggerIntroSheet={() => setShowIntroSheet(true)}
+                onClose={() => setAppMode('dashboard')}
               />
-            </div>
-
-            <div hidden={activeTab !== 'routing'}>
-              <RoutingTab
-                key={prototypeResetKey}
-                playlist={playlist}
-                setPlaylist={setPlaylist}
-                onNotify={showToast}
+            </main>
+          ) : appMode === 'ftux' ? (
+            /* VIEW MODE 2: SUBSCRIPTION FTUX FLOW */
+            <main className="flex-1 overflow-y-auto bg-[#F8FAFC] hide-scrollbar relative">
+              <SubscriptionFTUXFlow
+                onCompleteActivation={handleCompleteActivation}
+                onOpenIntroSheet={() => setShowIntroSheet(true)}
+                onClose={() => setAppMode('dashboard')}
               />
-            </div>
-
-            <div hidden={activeTab !== 'cutoff'}>
-              <CutOffTab
-                key={prototypeResetKey}
-                playlist={playlist}
-                setPlaylist={setPlaylist}
+            </main>
+          ) : (
+            /* VIEW MODE 3: 5-TAB SCHEDULED PLANNER */
+            <>
+              <Header
                 credits={credits}
-                setCredits={setCredits}
-                autoRolloverActive={autoRolloverActive}
-                cutoffDeadline={cutoffDeadline}
-                tomorrowStatus={cutoffStatus}
-                setTomorrowStatus={setCutoffStatus}
-                creditBanked={cutoffCreditBanked}
-                setCreditBanked={setCutoffCreditBanked}
-                onNotify={showToast}
-                triggerConfetti={triggerConfetti}
-                triggerFloatingCredit={triggerFloatingCredit}
+                onNavigateTab={(tab) => {
+                  setAppMode('dashboard');
+                  setActiveTab(tab);
+                }}
+                notificationCount={1}
+                onBellClick={() => setActiveTab('cutoff')}
+                onOpenFtux={() => setAppMode('ftux')}
+                onOpenIntroSheet={() => setShowIntroSheet(true)}
               />
-            </div>
 
-            <div hidden={activeTab !== 'wallet'}>
-              <WalletTab
-                key={prototypeResetKey}
-                credits={credits}
-                autoRolloverActive={autoRolloverActive}
-                setAutoRolloverActive={setAutoRolloverActive}
-                onNotify={showToast}
-                triggerConfetti={triggerConfetti}
-              />
-            </div>
+              <main className="flex-1 overflow-y-auto bg-[#F8FAFC] hide-scrollbar relative">
+                {activeTab === 'autopilot' && (
+                  <AutoPilotTab
+                    playlist={playlist}
+                    setPlaylist={setPlaylist}
+                    onLockInPlaylist={handleLockInPlaylist}
+                    triggerConfetti={triggerConfetti}
+                    onNotify={showToast}
+                    paymentMode={paymentMode}
+                  />
+                )}
 
-            <div hidden={activeTab !== 'streaks'}>
-              <StreaksTab
-                key={prototypeResetKey}
-                onNotify={showToast}
-                triggerConfetti={triggerConfetti}
-                onOpenWowModal={setWowModal}
-              />
-            </div>
-          </main>
+                {activeTab === 'cutoff' && (
+                  <CutOffTab
+                    playlist={playlist}
+                    setPlaylist={setPlaylist}
+                    credits={credits}
+                    setCredits={setCredits}
+                    onNotify={showToast}
+                    triggerConfetti={triggerConfetti}
+                    triggerFloatingCredit={triggerFloatingCredit}
+                    paymentMode={paymentMode}
+                  />
+                )}
 
-          {/* Sticky Bottom Navigation Bar with 5 Tabs */}
-          <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
+                {activeTab === 'wallet' && (
+                  <WalletTab
+                    credits={credits}
+                    setCredits={setCredits}
+                    onNotify={showToast}
+                    triggerConfetti={triggerConfetti}
+                    paymentMode={paymentMode}
+                    setPaymentMode={setPaymentMode}
+                  />
+                )}
+
+                {activeTab === 'streaks' && (
+                  <StreaksTab
+                    onNotify={showToast}
+                    triggerConfetti={triggerConfetti}
+                    onOpenWowModal={setWowModal}
+                  />
+                )}
+              </main>
+
+              <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
+            </>
+          )}
         </div>
       </div>
 
       {/* Presenter Footer Helper */}
-      <div className="mt-4 text-center text-xs text-slate-400 max-w-[600px]">
+      <div className="mt-4 text-center text-xs text-slate-400 max-w-[640px]">
         <p className="leading-relaxed">
-          <strong className="text-slate-200">Interactive Delight Active:</strong> Food-delivery style audio-haptic chimes, floating +1 Credit rollover animation, confetti bursts, 10 PM zero-waste kitchen cut-off FAQ on Tab 3, and 63% last-mile pod batching economics.
+          <strong className="text-slate-200">GTM Simulator Active:</strong> Test Push, WhatsApp & SMS acquisition triggers with direct CTAs into the pass customizer.
         </p>
       </div>
     </div>
