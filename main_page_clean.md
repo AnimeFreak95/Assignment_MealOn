@@ -10,7 +10,7 @@ Each feature has its own dedicated specification page containing comprehensive u
 2. [🤖 2. AI Meal Playlist & Curated Food Vault](https://app.notion.com/p/40b80bcda1298139bc3ff629601a16aa)
 3. [🗺️ 3. Hybrid Split-Location Routing](https://app.notion.com/p/40b80bcda12981859ad7db792c3487a0)
 4. [⏰ 4. 8 PM Smart Cut-Off Drawer](https://app.notion.com/p/40b80bcda12981769de9dd8266d87c41)
-5. [🛡️ 5. Pause Shield & Rollover Credits Wallet](https://app.notion.com/p/40b80bcda1298180bb60e15c14f965e3)
+5. [🛡️ 5. Pause Shield & Rollover Credits Wallet](https://app.notion.com/p/40b80bcda12981a58fe1dbf4408af5dc)
 6. [🔥 6. 5-Day Habit Streaks & Office Pod Drops](https://app.notion.com/p/40b80bcda12981349a9beef85a7e2a69)
 7. [🥊 7. Competitor Landscape & Strategic Market Positioning](https://app.notion.com/p/40b80bcda12981be9c5dd3ba892f642c)
 ---
@@ -51,14 +51,14 @@ As per the product assignment requirements, the following baseline assumptions g
 <tr>
 <td>**1. Subscription Pass & FTUX**</td>
 <td>Rahul, Priya, Vikram</td>
-<td>Compound savings (up to 15% off + ₹0 delivery + +5% bonus) with 10–35 days validity buffers.</td>
+<td>Culinary craft tiers (Rasoi ₹160, Bistro ₹250, Chef's Table ₹320) with compound savings (up to 15% off + ₹0 delivery + +5% bonus), 10–35 days validity buffers, and 30-min drop slots.</td>
 <td>Removes upfront commitment anxiety and fear of forfeited money.</td>
 <td>[View FTUX Page](https://app.notion.com/p/40b80bcda12981d98787e20dcc874c79)</td>
 </tr>
 <tr>
 <td>**2. AI Playlist & Food Vault**</td>
 <td>Priya, Ananya</td>
-<td>1-tap 5-day rotation via AI dietary prompt OR user's 20-dish curated vault with zero repeat dishes.</td>
+<td>Unified weekly planner with top-level AI/Vault selector, zero-repeat anti-monotony engine, Friday AI wildcard, and 3-action card toolbar (Swap, Move drag-and-drop, Skip).</td>
 <td>Eliminates daily decision fatigue, menu monotony, and algorithmic distrust.</td>
 <td>[View Playlist Page](https://app.notion.com/p/40b80bcda1298139bc3ff629601a16aa)</td>
 </tr>
@@ -81,7 +81,7 @@ As per the product assignment requirements, the following baseline assumptions g
 <td>Vikram, Sneha</td>
 <td>100% rollover protection, vacation pause slider, and unconsumed credit banking.</td>
 <td>Completely eliminates subscription churn caused by unconsumed, expired meals.</td>
-<td>[View Wallet Page](https://app.notion.com/p/40b80bcda1298180bb60e15c14f965e3)</td>
+<td>[View Wallet Page](https://app.notion.com/p/40b80bcda12981a58fe1dbf4408af5dc)</td>
 </tr>
 <tr>
 <td>**6. 5-Day Streaks & Office Pods**</td>
@@ -131,7 +131,7 @@ As per the product assignment requirements, the following baseline assumptions g
 <page url="https://app.notion.com/p/40b80bcda1298139bc3ff629601a16aa">2. AI Meal Playlist & Curated Food Vault</page>
 <page url="https://app.notion.com/p/40b80bcda12981859ad7db792c3487a0">3. Hybrid Split-Location Routing</page>
 <page url="https://app.notion.com/p/40b80bcda12981769de9dd8266d87c41">4. 8 PM Smart Cut-Off Drawer</page>
-<page url="https://app.notion.com/p/40b80bcda1298180bb60e15c14f965e3">5. Pause Shield & Rollover Credits Wallet</page>
+<page url="https://app.notion.com/p/40b80bcda12981a58fe1dbf4408af5dc">5. Pause Shield & Rollover Credits Wallet</page>
 <page url="https://app.notion.com/p/40b80bcda12981349a9beef85a7e2a69">6. 5-Day Habit Streaks & Office Pod Drops</page>
 <page url="https://app.notion.com/p/40b80bcda12981be9c5dd3ba892f642c">7. Competitor Landscape & Strategic Market Positioning</page>
 <empty-block/>
