@@ -138,3 +138,17 @@
     transform: translateY(0) scale(1);
   }
 }
+
+/* Accessibility: Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .cta-bounce, .animate-bounce, .animate-pulse, .animate-spin {
+    animation: none !important;
+    transform: none !important;
+  }
+}
