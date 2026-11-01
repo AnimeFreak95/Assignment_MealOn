@@ -146,7 +146,8 @@ export default function SubscriptionFTUXFlow({ onCompleteActivation, onOpenIntro
         tier: selectedTier,
         netPrice,
         bonusCredits: paymentOption === 'mandate' ? 0 : bonusCredits,
-        validityDays: durationObj.validityDays
+        validityDays: durationObj.validityDays,
+        paymentOption
       });
     }
   };
@@ -859,9 +860,13 @@ export default function SubscriptionFTUXFlow({ onCompleteActivation, onOpenIntro
             </div>
 
             <div className="bg-[#F8FAFC] border border-slate-200 rounded-xl p-2.5 text-xs flex items-center justify-between">
-              <span className="text-slate-600">Loaded into Wallet:</span>
+              <span className="text-slate-600">
+                {paymentOption === 'mandate' ? 'Pass includes:' : 'Loaded into Wallet:'}
+              </span>
               <span className="font-extrabold text-emerald-700">
-                {selectedDuration} Credits {paymentOption !== 'mandate' && `+ ₹${bonusCredits}`}
+                {paymentOption === 'mandate'
+                  ? `${selectedDuration} scheduled meals`
+                  : `${selectedDuration} Credits + ₹${bonusCredits}`}
               </span>
             </div>
 

@@ -83,7 +83,7 @@ export default function App() {
     playCelebrationFanfare();
     showToast(
       'Pass Activated! 🎉',
-      `${passData.meals} Meal Credits loaded (${passData.validityDays}d buffer). Now curating your playlist!`,
+      `${passData.paymentOption === 'mandate' ? `${passData.meals} meals activated` : `${passData.meals} Meal Credits loaded`} (${passData.validityDays}d buffer). Now curating your playlist!`,
       'success'
     );
   };

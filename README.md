@@ -111,3 +111,7 @@ npm run build
 ```
 
 The production output generates `dist/index.html`, a self-contained bundle that runs in any browser without needing a web server.
+
+### GitHub Pages Deployment
+
+Pushing to `main` builds the prototype and publishes `dist/` to the `gh-pages` branch. In the repository's Pages settings, select **Deploy from a branch**, then choose `gh-pages` and the root folder.
