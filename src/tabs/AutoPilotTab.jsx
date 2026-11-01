@@ -22,7 +22,8 @@ import {
   Repeat,
   SkipForward,
   X,
-  MapPin
+  MapPin,
+  Move
 } from 'lucide-react';
 import { playPop, playSuccessChime, playCelebrationFanfare } from '../utils/audioDelight';
 import { MASTER_DISH_CATALOG, INITIAL_VAULT_IDS, SAVED_LOCATIONS } from '../data/mockData';
@@ -45,14 +46,15 @@ export default function AutoPilotTab({
   // View Version Comparison: 'v2' (New Screenshot UI) vs 'v1' (Classic View)
   const [viewVersion, setViewVersion] = useState('v2');
 
-  // Mode for V1: 'ai' vs 'vault'
-  const [schedulerMode, setSchedulerMode] = useState('vault');
+  // Planner Mode for V2 & V1: 'ai' vs 'vault'
+  const [plannerMode, setPlannerMode] = useState('ai');
   const [vaultIds, setVaultIds] = useState(INITIAL_VAULT_IDS);
   const [isVaultModalOpen, setIsVaultModalOpen] = useState(false);
   const [fridayWildcard, setFridayWildcard] = useState(true);
 
   // Modal / Picker States
   const [multiSwapModalDay, setMultiSwapModalDay] = useState(null);
+  const [swapModalFilter, setSwapModalFilter] = useState('curated'); // 'curated' | 'vault'
   const [activeSlotPickerDay, setActiveSlotPickerDay] = useState(null);
 
   const [promptText, setPromptText] = useState(
@@ -62,7 +64,7 @@ export default function AutoPilotTab({
   const [isLoading, setIsLoading] = useState(false);
   const [justSwappedDay, setJustSwappedDay] = useState(null);
 
-  // Drag-and-Drop & Shift Slider State
+  // Drag-and-Drop State
   const [draggedDayIndex, setDraggedDayIndex] = useState(null);
   const [dragOverDayIndex, setDragOverDayIndex] = useState(null);
   const [activeShiftDay, setActiveShiftDay] = useState(null);
@@ -201,7 +203,7 @@ export default function AutoPilotTab({
 
     const targetLocName = playlist[index].location === 'office' ? 'Green Valley Apt (Home)' : 'Cyber Park Tower B (Office)';
     if (onNotify) {
-      onNotify('Location Updated 📍', `${playlist[index].day} lunch set to ${targetLocName}.`, 'info');
+      onNotify('Location Updated 📍', `${playlist[index].day} lunch flipped to ${targetLocName}.`, 'info');
     }
   };
 
@@ -232,6 +234,7 @@ export default function AutoPilotTab({
       const remainingOpts = dayItem.options.filter((d) => d.id !== newDish.id && d.id !== currentDish.id);
       dayItem.options = [newDish, currentDish, ...remainingOpts];
       dayItem.currentIdx = 0;
+      dayItem.isVaultScheduled = vaultIds.includes(newDish.id);
       next[dayIndex] = dayItem;
       return next;
     });
@@ -266,8 +269,12 @@ export default function AutoPilotTab({
     }
   };
 
-  // Get 5 swap candidates for a specific day
+  // Get 5 swap candidates for a specific day (curated or vault)
   const getSwapCandidates = (currentDishId) => {
+    if (swapModalFilter === 'vault') {
+      const vList = vaultDishes.filter((d) => d.id !== currentDishId);
+      return vList.length > 0 ? vList : MASTER_DISH_CATALOG.filter((d) => d.id !== currentDishId).slice(0, 5);
+    }
     const list = MASTER_DISH_CATALOG.filter((d) => d.id !== currentDishId);
     return list.slice(0, 5);
   };
@@ -305,6 +312,8 @@ export default function AutoPilotTab({
 
     playSuccessChime();
     setActiveShiftDay(null);
+    setDraggedDayIndex(null);
+    setDragOverDayIndex(null);
     if (onNotify) {
       onNotify('Meals Swapped! 🔄', `Moved ${sourceDay}'s meal to ${targetDay}.`, 'info');
     }
@@ -385,73 +394,213 @@ export default function AutoPilotTab({
             <h1 className="text-2xl font-black text-slate-900 tracking-tight">
               Your week
             </h1>
-            <span className="text-[10px] font-extrabold text-[#FF5A1F] bg-[#FFF5F0] border border-[#FF5A1F]/30 px-2 py-0.5 rounded-full">
-              5 Meals • ₹0 Delivery
-            </span>
+            <div className="flex items-center space-x-1.5">
+              <span className="text-[10px] font-extrabold text-[#FF5A1F] bg-[#FFF5F0] border border-[#FF5A1F]/30 px-2.5 py-0.5 rounded-full">
+                5 Meals • ₹0 Delivery
+              </span>
+            </div>
           </div>
 
-          {/* 1. Smart Planner Top Card (Exact Match from Screenshot) */}
+          {/* 1. Smart Planner Top Card with Mode Switcher (AI Auto-Pilot vs My Food Vault) */}
           <div className="bg-white rounded-3xl p-4 border border-slate-200/90 shadow-sm space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <Sparkles className="w-4 h-4 text-[#FF5A1F]" />
+            {/* Header: Title + Mode Toggle (AI vs My Vault) */}
+            <div className="flex items-center justify-between pb-1">
+              <div className="flex items-center space-x-1.5">
+                {plannerMode === 'ai' ? (
+                  <Sparkles className="w-4 h-4 text-[#FF5A1F]" />
+                ) : (
+                  <Heart className="w-4 h-4 text-rose-500 fill-rose-500" />
+                )}
                 <h2 className="text-sm font-extrabold text-slate-900">
-                  Smart planner
+                  {plannerMode === 'ai' ? 'Smart planner' : 'My Food Vault'}
                 </h2>
               </div>
-              <span className="text-[10px] font-semibold text-slate-400">AI Auto-Pilot</span>
+
+              {/* Mode Toggle Segment: AI vs My Vault */}
+              <div className="flex items-center bg-slate-100 p-0.5 rounded-xl border border-slate-200 text-[10px] font-bold">
+                <button
+                  type="button"
+                  onClick={() => {
+                    playPop();
+                    setPlannerMode('ai');
+                  }}
+                  className={`px-2.5 py-1 rounded-lg transition-all ${
+                    plannerMode === 'ai'
+                      ? 'bg-white text-slate-900 font-extrabold shadow-2xs'
+                      : 'text-slate-500 hover:text-slate-700'
+                  }`}
+                >
+                  ✨ AI Mode
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    playPop();
+                    setPlannerMode('vault');
+                  }}
+                  className={`px-2.5 py-1 rounded-lg transition-all flex items-center space-x-1 ${
+                    plannerMode === 'vault'
+                      ? 'bg-rose-500 text-white font-extrabold shadow-2xs'
+                      : 'text-slate-500 hover:text-slate-700'
+                  }`}
+                >
+                  <Heart className="w-2.5 h-2.5 fill-current" />
+                  <span>Vault ({vaultIds.length})</span>
+                </button>
+              </div>
             </div>
 
-            {/* Prompt Box */}
-            <div className="bg-[#F8FAFC] border border-slate-200 rounded-2xl p-3">
-              <textarea
-                value={promptText}
-                onChange={(e) => setPromptText(e.target.value)}
-                rows={2}
-                className="w-full text-xs text-slate-800 bg-transparent focus:outline-none resize-none font-medium leading-relaxed placeholder-slate-400"
-                placeholder="Describe your dietary goals..."
-              />
-            </div>
+            {/* Content for AI Mode (Exact Match from Screenshot) */}
+            {plannerMode === 'ai' ? (
+              <div className="space-y-3 animate-in fade-in duration-150">
+                {/* Prompt Box */}
+                <div className="bg-[#F8FAFC] border border-slate-200 rounded-2xl p-3">
+                  <textarea
+                    value={promptText}
+                    onChange={(e) => setPromptText(e.target.value)}
+                    rows={2}
+                    className="w-full text-xs text-slate-800 bg-transparent focus:outline-none resize-none font-medium leading-relaxed placeholder-slate-400"
+                    placeholder="Describe your dietary goals..."
+                  />
+                </div>
 
-            {/* Chips Row (White bg, orange border, orange text) */}
-            <div className="flex items-center gap-2 overflow-x-auto py-0.5 hide-scrollbar">
-              {FILTER_CHIPS.map((chip) => {
-                const active = activeChips.includes(chip.id);
-                return (
+                {/* Chips Row (White bg, orange border, orange text) */}
+                <div className="flex items-center gap-2 overflow-x-auto py-0.5 hide-scrollbar">
+                  {FILTER_CHIPS.map((chip) => {
+                    const active = activeChips.includes(chip.id);
+                    return (
+                      <button
+                        key={chip.id}
+                        onClick={() => toggleChip(chip.id)}
+                        className={`text-xs font-bold px-3 py-1.5 rounded-full border transition-all whitespace-nowrap cta-bounce ${
+                          active
+                            ? 'bg-white border-[#FF5A1F] text-[#FF5A1F] shadow-2xs'
+                            : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
+                        }`}
+                      >
+                        {chip.label}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Solid Orange CTA: Re-plan open days */}
+                <button
+                  onClick={handleGenerateAI}
+                  disabled={isLoading}
+                  className="w-full bg-[#FF5A1F] hover:bg-[#E04812] text-white font-extrabold text-xs py-3 px-4 rounded-2xl shadow-md transition-all active:scale-[0.98] cta-bounce flex items-center justify-center space-x-2"
+                >
+                  {isLoading ? (
+                    <div className="flex items-center space-x-2">
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                      <span>Re-planning your open days...</span>
+                    </div>
+                  ) : (
+                    <>
+                      <Wand2 className="w-4 h-4" />
+                      <span>Re-plan open days</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            ) : (
+              /* Content for My Food Vault Mode in V2 */
+              <div className="space-y-3 animate-in fade-in duration-150">
+                {/* Vault Summary & Stats Card */}
+                <div className="bg-gradient-to-r from-rose-50/80 via-white to-orange-50/50 border border-rose-200 rounded-2xl p-3 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-rose-600 bg-rose-100/80 border border-rose-200 px-2 py-0.5 rounded-full flex items-center space-x-1">
+                      <ShieldCheck className="w-3 h-3 text-rose-600" />
+                      <span>Zero-Surprise Guarantee</span>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setIsVaultModalOpen(true)}
+                      className="text-[11px] font-extrabold text-rose-600 hover:underline flex items-center space-x-1"
+                    >
+                      <span>Manage 20 Dishes</span>
+                      <ChevronRight className="w-3 h-3" />
+                    </button>
+                  </div>
+
+                  <p className="text-xs text-slate-600 font-medium leading-snug">
+                    Schedule 5 meals strictly rotated from your <strong>{vaultIds.length} approved favorites</strong>. Zero unwanted ingredients, zero repeats.
+                  </p>
+
+                  {/* Vault Stats Bar */}
+                  <div className="grid grid-cols-3 gap-1.5 pt-1 border-t border-rose-100 text-center">
+                    <div className="bg-white/80 rounded-xl p-1.5 border border-rose-100/60">
+                      <span className="text-[9px] text-slate-400 block font-semibold">Avg Cal</span>
+                      <span className="text-xs font-black text-slate-800">{vaultAvgKcal} kcal</span>
+                    </div>
+                    <div className="bg-white/80 rounded-xl p-1.5 border border-rose-100/60">
+                      <span className="text-[9px] text-slate-400 block font-semibold">Avg Protein</span>
+                      <span className="text-xs font-black text-emerald-700">{vaultAvgProtein}g P</span>
+                    </div>
+                    <div className="bg-white/80 rounded-xl p-1.5 border border-rose-100/60">
+                      <span className="text-[9px] text-slate-400 block font-semibold">Avg Price</span>
+                      <span className="text-xs font-black text-[#FF5A1F]">₹{vaultAvgPrice}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Friday Wildcard Toggle */}
+                <div className="flex items-center justify-between bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl">
+                  <div className="flex items-center space-x-2">
+                    <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                    <span className="text-[11px] font-bold text-slate-700">
+                      Friday AI Discovery Wildcard
+                    </span>
+                  </div>
                   <button
-                    key={chip.id}
-                    onClick={() => toggleChip(chip.id)}
-                    className={`text-xs font-bold px-3 py-1.5 rounded-full border transition-all whitespace-nowrap cta-bounce ${
-                      active
-                        ? 'bg-white border-[#FF5A1F] text-[#FF5A1F] shadow-2xs'
-                        : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
+                    type="button"
+                    onClick={() => {
+                      playPop();
+                      setFridayWildcard(!fridayWildcard);
+                    }}
+                    className={`w-9 h-5 rounded-full transition-colors relative p-0.5 ${
+                      fridayWildcard ? 'bg-[#FF5A1F]' : 'bg-slate-300'
                     }`}
                   >
-                    {chip.label}
+                    <div
+                      className={`w-4 h-4 rounded-full bg-white transition-transform ${
+                        fridayWildcard ? 'translate-x-4' : 'translate-x-0'
+                      }`}
+                    />
                   </button>
-                );
-              })}
-            </div>
-
-            {/* Solid Orange CTA: Re-plan open days */}
-            <button
-              onClick={handleGenerateAI}
-              disabled={isLoading}
-              className="w-full bg-[#FF5A1F] hover:bg-[#E04812] text-white font-extrabold text-xs py-3 px-4 rounded-2xl shadow-md transition-all active:scale-[0.98] cta-bounce flex items-center justify-center space-x-2"
-            >
-              {isLoading ? (
-                <div className="flex items-center space-x-2">
-                  <RefreshCw className="w-4 h-4 animate-spin" />
-                  <span>Re-planning your open days...</span>
                 </div>
-              ) : (
-                <>
-                  <Wand2 className="w-4 h-4" />
-                  <span>Re-plan open days</span>
-                </>
-              )}
-            </button>
+
+                {/* Vault CTA Button */}
+                <button
+                  onClick={handleShuffleVaultSchedule}
+                  disabled={isLoading}
+                  className="w-full bg-gradient-to-r from-rose-500 to-[#FF5A1F] hover:from-rose-600 hover:to-[#E04812] text-white font-extrabold text-xs py-3 px-4 rounded-2xl shadow-md transition-all active:scale-[0.98] cta-bounce flex items-center justify-center space-x-2"
+                >
+                  {isLoading ? (
+                    <div className="flex items-center space-x-2">
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                      <span>Rotating Vault Schedule...</span>
+                    </div>
+                  ) : (
+                    <>
+                      <Heart className="w-4 h-4 fill-white" />
+                      <span>Auto-Shuffle from Vault ({vaultIds.length} Dishes)</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
           </div>
+
+          {/* Active Drag-and-Drop Banner Indicator */}
+          {draggedDayIndex !== null && (
+            <div className="bg-amber-100/90 border border-amber-300 rounded-2xl p-2.5 text-center text-xs font-bold text-amber-900 animate-pulse flex items-center justify-center space-x-2 shadow-xs">
+              <GripVertical className="w-4 h-4 text-amber-700" />
+              <span>
+                Dragging <strong>{playlist[draggedDayIndex]?.day}</strong>'s meal. Drop on any other day card to swap days!
+              </span>
+            </div>
+          )}
 
           {/* 2. Meal Cards List (Matching Screenshot Design Language) */}
           <div className="space-y-3.5">
@@ -468,46 +617,92 @@ export default function AutoPilotTab({
                 const isSkipped = dayItem.status === 'skipped';
                 const isFriday = idx === 4;
                 const isJustSwapped = justSwappedDay === idx;
+                const isBeingDragged = draggedDayIndex === idx;
+                const isDragOverTarget = dragOverDayIndex === idx && draggedDayIndex !== null && draggedDayIndex !== idx;
 
                 return (
                   <div
                     key={dayItem.day}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      if (draggedDayIndex !== null && draggedDayIndex !== idx) {
+                        setDragOverDayIndex(idx);
+                      }
+                    }}
+                    onDragLeave={() => {
+                      if (dragOverDayIndex === idx) setDragOverDayIndex(null);
+                    }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      if (draggedDayIndex !== null) {
+                        handleShiftMeal(draggedDayIndex, idx);
+                      }
+                    }}
                     className={`bg-white rounded-3xl p-4 border transition-all shadow-xs space-y-3 relative overflow-hidden ${
-                      isSkipped
+                      isBeingDragged
+                        ? 'opacity-40 border-[#FF5A1F] border-dashed ring-2 ring-[#FF5A1F]/30 scale-[0.98]'
+                        : isDragOverTarget
+                        ? 'border-2 border-dashed border-[#FF5A1F] bg-orange-50/70 ring-4 ring-[#FF5A1F]/20 scale-[1.01]'
+                        : isSkipped
                         ? 'opacity-60 border-slate-300 bg-slate-50/60'
                         : isJustSwapped
                         ? 'border-[#10B981] ring-2 ring-[#10B981]/20 shadow-md'
                         : 'border-slate-200/90 hover:border-slate-300'
                     }`}
                   >
-                    {/* Header Row: Date & 1-Click Location Pill */}
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-slate-700">
-                        {dayItem.dayCode}, {dayItem.dateStr}
-                      </span>
+                    {/* Visual Drop Target Overlay Banner */}
+                    {isDragOverTarget && (
+                      <div className="absolute inset-0 bg-[#FF5A1F]/10 backdrop-blur-[1px] flex items-center justify-center z-10 rounded-3xl border-2 border-dashed border-[#FF5A1F] pointer-events-none">
+                        <div className="bg-[#FF5A1F] text-white text-xs font-black px-4 py-2 rounded-2xl shadow-lg flex items-center space-x-2 animate-bounce">
+                          <ArrowRightLeft className="w-4 h-4" />
+                          <span>Drop here to swap with {playlist[draggedDayIndex]?.dayCode}!</span>
+                        </div>
+                      </div>
+                    )}
 
-                      {/* 1-Click Location Flip Button */}
+                    {/* Header Row: Date & VISIBLY CLICKABLE Location CTA */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-xs font-extrabold text-slate-800">
+                          {dayItem.dayCode}, {dayItem.dateStr}
+                        </span>
+                        {dayItem.isVaultScheduled && (
+                          <span className="text-[9px] font-black text-rose-600 bg-rose-50 border border-rose-200 px-1.5 py-0.2 rounded-full flex items-center space-x-0.5">
+                            <Heart className="w-2.5 h-2.5 fill-current" />
+                            <span>Vault</span>
+                          </span>
+                        )}
+                      </div>
+
+                      {/* REDESIGNED VISIBLY CLICKABLE LOCATION CTA BUTTON */}
                       <button
                         type="button"
                         onClick={() => toggleDayLocation(idx)}
-                        title="1-tap to flip between Home and Office"
-                        className={`px-3 py-1 rounded-full text-[11px] font-extrabold flex items-center space-x-1.5 transition-all active:scale-95 border cta-bounce ${
+                        title="Click to flip between Home and Office"
+                        className={`group relative flex items-center space-x-1.5 py-1.5 px-3 rounded-full text-[11px] font-extrabold border transition-all shadow-xs hover:shadow-sm active:scale-95 cursor-pointer cta-bounce ${
                           isHome
-                            ? 'bg-[#ECFDF5] text-[#059669] border-[#A7F3D0] hover:bg-[#D1FAE5]'
-                            : 'bg-[#FFF7ED] text-[#C2410C] border-[#FFEDD5] hover:bg-[#FFEDD5]'
+                            ? 'bg-[#ECFDF5] text-[#065F46] border-[#6EE7B7] hover:bg-[#D1FAE5] hover:border-[#34D399]'
+                            : 'bg-[#FFF7ED] text-[#9A3412] border-[#FDBA74] hover:bg-[#FFEDD5] hover:border-[#FB923C]'
                         }`}
                       >
-                        {isHome ? (
-                          <>
-                            <Home className="w-3.5 h-3.5" />
-                            <span>Green Valley Apt</span>
-                          </>
-                        ) : (
-                          <>
-                            <Building2 className="w-3.5 h-3.5" />
-                            <span>Cyber Park Tower B</span>
-                          </>
-                        )}
+                        <span className="flex items-center space-x-1">
+                          {isHome ? (
+                            <Home className="w-3.5 h-3.5 text-emerald-600 group-hover:scale-110 transition-transform" />
+                          ) : (
+                            <Building2 className="w-3.5 h-3.5 text-orange-600 group-hover:scale-110 transition-transform" />
+                          )}
+                          <span className="font-extrabold">{isHome ? 'Green Valley Apt' : 'Cyber Park Tower B'}</span>
+                        </span>
+
+                        {/* Interactive Flip Tag with icon */}
+                        <span className={`inline-flex items-center space-x-0.5 text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-full border shadow-2xs transition-transform group-hover:scale-105 ${
+                          isHome
+                            ? 'bg-white text-emerald-700 border-emerald-300'
+                            : 'bg-white text-orange-700 border-orange-300'
+                        }`}>
+                          <ArrowRightLeft className="w-2.5 h-2.5" />
+                          <span>Flip</span>
+                        </span>
                       </button>
                     </div>
 
@@ -591,12 +786,13 @@ export default function AutoPilotTab({
                       )}
                     </div>
 
-                    {/* Move / Shift Drawer (if active) */}
+                    {/* Move / Shift Drawer (Tap-friendly alternate for Drag-and-Drop) */}
                     {activeShiftDay === idx && (
                       <div className="p-2.5 bg-gradient-to-r from-orange-50 to-amber-50 rounded-2xl border border-[#FF5A1F]/30 space-y-1.5 animate-in fade-in duration-150">
                         <div className="flex items-center justify-between text-[10px]">
-                          <span className="font-extrabold text-slate-900">
-                            Move {dayItem.day}'s meal to:
+                          <span className="font-extrabold text-slate-900 flex items-center space-x-1">
+                            <GripVertical className="w-3.5 h-3.5 text-[#FF5A1F]" />
+                            <span>Drag the "Move" button or tap a day to swap:</span>
                           </span>
                           <button
                             onClick={() => setActiveShiftDay(null)}
@@ -634,31 +830,43 @@ export default function AutoPilotTab({
                       </div>
                     )}
 
-                    {/* Bottom 3-Action Toolbar (Exact 3-column split from screenshot) */}
+                    {/* Bottom 3-Action Toolbar (EXACT CTAs: Swap, Move, Skip) */}
                     <div className="grid grid-cols-3 divide-x divide-slate-200 border-t border-slate-200/90 -mx-4 -mb-4 mt-2">
-                      {/* 1. Swap (Opens 4-5 alternative choices) */}
+                      {/* 1. Swap (Opens 4-5 alternative choices, including Vault items) */}
                       <button
                         type="button"
                         onClick={() => {
                           playPop();
                           setMultiSwapModalDay(idx);
                         }}
-                        className="py-2.5 text-xs font-bold text-slate-700 hover:text-[#FF5A1F] hover:bg-slate-50/80 rounded-bl-3xl flex items-center justify-center space-x-1.5 transition-colors active:scale-95 cta-bounce"
+                        className="py-2.5 text-xs font-bold text-slate-700 hover:text-[#FF5A1F] hover:bg-slate-50/80 rounded-bl-3xl flex items-center justify-center space-x-1.5 transition-colors active:scale-95 cta-bounce cursor-pointer"
                       >
                         <Repeat className="w-3.5 h-3.5 text-slate-500" />
                         <span>Swap</span>
                       </button>
 
-                      {/* 2. Move (Day Shifter) */}
+                      {/* 2. Move (DRAG-AND-DROP CONTROLLER WITH GRIP ICON) */}
                       <button
                         type="button"
+                        draggable={true}
+                        onDragStart={(e) => {
+                          playPop();
+                          e.dataTransfer.setData('text/plain', String(idx));
+                          e.dataTransfer.effectAllowed = 'move';
+                          setDraggedDayIndex(idx);
+                        }}
+                        onDragEnd={() => {
+                          setDraggedDayIndex(null);
+                          setDragOverDayIndex(null);
+                        }}
                         onClick={() => {
                           playPop();
                           setActiveShiftDay(activeShiftDay === idx ? null : idx);
                         }}
-                        className="py-2.5 text-xs font-bold text-slate-700 hover:text-[#FF5A1F] hover:bg-slate-50/80 flex items-center justify-center space-x-1.5 transition-colors active:scale-95 cta-bounce"
+                        title="Drag this button to drop onto another day, or tap to choose"
+                        className="group py-2.5 text-xs font-bold text-slate-700 hover:text-[#FF5A1F] hover:bg-orange-50/60 flex items-center justify-center space-x-1.5 transition-colors active:scale-95 cta-bounce cursor-grab active:cursor-grabbing select-none"
                       >
-                        <ArrowRightLeft className="w-3.5 h-3.5 text-slate-500" />
+                        <GripVertical className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#FF5A1F] transition-colors" />
                         <span>Move</span>
                       </button>
 
@@ -666,7 +874,7 @@ export default function AutoPilotTab({
                       <button
                         type="button"
                         onClick={() => handleSkipDay(idx)}
-                        className={`py-2.5 text-xs font-bold transition-colors active:scale-95 rounded-br-3xl flex items-center justify-center space-x-1.5 cta-bounce ${
+                        className={`py-2.5 text-xs font-bold transition-colors active:scale-95 rounded-br-3xl flex items-center justify-center space-x-1.5 cta-bounce cursor-pointer ${
                           isSkipped
                             ? 'text-emerald-700 bg-emerald-50 hover:bg-emerald-100'
                             : 'text-slate-700 hover:text-amber-600 hover:bg-slate-50/80'
@@ -693,25 +901,25 @@ export default function AutoPilotTab({
               <button
                 onClick={() => {
                   playPop();
-                  setSchedulerMode('vault');
+                  setPlannerMode('vault');
                 }}
                 className={`py-2.5 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all ${
-                  schedulerMode === 'vault'
+                  plannerMode === 'vault'
                     ? 'bg-rose-500 text-white shadow-md'
                     : 'text-slate-300 hover:text-white hover:bg-slate-800'
                 }`}
               >
-                <Heart className={`w-3.5 h-3.5 ${schedulerMode === 'vault' ? 'fill-white text-white' : 'text-rose-400'}`} />
+                <Heart className={`w-3.5 h-3.5 ${plannerMode === 'vault' ? 'fill-white text-white' : 'text-rose-400'}`} />
                 <span>My Food Vault ({vaultIds.length}/20)</span>
               </button>
 
               <button
                 onClick={() => {
                   playPop();
-                  setSchedulerMode('ai');
+                  setPlannerMode('ai');
                 }}
                 className={`py-2.5 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all ${
-                  schedulerMode === 'ai'
+                  plannerMode === 'ai'
                     ? 'bg-orange-500 text-white shadow-md'
                     : 'text-slate-300 hover:text-white hover:bg-slate-800'
                 }`}
@@ -723,7 +931,7 @@ export default function AutoPilotTab({
           </div>
 
           {/* Mode B Surface: My Food Vault Controller */}
-          {schedulerMode === 'vault' ? (
+          {plannerMode === 'vault' ? (
             <div className="bg-gradient-to-br from-rose-50/80 via-white to-orange-50/60 rounded-2xl p-4 border border-rose-200 shadow-sm space-y-3">
               <div className="flex items-start justify-between">
                 <div>
@@ -748,153 +956,152 @@ export default function AutoPilotTab({
                     playPop();
                     setIsVaultModalOpen(true);
                   }}
-                  className="bg-white hover:bg-rose-50 text-rose-600 border border-rose-300 hover:border-rose-400 text-[11px] font-extrabold px-2.5 py-1.5 rounded-xl shadow-xs transition-all flex items-center gap-1 shrink-0"
+                  className="bg-white border border-rose-200 text-rose-600 hover:bg-rose-50 font-bold text-xs px-3 py-1.5 rounded-xl shadow-2xs flex items-center gap-1 transition-all"
                 >
-                  <Plus className="w-3 h-3" />
-                  <span>Manage Vault</span>
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Manage</span>
                 </button>
               </div>
 
-              {/* Quick Metrics Bar across the Vault */}
-              <div className="grid grid-cols-3 gap-2 bg-white/90 p-2.5 rounded-xl border border-rose-100 text-center text-[10px]">
+              {/* Live Vault Macro & Budget Stats */}
+              <div className="grid grid-cols-3 gap-2 bg-white/80 p-2.5 rounded-xl border border-rose-100 text-center">
                 <div>
-                  <span className="text-slate-400 block font-medium">Avg Calories</span>
-                  <strong className="text-slate-800 font-extrabold text-xs">{vaultAvgKcal} kcal</strong>
-                </div>
-                <div className="border-x border-slate-100">
-                  <span className="text-slate-400 block font-medium">Avg Protein</span>
-                  <strong className="text-amber-600 font-extrabold text-xs">{vaultAvgProtein}g</strong>
+                  <span className="text-[9px] text-slate-400 block font-semibold">Avg Cal</span>
+                  <span className="text-xs font-black text-slate-800">{vaultAvgKcal} kcal</span>
                 </div>
                 <div>
-                  <span className="text-slate-400 block font-medium">Avg Dish Price</span>
-                  <strong className="text-emerald-700 font-extrabold text-xs">₹{vaultAvgPrice}</strong>
+                  <span className="text-[9px] text-slate-400 block font-semibold">Avg Protein</span>
+                  <span className="text-xs font-black text-emerald-600">{vaultAvgProtein}g P</span>
+                </div>
+                <div>
+                  <span className="text-[9px] text-slate-400 block font-semibold">Avg Price</span>
+                  <span className="text-xs font-black text-[#FF5A1F]">₹{vaultAvgPrice}</span>
                 </div>
               </div>
 
               {/* Friday Wildcard Toggle */}
-              <div className="flex items-center justify-between pt-1 text-xs">
-                <div className="flex items-center gap-1.5 text-slate-700">
-                  <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                  <span className="font-semibold text-[11px]">Friday AI Discovery Wildcard (1 surprise chef treat)</span>
+              <div className="flex items-center justify-between bg-white/90 p-2 rounded-xl border border-rose-100 text-xs">
+                <div className="flex items-center gap-1.5">
+                  <Dice5 className="w-4 h-4 text-amber-500" />
+                  <div>
+                    <span className="font-bold text-slate-800 block text-[11px]">
+                      Friday AI Discovery Wildcard
+                    </span>
+                    <span className="text-[9px] text-slate-500">
+                      Try 1 highly rated surprise dish outside your vault
+                    </span>
+                  </div>
                 </div>
                 <button
-                  type="button"
                   onClick={() => {
                     playPop();
                     setFridayWildcard(!fridayWildcard);
                   }}
-                  className={`w-9 h-5 flex items-center rounded-full p-0.5 transition-colors ${
+                  className={`w-9 h-5 rounded-full transition-colors relative p-0.5 ${
                     fridayWildcard ? 'bg-orange-500' : 'bg-slate-300'
                   }`}
                 >
                   <div
-                    className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${
+                    className={`w-4 h-4 rounded-full bg-white transition-transform ${
                       fridayWildcard ? 'translate-x-4' : 'translate-x-0'
                     }`}
                   />
                 </button>
               </div>
 
-              {/* Re-shuffle CTA */}
+              {/* 1-Click Vault Shuffle Action */}
               <button
                 onClick={handleShuffleVaultSchedule}
                 disabled={isLoading}
-                className="w-full bg-rose-500 hover:bg-rose-600 text-white font-extrabold text-xs py-2.5 rounded-xl shadow-md transition-all active:scale-[0.98] flex items-center justify-center gap-1.5"
+                className="w-full bg-gradient-to-r from-rose-500 to-orange-500 hover:from-rose-600 hover:to-orange-600 text-white font-extrabold text-xs py-3 px-4 rounded-xl shadow-md transition-all active:scale-[0.98] cta-bounce flex items-center justify-center gap-2"
               >
-                <Dice5 className="w-4 h-4" />
-                <span>Auto-Shuffle 5-Day Plan from My Vault</span>
+                {isLoading ? (
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Heart className="w-4 h-4 fill-white" />
+                )}
+                <span>Auto-Shuffle from 20 Approved Vault Dishes</span>
               </button>
             </div>
           ) : (
-            /* Mode A Surface: AI Auto-Pilot Controller */
-            <div className="bg-gradient-to-br from-orange-50/80 via-white to-amber-50/40 rounded-2xl p-4 border border-orange-200/80 shadow-sm space-y-3">
+            /* Mode A Surface: AI Natural Language Box */
+            <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm space-y-3">
               <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-1.5">
-                  <Sparkles className="w-4 h-4 text-[#FF5A1F]" />
-                  <h2 className="text-sm font-extrabold text-slate-900 tracking-tight">
-                    AI Meal Playlist Auto-Pilot
+                <div className="flex items-center gap-1.5">
+                  <ChefHat className="w-4 h-4 text-orange-500" />
+                  <h2 className="text-sm font-extrabold text-slate-900">
+                    What are you craving this week?
                   </h2>
                 </div>
-                <span className="text-[10px] font-bold bg-[#FF5A1F]/10 text-[#FF5A1F] px-2 py-0.5 rounded-full border border-[#FF5A1F]/20">
-                  5-Day Discovery
-                </span>
+                <span className="text-[10px] text-slate-400 font-medium">Prompt AI</span>
               </div>
 
-              {/* Dynamic AI Prompt Box */}
               <div className="relative">
                 <textarea
                   value={promptText}
                   onChange={(e) => setPromptText(e.target.value)}
                   rows={2}
-                  className="w-full text-xs p-2.5 rounded-xl border border-slate-200 bg-white shadow-xs focus:ring-2 focus:ring-[#FF5A1F]/40 focus:border-[#FF5A1F] text-slate-800 placeholder-slate-400 font-medium leading-relaxed resize-none transition-all"
-                  placeholder="E.g., High-protein veg lunches under 500 kcal, no mushrooms, under ₹250/meal"
+                  className="w-full p-2.5 text-xs text-slate-800 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 resize-none font-medium"
+                  placeholder="e.g. High protein, North Indian lunches under 500 kcal..."
                 />
               </div>
 
-              {/* Preset Filter Chips */}
-              <div className="flex flex-wrap gap-1.5">
+              <div className="flex items-center gap-1.5 overflow-x-auto py-1 hide-scrollbar">
                 {FILTER_CHIPS.map((chip) => {
                   const active = activeChips.includes(chip.id);
                   return (
                     <button
                       key={chip.id}
                       onClick={() => toggleChip(chip.id)}
-                      className={`text-[10px] font-bold px-2.5 py-1 rounded-full transition-all active:scale-95 flex items-center space-x-1 ${
+                      className={`text-[10px] font-bold px-2.5 py-1 rounded-full border transition-all whitespace-nowrap cta-bounce ${
                         active
-                          ? 'bg-[#FF5A1F] text-white shadow-xs'
-                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                          ? 'bg-orange-50 border-orange-300 text-orange-700 shadow-2xs'
+                          : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
                       }`}
                     >
-                      {active && <Check className="w-2.5 h-2.5 stroke-[3]" />}
-                      <span>{chip.label}</span>
+                      {chip.label}
                     </button>
                   );
                 })}
               </div>
 
-              {/* Generate Button */}
               <button
                 onClick={handleGenerateAI}
                 disabled={isLoading}
                 className="w-full bg-[#FF5A1F] hover:bg-[#E04812] text-white font-bold text-xs py-2.5 px-4 rounded-xl shadow-md transition-all active:scale-[0.98] cta-bounce flex items-center justify-center space-x-1.5"
               >
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>Generate 5-Day Auto-Pilot Plan</span>
+                {isLoading ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    <span>Re-planning meals...</span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4" />
+                    <span>Generate AI Balanced Week</span>
+                  </>
+                )}
               </button>
             </div>
           )}
 
-          {/* Weekday Schedule List (Classic V1) */}
-          <div className="space-y-2.5">
-            <div className="flex items-center justify-between px-1">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                {schedulerMode === 'vault' ? '💖 Vault Weekly Schedule' : '🤖 AI Curated Schedule'}
-              </h3>
-              <span className="text-[10px] text-slate-500 font-medium">
-                Tap Swap ↻ or Move ⠿
-              </span>
-            </div>
-
+          {/* V1 Playlist Cards */}
+          <div className="space-y-3">
             {playlist.map((dayItem, idx) => {
               const currentMeal = dayItem.options[dayItem.currentIdx] || dayItem.options[0];
-              const isVaultItem = dayItem.isVaultScheduled ?? (schedulerMode === 'vault' && idx !== 4);
-              const isWildcardItem = dayItem.isWildcard ?? (schedulerMode === 'vault' && idx === 4 && fridayWildcard);
+              const isVaultItem = dayItem.isVaultScheduled;
+              const isWildcard = dayItem.isWildcard;
 
               return (
                 <div
                   key={dayItem.day}
-                  className="bg-white rounded-2xl p-3 border border-slate-200/90 shadow-xs space-y-2"
+                  className="bg-white rounded-2xl p-3.5 border border-slate-200 shadow-2xs space-y-2.5"
                 >
-                  <div className="flex items-center justify-between pb-1.5 border-b border-slate-100">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-slate-900">{dayItem.day}</span>
                     <div className="flex items-center space-x-1.5">
-                      <span className="text-xs font-extrabold text-slate-900">{dayItem.day}</span>
-                      <span className="text-[10px] text-slate-500">• {dayItem.dateStr}</span>
-                      <span className="text-[10px] text-slate-600 font-semibold">• {dayItem.slot}</span>
-                    </div>
-
-                    <div className="flex items-center space-x-1.5">
-                      {isWildcardItem ? (
-                        <span className="text-[9px] font-extrabold bg-amber-100 text-amber-800 border border-amber-300 px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
+                      {isWildcard ? (
+                        <span className="text-[9px] font-extrabold bg-amber-100 text-amber-800 border border-amber-200 px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
                           <Sparkles className="w-2.5 h-2.5" /> Wildcard
                         </span>
                       ) : isVaultItem ? (
@@ -909,7 +1116,7 @@ export default function AutoPilotTab({
 
                       <button
                         onClick={() => toggleDayLocation(idx)}
-                        className={`text-[9px] font-bold px-2 py-0.5 rounded-full border ${
+                        className={`text-[9px] font-bold px-2 py-0.5 rounded-full border cursor-pointer ${
                           dayItem.location === 'office'
                             ? 'bg-blue-50 text-blue-700 border-blue-200'
                             : 'bg-emerald-50 text-emerald-700 border-emerald-200'
@@ -941,7 +1148,7 @@ export default function AutoPilotTab({
                     </span>
                     <button
                       onClick={() => setMultiSwapModalDay(idx)}
-                      className="text-[10px] font-extrabold text-[#FF5A1F] hover:underline"
+                      className="text-[10px] font-extrabold text-[#FF5A1F] hover:underline cursor-pointer"
                     >
                       Swap Dish ↻
                     </button>
@@ -954,11 +1161,11 @@ export default function AutoPilotTab({
       )}
 
       {/* ======================================================== */}
-      {/* 4–5 OPTION SWAP MODAL / BOTTOM SHEET                     */}
+      {/* 4–5 OPTION SWAP MODAL / BOTTOM SHEET WITH VAULT FILTER   */}
       {/* ======================================================== */}
       {multiSwapModalDay !== null && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-end justify-center p-0 animate-in fade-in duration-150">
-          <div className="w-full max-w-[420px] bg-white rounded-t-3xl p-4 space-y-3.5 max-h-[85vh] overflow-y-auto animate-in slide-in-from-bottom duration-200 shadow-2xl">
+          <div className="w-full max-w-[420px] bg-white rounded-t-3xl p-4 space-y-3 max-h-[85vh] overflow-y-auto animate-in slide-in-from-bottom duration-200 shadow-2xl">
             {/* Modal Header */}
             <div className="flex items-center justify-between pb-2 border-b border-slate-100">
               <div>
@@ -971,17 +1178,55 @@ export default function AutoPilotTab({
               </div>
               <button
                 onClick={() => setMultiSwapModalDay(null)}
-                className="p-1 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+                className="p-1 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
+            {/* Source Filter Tabs: Curated vs My Vault */}
+            <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-bold">
+              <button
+                type="button"
+                onClick={() => {
+                  playPop();
+                  setSwapModalFilter('curated');
+                }}
+                className={`flex-1 py-1.5 rounded-lg transition-all flex items-center justify-center space-x-1 ${
+                  swapModalFilter === 'curated'
+                    ? 'bg-white text-slate-900 font-extrabold shadow-2xs'
+                    : 'text-slate-500 hover:text-slate-700'
+                }`}
+              >
+                <Sparkles className="w-3.5 h-3.5 text-[#FF5A1F]" />
+                <span>Chef Curated (5)</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  playPop();
+                  setSwapModalFilter('vault');
+                }}
+                className={`flex-1 py-1.5 rounded-lg transition-all flex items-center justify-center space-x-1 ${
+                  swapModalFilter === 'vault'
+                    ? 'bg-rose-500 text-white font-extrabold shadow-2xs'
+                    : 'text-slate-500 hover:text-slate-700'
+                }`}
+              >
+                <Heart className="w-3.5 h-3.5 fill-current" />
+                <span>From My Vault ({vaultDishes.length})</span>
+              </button>
+            </div>
+
             <p className="text-[11px] text-slate-500">
-              Select one of the <strong>5 chef-curated alternatives</strong> under your ₹250 pass cap:
+              {swapModalFilter === 'vault' ? (
+                <span>Pick from your <strong>pre-approved favorite vault dishes</strong>:</span>
+              ) : (
+                <span>Select one of the <strong>5 chef-curated alternatives</strong> under your ₹250 pass cap:</span>
+              )}
             </p>
 
-            {/* List of 5 Alternative Dishes */}
+            {/* List of Alternative Dishes */}
             <div className="space-y-2">
               {getSwapCandidates(playlist[multiSwapModalDay]?.options[playlist[multiSwapModalDay]?.currentIdx]?.id).map((candidate) => (
                 <div
@@ -1002,6 +1247,12 @@ export default function AutoPilotTab({
                         <span className="text-[8px] font-bold bg-[#ECFDF5] text-[#10B981] px-1.5 py-0.2 rounded">
                           Veg
                         </span>
+                        {vaultIds.includes(candidate.id) && (
+                          <span className="text-[8px] font-bold bg-rose-50 text-rose-600 border border-rose-200 px-1 py-0.2 rounded flex items-center gap-0.5">
+                            <Heart className="w-2 h-2 fill-current" />
+                            <span>Vault</span>
+                          </span>
+                        )}
                       </div>
 
                       <div className="flex items-center space-x-1 text-[10px] text-slate-500 mt-0.5">
@@ -1034,7 +1285,7 @@ export default function AutoPilotTab({
                         e.stopPropagation();
                         handleSelectSwapDish(multiSwapModalDay, candidate);
                       }}
-                      className="bg-[#FF5A1F] hover:bg-[#E04812] text-white font-extrabold text-[10px] px-2.5 py-1 rounded-lg shadow-xs transition-all active:scale-95"
+                      className="bg-[#FF5A1F] hover:bg-[#E04812] text-white font-extrabold text-[10px] px-2.5 py-1 rounded-lg shadow-xs transition-all active:scale-95 cursor-pointer"
                     >
                       Swap ➔
                     </button>
@@ -1059,7 +1310,7 @@ export default function AutoPilotTab({
 
         <button
           onClick={handleLockIn}
-          className="w-full bg-[#FF5A1F] hover:bg-[#E04812] text-white font-bold text-xs py-2 px-4 rounded-xl shadow-md transition-all active:scale-[0.97] cta-bounce flex items-center justify-center space-x-1.5"
+          className="w-full bg-[#FF5A1F] hover:bg-[#E04812] text-white font-bold text-xs py-2 px-4 rounded-xl shadow-md transition-all active:scale-[0.97] cta-bounce flex items-center justify-center space-x-1.5 cursor-pointer"
         >
           <span>Lock In Weekly Playlist</span>
           <ChevronRight className="w-4 h-4" />
