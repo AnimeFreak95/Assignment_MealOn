@@ -48,7 +48,8 @@ export default function AutoPilotTab({
   setPlaylist,
   onLockInPlaylist,
   triggerConfetti,
-  onNotify
+  onNotify,
+  paymentMode = 'prepaid'
 }) {
   // Planner Mode: 'ai' vs 'vault'
   const [plannerMode, setPlannerMode] = useState('ai');
@@ -274,11 +275,19 @@ export default function AutoPilotTab({
     if (onNotify) {
       if (!isCurrentlySkipped) {
         const dishPrice = playlist[dayIndex]?.options[playlist[dayIndex]?.currentIdx]?.price || 190;
-        onNotify(
-          `${playlist[dayIndex].day} Lunch Skipped 🛡️`,
-          `₹${dishPrice} meal credit safely preserved in your MealsOn Balance.`,
-          'success'
-        );
+        if (paymentMode === 'prepaid') {
+          onNotify(
+            `${playlist[dayIndex].day} Lunch Skipped 🛡️`,
+            `₹${dishPrice} preserved in MealsOn Balance • Valid 60 days on renewal.`,
+            'success'
+          );
+        } else {
+          onNotify(
+            `${playlist[dayIndex].day} Debit Canceled! ⚡`,
+            `10 PM auto-debit canceled. ₹0 charged to bank (No wallet credit issued).`,
+            'info'
+          );
+        }
       } else {
         onNotify(
           'Meal Restored! 🥗',
@@ -1026,10 +1035,14 @@ export default function AutoPilotTab({
                           <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
                           <div>
                             <span className="text-xs font-black text-emerald-950 block leading-tight">
-                              Meal Skipped • ₹{currentMeal.price} Saved
+                              {paymentMode === 'prepaid'
+                                ? `Meal Skipped • ₹${currentMeal.price} Saved`
+                                : '10 PM Debit Canceled • ₹0 Charged'}
                             </span>
                             <span className="text-[10px] font-medium text-emerald-700">
-                              Credited to your MealsOn Balance • Valid across your 20-day pass buffer.
+                              {paymentMode === 'prepaid'
+                                ? 'Credited to MealsOn Balance • Valid 60 days on renewal (max 25% offset).'
+                                : 'Per-meal mandate auto-debit canceled for this day.'}
                             </span>
                           </div>
                         </div>
@@ -1091,7 +1104,7 @@ export default function AutoPilotTab({
                           className="py-3 text-xs font-bold transition-colors active:scale-95 rounded-br-3xl flex items-center justify-center space-x-1.5 cta-bounce cursor-pointer text-slate-700 hover:text-amber-600 hover:bg-slate-50/80"
                         >
                           <SkipForward className="w-3.5 h-3.5 text-slate-500" />
-                          <span>Skip</span>
+                          <span>{paymentMode === 'prepaid' ? 'Skip & Bank' : 'Skip (₹0)'}</span>
                         </button>
                       </div>
                     )}
@@ -1497,7 +1510,11 @@ export default function AutoPilotTab({
                 >
                   <SkipForward className="w-3.5 h-3.5 text-slate-500" />
                   <span>
-                    {playlist[selectedCalendarDay].status === 'skipped' ? 'Restore Meal' : 'Skip & Bank Credit'}
+                    {playlist[selectedCalendarDay].status === 'skipped'
+                      ? 'Restore Meal'
+                      : paymentMode === 'prepaid'
+                      ? 'Skip & Bank ₹190'
+                      : 'Skip & Pay ₹0 (Cancel Debit)'}
                   </span>
                 </button>
 
