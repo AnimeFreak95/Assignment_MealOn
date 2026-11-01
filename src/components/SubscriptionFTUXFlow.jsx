@@ -15,7 +15,8 @@ import {
   CheckCircle2,
   Calendar,
   Lock,
-  ArrowRight
+  ArrowRight,
+  Receipt
 } from 'lucide-react';
 import { playPop, playSuccessChime, playCelebrationFanfare } from '../utils/audioDelight';
 
@@ -425,33 +426,81 @@ export default function SubscriptionFTUXFlow({ onCompleteActivation, onClose }) 
             </p>
           </div>
 
-          {/* D. Live Savings Receipt Card (Visual Design Language) */}
-          <div className="bg-[#F0FDF4] border border-dashed border-[#BBF7D0] rounded-2xl p-3 text-xs text-slate-800 space-y-1 shadow-xs">
-            <div className="flex items-center justify-between text-[11px] text-slate-600">
-              <span>{selectedDuration} Meals × ₹{selectedTier} Cap</span>
-              <span className="font-semibold tabular-nums">₹{baseCost}</span>
+          {/* D. Live Savings Receipt Card (Mathematically Accurate & Transparent UX) */}
+          <div className="bg-gradient-to-b from-[#F0FDF4] to-[#ECFDF5] border border-[#BBF7D0] rounded-2xl p-3.5 text-xs text-slate-800 space-y-2 shadow-xs">
+            {/* Header / Receipt Title */}
+            <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-wider text-emerald-800 pb-1.5 border-b border-[#BBF7D0]/70">
+              <span className="flex items-center space-x-1.5">
+                <Receipt className="w-3.5 h-3.5 text-emerald-700" />
+                <span>Pass Price Breakdown</span>
+              </span>
+              <span className="text-emerald-800 font-extrabold bg-emerald-100/90 border border-emerald-200/80 px-2 py-0.5 rounded-full">
+                {selectedDuration} Meals Plan
+              </span>
             </div>
 
+            {/* Line 1: Base Meals Value */}
+            <div className="flex items-center justify-between text-[11px] text-slate-700 font-medium">
+              <span>Meal Allowance ({selectedDuration} Meals × ₹{selectedTier} Cap)</span>
+              <span className="font-bold text-slate-900 tabular-nums">₹{baseCost}</span>
+            </div>
+
+            {/* Line 2: Pass Discount (Meal Discount) */}
             <div className="flex items-center justify-between text-[11px] text-emerald-700 font-semibold">
-              <span>Pass Discount ({durationObj.discountPct}%) + Free Delivery</span>
-              <span className="tabular-nums font-bold">- ₹{totalPocketSavings}</span>
+              <span>Pass Discount ({durationObj.discountPct}% OFF)</span>
+              <span className="tabular-nums font-bold">- ₹{discountAmount}</span>
             </div>
 
-            <div className="border-t border-[#BBF7D0] pt-1 mt-1 flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-900">Net Pass Price</span>
-              <span className="text-base font-extrabold text-slate-950 tabular-nums">
-                ₹{netPrice}
+            {/* Line 3: Delivery Charges (Waived via 30-min window batching) */}
+            <div className="flex items-center justify-between text-[11px] text-slate-600">
+              <span className="flex items-center space-x-1">
+                <span>Batch Delivery ({selectedDuration} drops)</span>
+                <span className="text-[9px] text-slate-400 font-normal">(@ ₹40)</span>
+              </span>
+              <div className="flex items-center space-x-1.5">
+                <span className="line-through text-slate-400 text-[10px] tabular-nums">₹{deliverySaved}</span>
+                <span className="text-[10px] font-black text-[#059669] bg-[#DCFCE7] border border-[#86EFAC] px-1.5 py-0.2 rounded-md uppercase">
+                  FREE
+                </span>
+              </div>
+            </div>
+
+            {/* Total / Net Pass Price */}
+            <div className="border-t border-[#BBF7D0] pt-2 mt-1 flex items-center justify-between">
+              <div>
+                <span className="text-xs font-black text-slate-900 block leading-tight">
+                  Net Pass Price
+                </span>
+                <span className="text-[10px] text-slate-500 font-medium">
+                  (₹{effectiveMealPrice}/meal all-inclusive)
+                </span>
+              </div>
+              <div className="text-right">
+                <span className="text-base font-black text-slate-950 tabular-nums">
+                  ₹{netPrice}
+                </span>
+              </div>
+            </div>
+
+            {/* Total Pocket Savings Banner (Transparent summary of both benefits) */}
+            <div className="bg-[#10B981]/10 border border-[#10B981]/30 rounded-xl p-2 px-2.5 text-[10px] text-emerald-950 font-bold flex items-center justify-between">
+              <span className="flex items-center space-x-1">
+                <span>🎉</span>
+                <span>Total Pocket Savings:</span>
+              </span>
+              <span className="text-emerald-800 font-black tabular-nums">
+                ₹{totalPocketSavings} (₹{discountAmount} off + ₹{deliverySaved} free delivery)
               </span>
             </div>
 
             {/* Visual Prepaid Bonus Callout */}
-            <div className="bg-white/90 border border-[#10B981]/30 rounded-xl p-1.5 px-2 text-[10px] text-emerald-900 font-bold flex items-center justify-between mt-1">
+            <div className="bg-white border border-[#10B981]/30 rounded-xl p-2 px-2.5 text-[10px] text-emerald-900 font-bold flex items-center justify-between">
               <span className="flex items-center">
                 <Zap className="w-3.5 h-3.5 text-amber-500 fill-amber-500 mr-1" />
                 Prepaid Bonus Perk:
               </span>
-              <span className="bg-[#ECFDF5] text-[#10B981] px-1.5 py-0.5 rounded font-extrabold">
-                +₹{bonusCredits} Extra Wallet Cash
+              <span className="bg-[#ECFDF5] text-[#10B981] px-1.5 py-0.5 rounded font-extrabold border border-emerald-200">
+                +₹{bonusCredits} Extra Wallet Cash (5%)
               </span>
             </div>
           </div>
