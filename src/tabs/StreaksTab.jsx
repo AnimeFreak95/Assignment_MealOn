@@ -502,11 +502,16 @@ export default function StreaksTab({ onNotify, triggerConfetti, onOpenWowModal }
               <Leaf className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-sm font-extrabold text-slate-900 leading-tight">
-                Impact & Savings Ledger 🌱
-              </h3>
+              <div className="flex items-center space-x-1.5">
+                <h3 className="text-sm font-extrabold text-slate-900 leading-tight">
+                  Impact & Savings Ledger 🌱
+                </h3>
+                <span className="text-[8px] font-extrabold uppercase bg-amber-100 text-amber-900 px-1.5 py-0.2 rounded border border-amber-300">
+                  Sample 3-Month Projection
+                </span>
+              </div>
               <p className="text-[10px] text-slate-500 font-medium">
-                Fuel, Cost & Carbon Saved via Batch Delivery
+                Compounding batching metrics based on 48 scheduled orders
               </p>
             </div>
           </div>
