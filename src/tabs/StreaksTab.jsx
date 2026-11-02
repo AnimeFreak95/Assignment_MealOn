@@ -97,7 +97,7 @@ export default function StreaksTab({
 
   // --- HABIT TREE STATE ---
   const [currentDay, setCurrentDay] = useState(4); // Default to Thu (4/5)
-  const [streakCompleted, setStreakCompleted] = useState(false);
+  const [hasSimulatedFridayMeal, setHasSimulatedFridayMeal] = useState(false);
   const [selectedReward, setSelectedReward] = useState(null);
   const [isSimulating, setIsSimulating] = useState(false);
   const [hasWednesdaySkip, setHasWednesdaySkip] = useState(true);
@@ -235,21 +235,25 @@ export default function StreaksTab({
     }
   };
 
+  const cleanFuelMealsLogged = (hasWednesdaySkip ? 3 : 4) + (hasSimulatedFridayMeal ? 1 : 0);
+  const workdaysCovered = Math.min(5, cleanFuelMealsLogged + (hasWednesdaySkip ? 1 : 0));
+  const isFridayRewardUnlocked = cleanFuelMealsLogged >= 4;
+
   // Habit Tree Handlers
   const handleSelectDay = (dayIndex) => {
     playPop();
     setCurrentDay(dayIndex);
-    if (dayIndex === 5) {
-      setStreakCompleted(true);
-      setShowSpinWheelModal(true);
-      playCelebrationFanfare();
-      if (triggerConfetti) triggerConfetti();
-      if (onNotify) {
-        onNotify('4/5 Milestone Reached! 🌸', 'Friday Lunch Roulette unlocked! Spin to claim your perk.', 'success');
-      }
-    } else {
-      setStreakCompleted(false);
-      setSelectedReward(null);
+  };
+
+  const handleSimulateFridayMeal = () => {
+    playSuccessChime();
+    setHasSimulatedFridayMeal(true);
+    setCurrentDay(5);
+    setShowSpinWheelModal(true);
+    playCelebrationFanfare();
+    if (triggerConfetti) triggerConfetti();
+    if (onNotify) {
+      onNotify('4 Clean Fuel Meals Logged! 🌸', 'Friday Lunch Roulette unlocked. Spin to reveal one of five possible perks.', 'success');
     }
   };
 
@@ -265,9 +269,9 @@ export default function StreaksTab({
     4: { title: 'Day 4 (Thu): Budding Canopy 🌸', subtitle: 'Lush green foliage with budding blossom clusters' },
     5: {
       title: hasWednesdaySkip ? 'Day 5 (Fri): Silver Bloom 🌸🎁' : 'Day 5 (Fri): Golden Blooming Bonsai 🌳✨',
-      subtitle: hasWednesdaySkip
-        ? '4/5 Flexible workweek complete! Friday treat unlocked'
-        : '5/5 Perfect clean week! Friday treat + ₹50 consistency bonus'
+      subtitle: isFridayRewardUnlocked
+        ? '4 Clean Fuel meals logged • Friday Lunch Roulette unlocked'
+        : 'One more Clean Fuel meal unlocks Friday Lunch Roulette'
     }
   };
 
@@ -290,6 +294,9 @@ export default function StreaksTab({
     time: '1.6 Hrs',
     timeSub: 'Zero lunch app browsing & delivery tracking'
   };
+  const impactPeriodLabel = impactTimeframe === 'allTime'
+    ? 'Sample cumulative projection'
+    : 'Sample monthly estimate';
 
   return (
     <div className="pb-36 px-4 pt-3 space-y-4 max-w-md mx-auto">
@@ -313,7 +320,7 @@ export default function StreaksTab({
           <Leaf className={`w-4 h-4 ${activeSubTab === 'tree' ? 'text-emerald-600' : 'text-slate-400'}`} />
           <span>My Habit Tree</span>
           <span className="text-[10px] bg-emerald-100 text-[#047857] px-1.5 py-0.2 rounded-full font-bold">
-            4/5
+            {workdaysCovered}/5
           </span>
         </button>
 
@@ -890,7 +897,7 @@ export default function StreaksTab({
       {activeSubTab === 'tree' && (
         <section aria-labelledby="habit-tree-section" className="space-y-4 animate-in fade-in duration-200">
           <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm space-y-3 relative overflow-hidden">
-            {streakCompleted && (
+            {hasSimulatedFridayMeal && (
               <div className="absolute top-0 right-0 bg-gradient-to-l from-[#FF5A1F]/30 via-emerald-400/20 to-transparent w-full h-1.5" />
             )}
 
@@ -904,23 +911,29 @@ export default function StreaksTab({
                     Healthy Week Habit Tree
                   </h2>
                   <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
-                    <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200/70">
-                      🌸 4 Meals Bloom
+                    <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200/70">
+                      🌸 {workdaysCovered}/5 Days Covered
                     </span>
-                    <span className="text-[10px] font-bold text-teal-800 bg-teal-50 px-1.5 py-0.5 rounded border border-teal-200/70" title="Clean Fuel meals sponsored by EatFit / Epigamia">
-                      🌱 3/4 Clean Fuel
+                    <span className="text-[11px] font-bold text-teal-800 bg-teal-50 px-1.5 py-0.5 rounded border border-teal-200/70" title="Clean Fuel meals sponsored by EatFit / Epigamia">
+                      🌱 {cleanFuelMealsLogged}/4 Clean Fuel Meals
                     </span>
-                    <span className="text-[10px] font-semibold text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded">
-                      🛡️ 1 Protected Skip
+                    <span className="text-[11px] font-semibold text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded">
+                      🛡️ {hasWednesdaySkip ? '1 Protected Skip' : '0 Protected Skips'}
                     </span>
                   </div>
                 </div>
               </div>
 
               <span className="text-xs font-extrabold px-2.5 py-0.5 rounded-full border bg-emerald-50 text-emerald-700 border-emerald-300">
-                {hasWednesdaySkip ? '4/5 Flexible' : '5/5 Full'}
+                {workdaysCovered}/5 Days
               </span>
             </div>
+            <p className="text-[11px] leading-relaxed text-slate-600">
+              {workdaysCovered}/5 workdays covered
+              {hasWednesdaySkip
+                ? ` · ${cleanFuelMealsLogged} Clean Fuel meals + 1 protected skip. The skip preserves your weekly streak but does not count toward the 4-meal reward.`
+                : ` · ${cleanFuelMealsLogged} Clean Fuel meals. Clean Fuel meals count toward the 4-meal reward.`}
+            </p>
 
             {/* Tree Growth SVG */}
             <div className="bg-gradient-to-b from-emerald-50/50 via-slate-50 to-white rounded-2xl p-4 border border-emerald-100 flex flex-col items-center justify-center min-h-[180px]">
@@ -929,7 +942,7 @@ export default function StreaksTab({
                   <SunMedium className="w-3.5 h-3.5 text-amber-500 mr-1 animate-spin" style={{ animationDuration: '12s' }} />
                   {treeStageLabels[currentDay].title}
                 </span>
-                <span className="text-xs text-slate-400 font-semibold">Step {currentDay} of 5</span>
+                <span className="text-xs text-slate-400 font-semibold">Selected day {currentDay} of 5</span>
               </div>
 
               {/* Dynamic Living Bonsai Tree Visual */}
@@ -1007,7 +1020,7 @@ export default function StreaksTab({
               </div>
 
               {/* Day stepper */}
-              <div className="flex items-center justify-between w-full pt-3 border-t border-slate-200">
+              <div className="flex items-center justify-between w-full pt-3 border-t border-slate-200" aria-label="Select a weekday to preview its tree stage">
                 {[
                   { day: 'Mon', num: 1 },
                   { day: 'Tue', num: 2 },
@@ -1022,7 +1035,15 @@ export default function StreaksTab({
                     <button
                       key={node.day}
                       onClick={() => handleSelectDay(node.num)}
-                      className="flex flex-col items-center group cursor-pointer"
+                      aria-pressed={isCurrent}
+                      aria-label={
+                        node.isShield
+                          ? `${node.day}, protected skip. Meal quota saved and weekly streak protected.`
+                          : node.isPayoff
+                          ? `${node.day}, Friday reward day. ${cleanFuelMealsLogged} of 4 Clean Fuel meals logged${isFridayRewardUnlocked ? ', reward unlocked' : ''}.`
+                          : `${node.day}, day ${node.num} of 5. Select to preview tree stage.`
+                      }
+                      className="flex min-w-[44px] min-h-[48px] flex-col items-center justify-center group cursor-pointer"
                     >
                       <div
                         className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
@@ -1035,23 +1056,31 @@ export default function StreaksTab({
                       >
                         {node.isShield ? <Shield className="w-3.5 h-3.5" /> : node.isPayoff ? <Gift className="w-3.5 h-3.5" /> : node.num}
                       </div>
-                      <span className="text-[10px] mt-1 font-bold text-slate-600">{node.day}</span>
+                      <span className="text-[11px] mt-1 font-bold text-slate-600">{node.day}</span>
                     </button>
                   );
                 })}
               </div>
 
-              {/* Gentle 1-Line Clean Fuel Incentive (Zero Cognitive Load) */}
-              <div className="mt-3 bg-emerald-50/80 border border-emerald-200/80 rounded-xl px-2.5 py-1.5 flex items-center justify-between text-xs">
-                <div className="flex items-center space-x-1.5 text-slate-700">
-                  <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                  <span className="text-[10px] leading-tight text-slate-700">
-                    <strong className="text-emerald-950 font-bold">Golden Bloom:</strong> 4 <span className="text-teal-800 font-bold">Clean Fuel</span> meals unlock sponsored Friday rewards!
+              <div className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1.5 border-t border-slate-200 pt-2 text-[10px] text-slate-600" aria-label="Weekday progress legend">
+                <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-emerald-600" />Meal day covered</span>
+                <span className="flex items-center gap-1.5"><Shield className="h-3 w-3 text-amber-600" />Protected skip</span>
+                <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-[#FF5A1F]" />Selected tree stage</span>
+                <span className="flex items-center gap-1.5"><Gift className="h-3 w-3 text-slate-500" />Friday reward day</span>
+              </div>
+
+              {/* Clean Fuel milestone progress */}
+              <div className="mt-2 bg-emerald-50/80 border border-emerald-200/80 rounded-xl px-2.5 py-2 space-y-1">
+                <div className="flex items-start gap-1.5 text-[11px] leading-relaxed text-slate-700">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0 mt-0.5" />
+                  <span>
+                    <strong className="text-emerald-950 font-bold">Golden Bloom:</strong> 4 Clean Fuel meals unlock sponsored Friday rewards. A protected skip saves your streak, not reward progress.
                   </span>
                 </div>
-                <span className="text-[9px] font-black text-emerald-800 bg-white px-1.5 py-0.5 rounded-full border border-emerald-200 shrink-0">
-                  3/4 Logged
-                </span>
+                <div className="flex items-center justify-between gap-2 pl-5 text-[11px]">
+                  <span className="font-semibold text-emerald-900">{cleanFuelMealsLogged}/4 Clean Fuel meals logged</span>
+                  <span className="font-bold text-slate-600">{isFridayRewardUnlocked ? 'Reward unlocked' : `${4 - cleanFuelMealsLogged} more needed`}</span>
+                </div>
               </div>
             </div>
           </div>
@@ -1059,7 +1088,7 @@ export default function StreaksTab({
           {/* =========================================================================
               FRIDAY HABIT MILESTONE: "SPIN THE WHEEL" (VARIABLE REWARD LOOP)
              ========================================================================= */}
-          {currentDay < 5 ? (
+          {!isFridayRewardUnlocked ? (
             <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/90 rounded-2xl p-3.5 space-y-2.5">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
@@ -1068,24 +1097,22 @@ export default function StreaksTab({
                     <h3 className="text-xs font-black text-slate-900 leading-tight">
                       Weekly Milestone: Friday Lunch Roulette
                     </h3>
-                    <p className="text-[10px] text-slate-600">
-                      Reach 4 of 5 workweek meals to unlock your guaranteed digital perk!
+                    <p className="text-[11px] leading-relaxed text-slate-600">
+                      {4 - cleanFuelMealsLogged} more Clean Fuel meal{4 - cleanFuelMealsLogged === 1 ? '' : 's'} to reach the 4-meal reward threshold. Protected skips count toward your weekly streak, not this reward.
                     </p>
                   </div>
                 </div>
-                <span className="text-[9px] font-extrabold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full border border-amber-300">
-                  Step 4 of 5
+                <span className="text-[10px] font-extrabold bg-amber-100 text-amber-800 px-2 py-1 rounded-full border border-amber-300 shrink-0">
+                  {cleanFuelMealsLogged}/4
                 </span>
               </div>
 
               <button
-                onClick={() => {
-                  handleSelectDay(5);
-                }}
-                className="w-full min-h-[44px] bg-gradient-to-r from-emerald-600 via-[#10B981] to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-xs font-extrabold py-2.5 px-4 rounded-xl shadow-xs transition-all active:scale-[0.98] cursor-pointer flex items-center justify-center space-x-2"
+                onClick={handleSimulateFridayMeal}
+                className="w-full min-h-[48px] bg-gradient-to-r from-emerald-600 via-[#10B981] to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-xs font-extrabold leading-snug py-2.5 px-4 rounded-xl shadow-xs transition-all active:scale-[0.98] cursor-pointer flex items-center justify-center gap-2 text-center"
               >
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>Simulate Friday Delivery (Unlock Spin the Wheel) ⚡</span>
+                <span>Simulate Friday meal &amp; unlock wheel</span>
               </button>
             </div>
           ) : (
@@ -1099,7 +1126,7 @@ export default function StreaksTab({
                   </div>
                   <div>
                     <span className="text-[9px] font-black uppercase tracking-wider text-amber-400 block">
-                      4/5 WORKWEEK BLOOM COMPLETE
+                      {cleanFuelMealsLogged} CLEAN FUEL MEALS LOGGED
                     </span>
                     <h3 className="text-sm font-black text-white leading-tight">
                       Friday Lunch Roulette Unlocked!
@@ -1107,8 +1134,8 @@ export default function StreaksTab({
                   </div>
                 </div>
 
-                <span className="text-[9px] font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-full">
-                  100% Digital Perk
+                <span className="text-[10px] font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-1 rounded-full shrink-0">
+                  One perk guaranteed
                 </span>
               </div>
 
@@ -1117,12 +1144,15 @@ export default function StreaksTab({
                   🌱 Zero Food Waste
                 </span>
                 <span className="inline-flex items-center gap-1 text-[11px] font-semibold bg-emerald-500/15 text-emerald-300 px-2 py-0.5 rounded-md border border-emerald-500/20">
-                  🎁 5 Guaranteed Perks
+                  🎁 5 Possible Perks
                 </span>
                 <span className="inline-flex items-center gap-1 text-[11px] font-semibold bg-amber-500/15 text-amber-300 px-2 py-0.5 rounded-md border border-amber-500/20">
-                  ⚡ Instant Credit
+                  ⚡ Revealed after spin
                 </span>
               </div>
+              <p className="relative z-10 text-[11px] leading-relaxed text-slate-300">
+                Spin to reveal one guaranteed perk from five possible outcomes.
+              </p>
 
               {claimedWheelReward ? (
                 <div className="bg-slate-800/90 rounded-xl p-3 border border-slate-700 space-y-2 relative z-10">
@@ -1162,10 +1192,11 @@ export default function StreaksTab({
                     playPop();
                     setShowSpinWheelModal(true);
                   }}
-                  className="w-full min-h-[48px] bg-gradient-to-r from-amber-400 via-[#FF5A1F] to-emerald-400 hover:from-amber-500 hover:to-emerald-500 text-slate-950 font-black text-xs py-3 px-4 rounded-xl shadow-lg transition-all active:scale-[0.98] cursor-pointer flex items-center justify-center space-x-2 relative z-10"
+                  className="w-full min-h-[48px] bg-gradient-to-r from-amber-400 via-[#FF5A1F] to-emerald-400 hover:from-amber-500 hover:to-emerald-500 text-slate-950 font-black text-xs leading-snug py-3 px-4 rounded-xl shadow-lg transition-all active:scale-[0.98] cursor-pointer flex items-center justify-center gap-2 text-center relative z-10"
+                  aria-label="Spin the Friday Habit Wheel to reveal one guaranteed perk"
                 >
                   <Sparkles className="w-4 h-4 fill-current" />
-                  <span>SPIN THE FRIDAY HABIT WHEEL ➔</span>
+                  <span>SPIN TO REVEAL YOUR PERK</span>
                 </button>
               )}
             </div>
@@ -1179,7 +1210,7 @@ export default function StreaksTab({
                   Impact & Savings Ledger 🌱
                 </h3>
                 <span className="text-[9px] font-extrabold uppercase bg-amber-100 text-amber-900 px-1.5 py-0.2 rounded border border-amber-300">
-                  Sample 3-Month Projection
+                  {impactPeriodLabel}
                 </span>
               </div>
 
@@ -1187,12 +1218,14 @@ export default function StreaksTab({
                 <button
                   onClick={() => setImpactTimeframe('thisMonth')}
                   className={`px-2 py-0.5 rounded-md ${impactTimeframe === 'thisMonth' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-500'}`}
+                  aria-pressed={impactTimeframe === 'thisMonth'}
                 >
                   Month
                 </button>
                 <button
                   onClick={() => setImpactTimeframe('allTime')}
                   className={`px-2 py-0.5 rounded-md ${impactTimeframe === 'allTime' ? 'bg-white text-emerald-700 shadow-xs' : 'text-slate-500'}`}
+                  aria-pressed={impactTimeframe === 'allTime'}
                 >
                   All-Time
                 </button>

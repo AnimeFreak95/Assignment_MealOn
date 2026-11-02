@@ -596,60 +596,60 @@ export default function AutoPilotTab({
 
             {/* TOP-LEVEL MODE SWITCHER: AI MODE VS MY VAULT (At Top, Not In Card Input Field) */}
             <div className="grid grid-cols-2 gap-1.5 bg-slate-100 p-1 rounded-2xl border border-slate-200/90 shadow-2xs">
-            <button
-              type="button"
-              onClick={() => {
-                playPop();
-                setPlannerMode('ai');
-              }}
-              className={`py-2 px-3 rounded-xl text-xs font-black transition-all flex items-center justify-center space-x-1.5 cursor-pointer ${
-                plannerMode === 'ai'
-                  ? 'bg-white text-slate-900 shadow-xs border border-slate-200/80'
-                  : 'text-slate-500 hover:text-slate-800'
-              }`}
-            >
-              <Sparkles className={`w-3.5 h-3.5 ${plannerMode === 'ai' ? 'text-[#FF5A1F]' : 'text-slate-400'}`} />
-              <span>✨ AI Smart Planner</span>
-            </button>
+              <button
+                type="button"
+                onClick={() => {
+                  playPop();
+                  setPlannerMode('vault');
+                }}
+                className={`py-2 px-3 rounded-xl text-xs font-black transition-all flex items-center justify-center space-x-1.5 cursor-pointer ${
+                  plannerMode === 'vault'
+                    ? 'bg-white text-rose-600 shadow-xs border border-slate-200/80'
+                    : 'text-slate-500 hover:text-slate-800'
+                }`}
+              >
+                <Heart className={`w-3.5 h-3.5 ${plannerMode === 'vault' ? 'fill-rose-500 text-rose-500' : 'text-slate-400'}`} />
+                <span>💖 My Food Vault ({vaultIds.length})</span>
+              </button>
 
-            <button
-              type="button"
-              onClick={() => {
-                playPop();
-                setPlannerMode('vault');
-              }}
-              className={`py-2 px-3 rounded-xl text-xs font-black transition-all flex items-center justify-center space-x-1.5 cursor-pointer ${
-                plannerMode === 'vault'
-                  ? 'bg-white text-rose-600 shadow-xs border border-slate-200/80'
-                  : 'text-slate-500 hover:text-slate-800'
-              }`}
-            >
-              <Heart className={`w-3.5 h-3.5 ${plannerMode === 'vault' ? 'fill-rose-500 text-rose-500' : 'text-slate-400'}`} />
-              <span>💖 My Food Vault ({vaultIds.length})</span>
-            </button>
-          </div>
+              <button
+                type="button"
+                onClick={() => {
+                  playPop();
+                  setPlannerMode('ai');
+                }}
+                className={`py-2 px-3 rounded-xl text-xs font-black transition-all flex items-center justify-center space-x-1.5 cursor-pointer ${
+                  plannerMode === 'ai'
+                    ? 'bg-white text-slate-900 shadow-xs border border-slate-200/80'
+                    : 'text-slate-500 hover:text-slate-800'
+                }`}
+              >
+                <Sparkles className={`w-3.5 h-3.5 ${plannerMode === 'ai' ? 'text-[#FF5A1F]' : 'text-slate-400'}`} />
+                <span>✨ AI Playlist</span>
+              </button>
+            </div>
 
-          {/* 1. Planner Card (Clean Content based on Selected Top-Level Mode) */}
-          <div className="bg-white rounded-3xl p-4 border border-slate-200/90 shadow-sm space-y-3">
-            {/* Header: Clean Title based on Mode */}
-            <div className="flex items-center justify-between pb-0.5">
-              <div className="flex items-center space-x-2">
-                {plannerMode === 'ai' ? (
-                  <>
-                    <Sparkles className="w-4 h-4 text-[#FF5A1F]" />
-                    <h2 className="text-sm font-extrabold text-slate-900">
-                      Smart planner
-                    </h2>
-                  </>
-                ) : (
-                  <>
-                    <Heart className="w-4 h-4 text-rose-500 fill-rose-500" />
-                    <h2 className="text-sm font-extrabold text-slate-900">
-                      My Food Vault
-                    </h2>
-                  </>
-                )}
-              </div>
+            {/* 1. Planner Card (Clean Content based on Selected Top-Level Mode) */}
+            <div className="bg-white rounded-3xl p-4 border border-slate-200/90 shadow-sm space-y-3">
+              {/* Header: Clean Title based on Mode */}
+              <div className="flex items-center justify-between pb-0.5">
+                <div className="flex items-center space-x-2">
+                  {plannerMode === 'ai' ? (
+                    <>
+                      <Sparkles className="w-4 h-4 text-[#FF5A1F]" />
+                      <h2 className="text-sm font-extrabold text-slate-900">
+                        AI Playlist
+                      </h2>
+                    </>
+                  ) : (
+                    <>
+                      <Heart className="w-4 h-4 text-rose-500 fill-rose-500" />
+                      <h2 className="text-sm font-extrabold text-slate-900">
+                        My Food Vault
+                      </h2>
+                    </>
+                  )}
+                </div>
               <span className={`text-[10px] font-bold ${plannerMode === 'ai' ? 'text-slate-400' : 'text-rose-600 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded-full'}`}>
                 {plannerMode === 'ai' ? 'AI Auto-Pilot' : `${vaultIds.length} Dishes Approved`}
               </span>

@@ -322,13 +322,13 @@ export default function HabitSpinWheelModal({
         <div className="space-y-1 relative z-10 shrink-0 mb-2">
           <span className="text-[10px] font-black uppercase tracking-wider text-amber-400 bg-amber-950/80 border border-amber-600/50 px-2 py-0.5 rounded-full inline-flex items-center space-x-1">
             <Sparkles className="w-3 h-3 text-amber-400" />
-            <span>4/5 WORKWEEK MILESTONE UNLOCKED</span>
+            <span>4 CLEAN FUEL MEAL MILESTONE</span>
           </span>
           <h2 id="habit-wheel-title" className="text-base font-black text-white tracking-tight">
             Friday Lunch Roulette 🎡
           </h2>
           <p className="text-[11px] text-slate-400 font-medium">
-            100% Guaranteed Digital Perks • Zero Food Waste
+            One digital perk guaranteed • 5 possible outcomes
           </p>
         </div>
 
@@ -507,7 +507,7 @@ export default function HabitSpinWheelModal({
             /* Pre-spin instruction box */
             <div className="bg-slate-800/60 rounded-xl p-2.5 border border-slate-700/70 text-center space-y-1">
               <p className="text-xs text-slate-300 font-medium">
-                Tap <strong>SPIN</strong> to unlock your guaranteed Friday habit perk!
+                Spin once to reveal one guaranteed perk from five possible outcomes.
               </p>
               <div className="grid grid-cols-3 gap-1 pt-0.5 text-[9px] text-slate-400">
                 <span>🥗 Tier Upgrade</span>
