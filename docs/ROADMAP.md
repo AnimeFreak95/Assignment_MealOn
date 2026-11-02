@@ -13,7 +13,7 @@
 
 ---
 
-## 📑 Master PRD Navigation (10 Dedicated Feature Pages)
+## 📑 Master PRD Navigation (11 Dedicated Feature Pages)
 Each roadmap module has a dedicated specification subpage with detailed user journeys, edge cases, and unit economics:
 1. [💳 1. MealsOn Pass Onboarding](https://app.notion.com/p/40b80bcda12981d98787e20dcc874c79)
 2. [🤖 2. AI Meal Playlist & Curated Food Vault](https://app.notion.com/p/40b80bcda1298139bc3ff629601a16aa)
@@ -25,6 +25,7 @@ Each roadmap module has a dedicated specification subpage with detailed user jou
 8. [⚖️ 8. Strategic Trade-Offs & Decision Manifesto](https://app.notion.com/p/40b80bcda129812ea11dea0aff115931)
 9. [🚀 9. Phase 1 Pilot Launch Plan](https://app.notion.com/p/40c80bcda1298104a60cc794296c090c)
 10. [📊 10. Feature Prioritisation & Phased Roadmap](https://app.notion.com/p/40c80bcda12981b1bfb3fa7ab0a59c01)
+11. [🥊 11. Competitor Landscape & Market Positioning](https://app.notion.com/p/40b80bcda12981be9c5dd3ba892f642c)
 
 ---
 
@@ -35,6 +36,27 @@ Each roadmap module has a dedicated specification subpage with detailed user jou
 | **🟢 NOW**; *(Phase 1: Weeks 1–6)* | **DLF Cyber Park, Gurgaon**; 3 Anchor Tech Towers | 500 Capped Beta Users; 5 Cloud Kitchens | • Pass Onboarding (Rasoi/Bistro/Chef); • 10 PM Zero-Waste Kitchen Lock; • Pause Shield Rollover Wallet; • Hybrid Routing (30-min + 7km geofence); • Curated Food Vault (12–20 meals); • Healthy Week Habit Tree (Bonsai) | 97.5% 30-min window drop SLA; ₹24 batch delivery drop cost; under 3% kitchen food waste |
 | **🟡 NEXT**; *(Phase 2: Weeks 7–14)* | **Cyber City & DLF Phase 5**; 12 Towers + 8 Residential Pods | 2,500 Active Subscribers; 15 Cloud Kitchens | • Tower Tribe Pod Co-Op (Milestone ladder); • AI Meal Playlist Engine (Dietary chips); • Corporate Pass Checkout (Sodexo/Zaggle); • Batch WFH Residential Pod Routing | Organic word-of-mouth referral; building-level co-op density; corporate HR wellness tie-ups |
 | **⚪ LATER**; *(Phase 3: Months 4+)* | **Bengaluru (ORR) & Mumbai (BKC)**; Metro Expansion | 10,000+ Daily Orders; 50+ Kitchen Partners | • Automated Calendar Sync (Google/O365); • Temperature-Controlled Lobby Locker Pods; • Subsidized Corporate B2B Meal Billing; • 100% Dedicated EV Logistics Fleet | Multi-city cluster profitability; zero-touch automated WFH routing; enterprise employer subsidies |
+
+---
+
+---
+
+## 🥊 Competitor Landscape & Market Positioning
+> **Dedicated Subpage:** [🥊 Competitor Landscape & Market Positioning](https://app.notion.com/p/40b80bcda12981be9c5dd3ba892f642c)  
+> **Strategic Insight:** While food delivery aggregators were engineered for spontaneous dinner splurges (charging ₹45–₹65 ancillary fees), Zomato's newly launched *Subscriptions* feature attempts to fix fees by locking users into a single restaurant, causing palate fatigue by Day 3. MealsOn solves this through a multi-kitchen coalition and ₹24 batched office drops.
+
+### 5-Way Competitive Market Comparison
+
+| Dimension | Local Tiffins / Dabbawalas | Standard On-Demand (Swiggy/Zomato) | Zomato Subscriptions (Live) | Health Subscriptions (EatFit) | MealsOn Scheduled Meals |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Merchant Scope** | ❌ 1 Kitchen | ✅ Infinite restaurants | ❌ Single restaurant lock-in | ❌ 1 Proprietary brand | **✅ Multi-Kitchen Coalition (4.2★+)** |
+| **Delivery Fee** | Built-in | ₹45–₹65 / meal | ₹0 Delivery | Built into premium price | **₹0 Delivery (via Office Pod batching)** |
+| **Daily Friction** | Zero choice | High (20 mins decision fatigue) | Moderate (manual daily swaps) | Low (fixed macro diet) | **Zero (Food Vault + AI Auto-Pilot)** |
+| **Hybrid Routing** | ❌ Single static address | ⚠️ Manual address toggle | ❌ Locked to 1 address | ❌ Single address | **✅ Mon–Fri Office vs Home Matrix (7km)** |
+| **Skip Protection** | ❌ 100% Forfeited | N/A | Reschedule only | ❌ Strict forfeiture | **✅ 100% Rupee Rollover Wallet** |
+| **Payment Options** | Cash / Monthly UPI | Pay per order | 100% Upfront only | 100% Upfront only | **UPI AutoPay at 10 PM OR Prepaid (+5%)** |
+| **Corporate Cards** | ❌ Unsupported | ✅ Supported | ❌ Blocked at checkout | ⚠️ Partial | **✅ Native 1-Tap Pluxee & Zaggle** |
+| **Batch Drop Economics** | Local runner | ₹55–₹65 point-to-point drop | Individual rider dispatch | Fixed morning drop | **₹24 / drop (10–14 meals per tower run)** |
 
 ---
 
