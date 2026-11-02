@@ -12,7 +12,8 @@ import {
   BadgeCheck,
   ArrowRight,
   Clock,
-  AlertCircle
+  TrendingUp,
+  Zap
 } from 'lucide-react';
 import { playPop, playSuccessChime } from '../utils/audioDelight';
 
@@ -24,7 +25,7 @@ export default function WalletTab({
   paymentMode = 'prepaid',
   setPaymentMode
 }) {
-  const [safetyNetAccrued, setSafetyNetAccrued] = useState(50);
+  const [safetyNetAccrued, setSafetyNetAccrued] = useState(500);
   const [expandedFaq, setExpandedFaq] = useState(false);
 
   // Compute 20-day pass validity window (Nov 22, 2026 based on Nov 2 base)
@@ -43,8 +44,20 @@ export default function WalletTab({
     day: 'numeric'
   });
 
+  // Compute 30-day promo reward expiry (Dec 2, 2026)
+  const promoExpiryDate = new Date();
+  promoExpiryDate.setDate(promoExpiryDate.getDate() + 30);
+  const promoExpiryStr = promoExpiryDate.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric'
+  });
+
   const totalPassCredits = 20;
   const progressPercent = Math.min(Math.round((credits / totalPassCredits) * 100), 100);
+
+  // Two-tier balance split (FIFO structure)
+  const promoBalance = 50;
+  const paidRolloverBalance = Math.max(0, safetyNetAccrued - promoBalance);
 
   // Simulate end of pass cycle expiry safety net
   const handleSimulatePassExpiry = () => {
@@ -54,7 +67,7 @@ export default function WalletTab({
     if (onNotify) {
       onNotify(
         'Safety Net Triggered! 🛡️',
-        '2 unconsumed meals converted to ₹450 MealsOn Balance (Valid for 60 days on renewal).',
+        '2 unconsumed meals converted to ₹450 Paid Rollover (Refreshes for 60 days on renewal).',
         'success'
       );
     }
@@ -107,7 +120,7 @@ export default function WalletTab({
         )}
       </div>
 
-      {/* 2. REPAIRED HERO CARD: Active Meal Pass Quota (Apple Wallet / CRED Design Language) */}
+      {/* 2. HERO CARD: Active Meal Pass Quota (Apple Wallet / CRED Design Language) */}
       <div className="rounded-2xl p-4 bg-gradient-to-br from-[#064E3B] via-[#0B3D30] to-[#0F172A] text-white shadow-lg border border-emerald-500/30 relative overflow-hidden ring-1 ring-white/10">
         {/* Subtle decorative glow */}
         <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-400/10 rounded-full blur-2xl pointer-events-none" />
@@ -123,7 +136,7 @@ export default function WalletTab({
           </span>
         </div>
 
-        {/* Big numbers + Calibrated 80px SVG Gauge (Fixed width/height & viewBox) */}
+        {/* Big numbers + Calibrated 80px SVG Gauge */}
         <div className="flex items-center justify-between relative z-10">
           <div>
             <div className="text-[10px] font-bold text-emerald-200/90 uppercase tracking-wider">
@@ -138,7 +151,7 @@ export default function WalletTab({
             </p>
           </div>
 
-          {/* Calibrated 80px Circular Gauge (Standard Tailwind w-20 h-20 with precise viewBox) */}
+          {/* Calibrated 80px Circular Gauge */}
           <div className="relative w-20 h-20 flex items-center justify-center shrink-0">
             <svg className="w-20 h-20 transform -rotate-90" viewBox="0 0 80 80">
               <circle
@@ -182,8 +195,9 @@ export default function WalletTab({
         </div>
       </div>
 
-      {/* 3. WALLET CASH ACCOUNT: 60-Day Rolling Expiry & 25% Offset Cap */}
+      {/* 3. WALLET CASH ACCOUNT: Two-Tier Breakdown & Tiered Burn Cap */}
       <div className="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-sm space-y-3">
+        {/* Total Balance Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2.5">
             <div className="w-9 h-9 rounded-xl bg-orange-50 text-[#FF5A1F] flex items-center justify-center shadow-xs">
@@ -191,7 +205,7 @@ export default function WalletTab({
             </div>
             <div>
               <span className="text-[10px] font-extrabold uppercase text-slate-400 tracking-wider block">
-                MealsOn Wallet Cash
+                Total Available Balance
               </span>
               <div className="text-2xl font-black text-slate-900 leading-tight">
                 ₹{safetyNetAccrued}
@@ -203,39 +217,93 @@ export default function WalletTab({
             type="button"
             onClick={handleSimulatePassExpiry}
             className="text-[10px] font-extrabold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-2.5 py-1.5 rounded-lg transition-all active:scale-95 flex items-center gap-1 cursor-pointer"
-            title="Simulate end-of-cycle pass expiry safety net (+₹450)"
+            title="Simulate 2 unused meals converting to wallet credit (+₹450)"
           >
             <Sparkles className="w-3 h-3 text-emerald-600" />
             <span>Test Refund (+₹450)</span>
           </button>
         </div>
 
-        {/* Wallet Cash Expiry Notice */}
-        <div className="bg-amber-50/80 border border-amber-200/80 rounded-xl p-2.5 space-y-1.5 text-xs text-amber-950">
+        {/* Two-Tier Currency Split (Paid Rollover vs Promo Cash) */}
+        <div className="grid grid-cols-2 gap-2 text-xs">
+          {/* Tier 1: Paid Rollover */}
+          <div className="bg-emerald-50/70 border border-emerald-200/80 rounded-xl p-2.5 space-y-1">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-bold text-emerald-900 uppercase">Paid Rollover</span>
+              <span className="text-[9px] font-black bg-emerald-200/80 text-emerald-950 px-1.5 py-0.2 rounded">
+                60d Rolling
+              </span>
+            </div>
+            <div className="text-base font-black text-emerald-950">
+              ₹{paidRolloverBalance}
+            </div>
+            <p className="text-[9px] text-emerald-800 leading-tight">
+              Resets 60 days on every pass renewal. 100% money protected.
+            </p>
+          </div>
+
+          {/* Tier 2: Promo / Streak Bonus */}
+          <div className="bg-amber-50/70 border border-amber-200/80 rounded-xl p-2.5 space-y-1">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-bold text-amber-900 uppercase">Promo Rewards</span>
+              <span className="text-[9px] font-black bg-amber-200/80 text-amber-950 px-1.5 py-0.2 rounded">
+                30d Fixed
+              </span>
+            </div>
+            <div className="text-base font-black text-amber-950">
+              ₹{promoBalance}
+            </div>
+            <p className="text-[9px] text-amber-800 leading-tight">
+              From wheel & bonuses. Spent first at checkout (FIFO).
+            </p>
+          </div>
+        </div>
+
+        {/* Tiered Redemption Ladder (The Carrot Upsell) */}
+        <div className="bg-slate-50 border border-slate-200/90 rounded-xl p-2.5 space-y-2">
           <div className="flex items-center justify-between">
-            <span className="font-extrabold text-[11px] text-amber-900 flex items-center gap-1">
-              <Clock className="w-3.5 h-3.5 text-amber-700" />
-              <span>Valid Until: {cashExpiryStr}</span>
+            <span className="text-[10px] font-extrabold text-slate-800 uppercase flex items-center gap-1">
+              <TrendingUp className="w-3.5 h-3.5 text-[#FF5A1F]" />
+              <span>Redemption Power by Pass Size</span>
             </span>
-            <span className="text-[9px] font-black uppercase bg-amber-200/80 text-amber-900 px-2 py-0.5 rounded-full">
-              60-Day Rolling Window
+            <span className="text-[9px] font-bold text-emerald-700 bg-emerald-100/70 px-1.5 py-0.2 rounded">
+              Use on Renewal
             </span>
           </div>
-          <p className="text-[10px] text-amber-800 leading-relaxed font-medium">
-            Your wallet balance is valid for <strong>60 days</strong> and refreshes every time you renew your pass. Automatically discounts up to <strong>25%</strong> of your next pass.
+
+          <div className="grid grid-cols-3 gap-1.5 text-center">
+            <div className="bg-white p-1.5 rounded-lg border border-slate-200 text-slate-700">
+              <span className="block text-[9px] text-slate-500 font-semibold">5-Meal Pass</span>
+              <span className="text-xs font-black text-slate-900">15% Max</span>
+              <span className="block text-[8.5px] text-slate-400">~₹170 off</span>
+            </div>
+
+            <div className="bg-white p-1.5 rounded-lg border border-slate-200 text-slate-700">
+              <span className="block text-[9px] text-slate-500 font-semibold">10-Meal Pass</span>
+              <span className="text-xs font-black text-slate-900">25% Max</span>
+              <span className="block text-[8.5px] text-slate-400">~₹562 off</span>
+            </div>
+
+            <div className="bg-gradient-to-b from-orange-50 to-white p-1.5 rounded-lg border-2 border-[#FF5A1F] text-slate-900 relative shadow-2xs">
+              <span className="block text-[9px] font-black text-[#FF5A1F]">20-Meal Pass</span>
+              <span className="text-xs font-black text-[#FF5A1F]">35% Max ✨</span>
+              <span className="block text-[8.5px] text-emerald-700 font-bold">~₹1,575 off</span>
+            </div>
+          </div>
+
+          <p className="text-[9.5px] text-slate-500 leading-snug">
+            💡 <strong>Upgrade Advantage:</strong> Choosing a 20-Meal Pass unlocks a <strong>35% balance discount</strong> on your renewal checkout.
           </p>
         </div>
 
-        {/* Breakdown chips */}
-        <div className="flex flex-wrap items-center gap-1.5 pt-0.5 text-[10px]">
-          <span className="inline-flex items-center gap-1 bg-slate-50 text-slate-700 px-2 py-0.5 rounded-md border border-slate-200 font-medium">
-            🎁 Spin Rewards (30d)
+        {/* Expiry & Inactivity Reminder */}
+        <div className="flex items-center justify-between text-[10px] text-slate-500 bg-slate-50/80 px-2.5 py-1.5 rounded-lg border border-slate-200/60">
+          <span className="flex items-center gap-1 font-medium">
+            <Clock className="w-3.5 h-3.5 text-slate-400" />
+            <span>Paid balance active until: <strong>{cashExpiryStr}</strong></span>
           </span>
-          <span className="inline-flex items-center gap-1 bg-slate-50 text-slate-700 px-2 py-0.5 rounded-md border border-slate-200 font-medium">
-            🛡️ Safety Net (60d)
-          </span>
-          <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-800 font-bold px-2 py-0.5 rounded-md border border-emerald-200">
-            🔔 WhatsApp Alerts at Day 45 & 55
+          <span className="text-emerald-700 font-bold">
+            WhatsApp alerts at Day 45 & 55
           </span>
         </div>
       </div>
@@ -268,10 +336,10 @@ export default function WalletTab({
           <div className="bg-white rounded-xl p-3 border border-slate-200/90 shadow-2xs space-y-1">
             <div className="flex items-center gap-1.5 text-[11px] font-black text-slate-900">
               <span className="text-emerald-600">2.</span>
-              <span>Pass Expiry</span>
+              <span>Pass Completion</span>
             </div>
             <p className="text-[10px] text-slate-600 leading-snug">
-              If your 20-day pass expires with unused meals, they convert to ₹225/meal cash with 60-day validity.
+              Unused meals at the end of your 20-day pass convert to ₹225/meal paid wallet balance with a 60-day rolling window.
             </p>
             <span className="inline-block text-[9px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">
               Zero Money Lost
@@ -280,7 +348,7 @@ export default function WalletTab({
         </div>
       </div>
 
-      {/* 5. RECENT PASS ACTIVITY LEDGER (Apple Card Clean Transaction Style) */}
+      {/* 5. RECENT PASS ACTIVITY LEDGER */}
       <div className="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-sm space-y-2.5">
         <h4 className="text-xs font-black text-slate-900 flex items-center justify-between">
           <span>Recent Activity</span>
@@ -317,10 +385,10 @@ export default function WalletTab({
               <span className="text-base select-none">🎡</span>
               <div>
                 <p className="font-bold text-amber-900 text-[11px]">Friday Roulette Reward</p>
-                <p className="text-[9px] text-slate-500">Credited to wallet cash (30d expiry)</p>
+                <p className="text-[9px] text-slate-500">Credited to promo cash (30d fixed)</p>
               </div>
             </div>
-            <span className="text-[11px] font-extrabold text-emerald-600">+₹50 Cash</span>
+            <span className="text-[11px] font-extrabold text-amber-600">+₹50 Promo</span>
           </div>
 
           <div className="py-2 flex items-center justify-between">
@@ -356,21 +424,27 @@ export default function WalletTab({
         {expandedFaq && (
           <div className="pt-2.5 space-y-2.5 text-[10px] text-slate-600 animate-in fade-in duration-150 border-t border-slate-100">
             <div>
-              <strong className="text-slate-800 block text-[11px]">How long is wallet cash valid?</strong>
+              <strong className="text-slate-800 block text-[11px]">How does the 60-day rollover work?</strong>
               <p className="mt-0.5 text-slate-500 leading-relaxed">
-                Your wallet balance is active for 60 days. Every time you renew your pass, your entire balance refreshes for another 60 days.
+                As long as you renew your meal pass within 60 days, your unspent paid balance rolls forward into a fresh 60-day window. It never expires as long as you remain an active subscriber.
               </p>
             </div>
             <div>
-              <strong className="text-slate-800 block text-[11px]">How much can be used on the next pass?</strong>
+              <strong className="text-slate-800 block text-[11px]">How much balance can I use on my next pass?</strong>
               <p className="mt-0.5 text-slate-500 leading-relaxed">
-                Wallet cash automatically applies at checkout to cover up to 25% of your renewal total. Any remaining balance stays in your account for future orders.
+                The larger your pass, the more balance you can redeem: 15% on a 5-Meal Pass, 25% on a 10-Meal Pass, and up to 35% on a 20-Meal Pass. Any balance left over stays in your wallet for future orders.
               </p>
             </div>
             <div>
-              <strong className="text-slate-800 block text-[11px]">Can meals be paused for travel?</strong>
+              <strong className="text-slate-800 block text-[11px]">Which balance is spent first?</strong>
               <p className="mt-0.5 text-slate-500 leading-relaxed">
-                Simply tap "Skip" on the days you will be away before the 10:00 PM cutoff. Your meal stays safe in your pack.
+                Promotional rewards (like the Friday Roulette perk, with 30-day validity) are automatically spent first before your 60-day paid meal balance is touched.
+              </p>
+            </div>
+            <div>
+              <strong className="text-slate-800 block text-[11px]">What happens if my account remains inactive?</strong>
+              <p className="mt-0.5 text-slate-500 leading-relaxed">
+                If you do not renew any pass for 60 consecutive days, your remaining balance expires. We send friendly WhatsApp reminders on Day 45 and Day 55 so you have plenty of time to renew.
               </p>
             </div>
           </div>
