@@ -18,6 +18,7 @@ import {
   PackageCheck,
   SunMedium,
   Shield,
+  ShieldCheck,
   HelpCircle,
   Share2,
   Trophy,
