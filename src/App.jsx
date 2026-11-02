@@ -156,7 +156,7 @@ export default function App() {
           <div>
             <div className="flex items-center space-x-2">
               <h1 className="text-sm font-extrabold text-white tracking-tight">
-                MealsOn Scheduled Meals — Product Prototype & GTM
+                MealsOn Scheduled Meals: Product Prototype & GTM
               </h1>
               <span className="text-[10px] font-bold bg-[#FF5A1F]/20 text-[#FF5A1F] border border-[#FF5A1F]/40 px-2 py-0.5 rounded-full">
                 Entain PM Case
