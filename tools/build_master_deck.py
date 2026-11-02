@@ -1,17 +1,13 @@
 #!/usr/bin/env python3
 """
 Builds an elevated, comprehensive 16-slide master presentation deck for MealsOn Scheduled Meals.
-- References and enhances Gamma's design language: Dark luxury charcoal aesthetic (#0F172A),
-  vibrant brand accents (Orange #F97316, Emerald #10B981, Amber #F59E0B, Indigo #6366F1).
-- Embeds extracted high-res visual mockups from Gamma into their respective slides (Slides 1, 2, 4, 5, 6, 7, 8, 10).
-- Solves Gamma's incomplete slides (Slide 5 Hybrid Routing & Slide 9 Weekly Ledger) with high-density card layouts.
-- Adds the 6 missing strategic slides (Slides 11-16) that Gamma's free tier could not generate:
-  11: Incumbent Teardown (Zomato Subscriptions)
-  12: Unit Economics & Margin Walk
-  13: Tower Tribe Pod Co-Ops & Viral B2B2C
-  14: Cloud Kitchen OS & Logistics Batching Engine
-  15: 3-Phase GTM Roadmap & Cyber Park Pilot
-  16: Executive Governance, Success Metrics & Risk Mitigations
+Enhanced with prototype UI/UX micro-interactions & Notion specifications:
+- Dual-Engine Planner UI: [💖 My Food Vault (20)] Phase 1 Trust Anchor vs [✨ AI Playlist] Phase 2 Auto-Pilot.
+- 4-Action Meal Card Suite: 1-Tap Swap (±₹20 parity), Drag-drop reorder, Location flip, Calendar context sync.
+- Interactive Spin Wheel Modal: Friday Lunch Roulette with audio delight & confetti fanfare.
+- Two-Tier Wallet Ledger & Progressive Burn Caps (15% on 5-meal, 25% on 10-meal, 35% on 20-meal) + Travel Pause slider.
+- 8 PM Smart Cut-Off: Live kitchen capacity meter (e.g. 84% booked, 16 slots remaining).
+- Interactive Prototype Shell: Persona Switcher (Rahul/Priya/Sneha) & GTM Multi-Channel Simulator.
 """
 
 import os
@@ -45,14 +41,12 @@ def create_deck():
 
     def add_base(slide_num, category, title, subtitle=None):
         slide = prs.slides.add_slide(blank_layout)
-        # Background shape
         bg = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, 0, 0, prs.slide_width, prs.slide_height)
         bg.fill.solid()
         bg.fill.fore_color.rgb = COLOR_BG
         bg.line.fill.background()
 
-        # Top Category & Number
-        header_box = slide.shapes.add_textbox(Inches(0.8), Inches(0.4), Inches(11.73), Inches(1.15))
+        header_box = slide.shapes.add_textbox(Inches(0.8), Inches(0.38), Inches(11.73), Inches(1.18))
         tf = header_box.text_frame
         tf.word_wrap = True
         tf.margin_left = tf.margin_top = tf.margin_right = tf.margin_bottom = 0
@@ -66,18 +60,17 @@ def create_deck():
 
         p_title = tf.add_paragraph()
         p_title.text = title
-        p_title.font.size = Pt(20)
+        p_title.font.size = Pt(19)
         p_title.font.bold = True
         p_title.font.color.rgb = COLOR_TEXT_PRIMARY
 
         if subtitle:
             p_sub = tf.add_paragraph()
             p_sub.text = subtitle
-            p_sub.font.size = Pt(11)
+            p_sub.font.size = Pt(10.5)
             p_sub.font.color.rgb = COLOR_TEXT_SECONDARY
             p_sub.space_before = Pt(2)
 
-        # Bottom Footer
         footer_box = slide.shapes.add_textbox(Inches(0.8), Inches(7.05), Inches(11.73), Inches(0.3))
         tff = footer_box.text_frame
         tff.margin_left = tff.margin_top = tff.margin_right = tff.margin_bottom = 0
@@ -116,13 +109,11 @@ def create_deck():
         img_path = os.path.join(IMG_DIR, img_name)
         if os.path.exists(img_path):
             slide.shapes.add_picture(img_path, left, top, width, height)
-            # Add subtle framing border
             border = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, left, top, width, height)
             border.fill.background()
             border.line.color.rgb = COLOR_CARD_BORDER_HI
             border.line.width = Pt(1.5)
         else:
-            # Fallback placeholder if missing
             ph = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, left, top, width, height)
             ph.fill.solid()
             ph.fill.fore_color.rgb = COLOR_CARD_BG
@@ -137,7 +128,6 @@ def create_deck():
     s1 = add_base(1, "Product Experience & North Star", 
                   "MealsOn: Transforming Weekday Lunch into a Trusted, Automated Habit",
                   "Flexible, automated, community-driven lunches removing decision fatigue, hybrid friction, and forfeiture anxiety.")
-    # Left Content (Width: 6.8")
     add_card(s1, Inches(0.8), Inches(1.8), Inches(6.8), Inches(4.35))
     tb1 = s1.shapes.add_textbox(Inches(1.05), Inches(2.0), Inches(6.3), Inches(3.95))
     tf1 = tb1.text_frame; tf1.word_wrap = True
@@ -151,60 +141,46 @@ def create_deck():
         ("Consolidate Friction into Community Drops", "Batching 10-14 colleague deliveries per tower collapses drop cost from ₹65 to ₹24 per meal.")
     ]
     for b_title, b_desc in bullets_s1:
-        pb = tf1.add_paragraph()
-        pb.text = f"• {b_title}: "
-        pb.font.size = Pt(10.5)
-        pb.font.bold = True
-        pb.font.color.rgb = COLOR_EMERALD
-        pb.space_after = Pt(2)
-        
-        pd = tf1.add_paragraph()
-        pd.text = f"   {b_desc}"
-        pd.font.size = Pt(10)
-        pd.font.color.rgb = COLOR_TEXT_SECONDARY
-        pd.space_after = Pt(6)
+        pb = tf1.add_paragraph(); pb.text = f"• {b_title}: "; pb.font.size = Pt(10.5); pb.font.bold = True; pb.font.color.rgb = COLOR_EMERALD; pb.space_after = Pt(2)
+        pd = tf1.add_paragraph(); pd.text = f"   {b_desc}"; pd.font.size = Pt(10); pd.font.color.rgb = COLOR_TEXT_SECONDARY; pd.space_after = Pt(6)
 
-    # Right Image: Hero lunch plate (image4.jpg)
     add_image_safe(s1, "image4.jpg", Inches(7.85), Inches(1.8), Inches(4.68), Inches(4.35))
     add_bottom_banner(s1, "🎯 North Star: Deliver consistent, wholesome weekday lunches at 63% lower delivery friction with zero wasted rupees.")
 
     # ==================== SLIDE 02: ENTRY EXPERIENCE ====================
     s2 = add_base(2, "Entry Experience & Allowance Tiers", 
-                  "Frictionless Onboarding: Transparent Tiers & Real-Time Savings Receipt",
-                  "Start with visible value upfront, letting commitment scale naturally with appetite and work schedule.")
+                  "Frictionless Onboarding: Transparent Tiers & Real-Time Dynamic Receipt",
+                  "Interactive onboarding calculates effective per-meal rates and free delivery savings live before checkout.")
     
-    # 4 Steps Left Cards (Width: 6.8")
     add_card(s2, Inches(0.8), Inches(1.8), Inches(6.8), Inches(4.35))
     tb2 = s2.shapes.add_textbox(Inches(1.05), Inches(1.95), Inches(6.3), Inches(4.0))
     tf2 = tb2.text_frame; tf2.word_wrap = True
     
     steps = [
-        ("01", "See the Value", "Prominent savings counter frames scheduled meals as ₹1,240 saved/month + 4 hours reclaimed."),
-        ("02", "Choose Your Rhythm", "3 Daily Allowance Tiers: Rasoi (₹160 Comfort), Bistro (₹250 Balanced), Chef's Table (₹320 Pro)."),
+        ("01", "See the Value", "Live savings calculator frames scheduled meals as ₹1,240/mo saved + 4 hours reclaimed."),
+        ("02", "Choose Your Rhythm", "3 Allowance Tiers: Rasoi (₹160 Comfort), Bistro (₹250 Balanced), Chef's Table (₹320 Pro)."),
         ("03", "Configure Your Pass", "Select 5, 10, or 20 meals with progressive 5%, 10%, and 15% tier volume discounts."),
-        ("04", "Watch Savings Live", "Interactive dynamic receipt calculates net cost and free delivery savings before checkout.")
+        ("04", "Watch Savings Live", "Dynamic receipt computes: Base ₹3,200 - 15% tier discount - ₹1,300 delivery fee = ₹136/meal!"),
+        ("05", "Interactive Prototype Shell", "Top Persona Switcher (Rahul / Priya / Sneha) + GTM Multi-Channel Acquisition Simulator.")
     ]
     for num, stitle, sdesc in steps:
         p = tf2.paragraphs[0] if num == "01" else tf2.add_paragraph()
         p.text = f"[{num}]  {stitle}"
-        p.font.size = Pt(11); p.font.bold = True; p.font.color.rgb = COLOR_ORANGE; p.space_after = Pt(1)
+        p.font.size = Pt(10.5); p.font.bold = True; p.font.color.rgb = COLOR_ORANGE; p.space_after = Pt(1)
         pd = tf2.add_paragraph()
         pd.text = sdesc
-        pd.font.size = Pt(9.5); pd.font.color.rgb = COLOR_TEXT_SECONDARY; pd.space_after = Pt(5)
+        pd.font.size = Pt(9.2); pd.font.color.rgb = COLOR_TEXT_SECONDARY; pd.space_after = Pt(4)
 
-    # Right Image: image5.png (Live receipt & onboarding)
     add_image_safe(s2, "image5.png", Inches(7.85), Inches(1.8), Inches(4.68), Inches(4.35))
-    add_bottom_banner(s2, "💡 Built-In Runway: A 20-meal pass carries a 35-day validity buffer, removing any anxiety of rushed consumption.")
+    add_bottom_banner(s2, "💡 Built-In Runway: A 20-meal pass carries a 35-day validity buffer, completely removing consumption anxiety.")
 
     # ==================== SLIDE 03: CHECKOUT DESIGN ====================
     s3 = add_base(3, "Checkout Architecture & Financial Rails",
                   "Zero-Cash-Lock Barrier: Reversible Default Rail with Prepaid Upside",
                   "Eliminate upfront commitment friction while preserving attractive incentives for committed power users.")
-    
     c_w = Inches(3.7)
     gap = Inches(0.31)
     
-    # Card 1: Default Rail (UPI AutoPay)
     add_card(s3, Inches(0.8), Inches(1.8), c_w, Inches(4.35))
     tb3_1 = s3.shapes.add_textbox(Inches(1.0), Inches(2.0), c_w - Inches(0.4), Inches(3.95))
     tf3_1 = tb3_1.text_frame; tf3_1.word_wrap = True
@@ -218,7 +194,6 @@ def create_deck():
     ]:
         pb = tf3_1.add_paragraph(); pb.text = b; pb.font.size = Pt(9.5); pb.font.color.rgb = COLOR_TEXT_SECONDARY; pb.space_after = Pt(4)
 
-    # Card 2: Prepaid Pass Upside
     add_card(s3, Inches(0.8) + c_w + gap, Inches(1.8), c_w, Inches(4.35))
     tb3_2 = s3.shapes.add_textbox(Inches(1.0) + c_w + gap, Inches(2.0), c_w - Inches(0.4), Inches(3.95))
     tf3_2 = tb3_2.text_frame; tf3_2.word_wrap = True
@@ -232,7 +207,6 @@ def create_deck():
     ]:
         pb = tf3_2.add_paragraph(); pb.text = b; pb.font.size = Pt(9.5); pb.font.color.rgb = COLOR_TEXT_SECONDARY; pb.space_after = Pt(4)
 
-    # Card 3: Workplace Corporate Fit
     add_card(s3, Inches(0.8) + (c_w + gap)*2, Inches(1.8), c_w, Inches(4.35))
     tb3_3 = s3.shapes.add_textbox(Inches(1.0) + (c_w + gap)*2, Inches(2.0), c_w - Inches(0.4), Inches(3.95))
     tf3_3 = tb3_3.text_frame; tf3_3.word_wrap = True
@@ -248,38 +222,36 @@ def create_deck():
 
     add_bottom_banner(s3, "💳 Payment Strategy: UPI AutoPay serves as the low-friction on-ramp; corporate benefits & prepaid bonuses drive lifetime wallet share.")
 
-    # ==================== SLIDE 04: AI MEAL PLAYLIST ====================
-    s4 = add_base(4, "Scheduling Engine & AI Discovery",
-                  "AI Meal Playlist Auto-Pilot: 5-Day Multi-Kitchen Weekly Automation",
-                  "Users state preferences in natural language; smart filters curate 5-day multi-kitchen playlists in seconds.")
+    # ==================== SLIDE 04: DUAL-ENGINE SCHEDULING (ENHANCED) ====================
+    s4 = add_base(4, "Scheduling Engine & UI Architecture",
+                  "Dual-Engine Planner UI: Food Vault (Phase 1) & AI Co-Pilot (Phase 2)",
+                  "Unified UI with top pill toggle: [💖 My Food Vault (20)] trust anchor + [✨ AI Playlist] auto-pilot.")
     
     add_card(s4, Inches(0.8), Inches(1.8), Inches(6.8), Inches(4.35))
     tb4 = s4.shapes.add_textbox(Inches(1.05), Inches(2.0), Inches(6.3), Inches(3.95))
     tf4 = tb4.text_frame; tf4.word_wrap = True
     
-    p = tf4.paragraphs[0]; p.text = "PROMPT → PLAN → ADAPT PIPELINE"; p.font.size = Pt(10); p.font.bold = True; p.font.color.rgb = COLOR_INDIGO
-    p2 = tf4.add_paragraph(); p2.text = "Zero Daily Scrolling Friction"; p2.font.size = Pt(18); p2.font.bold = True; p2.font.color.rgb = COLOR_TEXT_PRIMARY; p2.space_after = Pt(8)
+    p = tf4.paragraphs[0]; p.text = "PROTOTYPE UI SUITE & MICRO-INTERACTIONS"; p.font.size = Pt(10); p.font.bold = True; p.font.color.rgb = COLOR_INDIGO
+    p2 = tf4.add_paragraph(); p2.text = "Deterministic Trust + AI Discovery"; p2.font.size = Pt(17); p2.font.bold = True; p2.font.color.rgb = COLOR_TEXT_PRIMARY; p2.space_after = Pt(6)
     
     bullets_s4 = [
-        ("Natural Language Prompt", "e.g., 'High-protein, low sodium, light vegetarian lunches' immediately sets the dietary guardrails."),
-        ("Multi-Kitchen 5-Day Rotation", "Cross-rotates 3-4 top-rated partner kitchens to prevent palate fatigue and repetitive menus."),
-        ("1-Tap Contextual Swaps", "Don't like Wednesday's dal? Swap it in 3 seconds; macro counts and tier prices adjust in real time."),
-        ("Dietary Guardrails", "Enforces strict calorie caps, protein minimums (25g+), and allergen exclusions automatically.")
+        ("Top Pill Toggle (Vault vs AI)", "Phase 1: 15–20 approved meals guarantee zero surprises; Phase 2: Generates 5-day playlists from NL prompts."),
+        ("4-Action Meal Card Suite", "1) 🔄 1-Tap Swap (±₹20 parity covered 100%), 2) ↕️ Drag-and-drop weekday reordering, 3) ⇄ Location Flip, 4) ⏭️ Skip & Bank."),
+        ("Contextual Calendar Sync Badge", "Prototype UI displays [📅 Synced: WFH Detected] or [📅 Client Meeting] to trigger automatic location shifts."),
+        ("Anti-Palate Fatigue Algorithm", "Curates 80% familiar comfort favorites + 20% chef discovery on Friday, eliminating routine monotony.")
     ]
     for b_title, b_desc in bullets_s4:
-        pb = tf4.add_paragraph(); pb.text = f"• {b_title}: "; pb.font.size = Pt(10.5); pb.font.bold = True; pb.font.color.rgb = COLOR_EMERALD; pb.space_after = Pt(1)
-        pd = tf4.add_paragraph(); pd.text = f"   {b_desc}"; pd.font.size = Pt(9.5); pd.font.color.rgb = COLOR_TEXT_SECONDARY; pd.space_after = Pt(5)
+        pb = tf4.add_paragraph(); pb.text = f"• {b_title}: "; pb.font.size = Pt(10); pb.font.bold = True; pb.font.color.rgb = COLOR_EMERALD; pb.space_after = Pt(1)
+        pd = tf4.add_paragraph(); pd.text = f"   {b_desc}"; pd.font.size = Pt(9.2); pd.font.color.rgb = COLOR_TEXT_SECONDARY; pd.space_after = Pt(4)
 
-    # Right Image: image9.png (AI Meal Playlist)
     add_image_safe(s4, "image9.png", Inches(7.85), Inches(1.8), Inches(4.68), Inches(4.35))
-    add_bottom_banner(s4, "🤖 Habit Impact: Transforms daily lunchtime cognitive fatigue into a single, effortless 30-second weekly sign-off.")
+    add_bottom_banner(s4, "🤖 Phased Delivery: Food Vault eliminates day-1 ML hallucination risk; AI Playlist adds intelligence once taste profiles are locked.")
 
     # ==================== SLIDE 05: HYBRID ROUTING ====================
     s5 = add_base(5, "Hybrid Work Logistics Engine",
                   "Hybrid Split-Location Routing: Calendar-Aware Multi-Address Matrix",
                   "Built for the 3-2 hybrid corporate reality: deliveries follow the employee, eliminating address confusion.")
     
-    # Left Content (Filled with rich details that Gamma missed!)
     add_card(s5, Inches(0.8), Inches(1.8), Inches(6.8), Inches(4.35))
     tb5 = s5.shapes.add_textbox(Inches(1.05), Inches(2.0), Inches(6.3), Inches(3.95))
     tf5 = tb5.text_frame; tf5.word_wrap = True
@@ -295,101 +267,92 @@ def create_deck():
     ]
     for b_title, b_desc in bullets_s5:
         pb = tf5.add_paragraph(); pb.text = f"• {b_title}: "; pb.font.size = Pt(10.5); pb.font.bold = True; pb.font.color.rgb = COLOR_ORANGE; pb.space_after = Pt(1)
-        pd = tf5.add_paragraph(); pd.text = f"   {b_desc}"; pd.font.size = Pt(9.5); pd.font.color.rgb = COLOR_TEXT_SECONDARY; pd.space_after = Pt(5)
+        pd = tf5.add_paragraph(); pd.text = f"   {b_desc}"; pd.font.size = Pt(9.5); pd.font.color.rgb = COLOR_TEXT_SECONDARY; pb.space_after = Pt(5)
 
-    # Right Image: image3.png (Hybrid Routing Matrix)
     add_image_safe(s5, "image3.png", Inches(7.85), Inches(1.8), Inches(4.68), Inches(4.35))
     add_bottom_banner(s5, "🏢 Zero Friction: Eliminates cold meals sitting at empty office desks when employees unexpectedly work from home.")
 
-    # ==================== SLIDE 06: NIGHT-BEFORE CUT-OFF ====================
+    # ==================== SLIDE 06: NIGHT-BEFORE CUT-OFF (ENHANCED) ====================
     s6 = add_base(6, "Supply-Demand Synchronization",
                   "Night-Before Decision Engine: 8 PM Interactive Ping & 10 PM Batch Lock",
-                  "Turning the kitchen batch lock into an empowering, zero-pressure touchpoint that collapses kitchen waste.")
+                  "Interactive Cut-Off tab features live kitchen capacity meters, proactive WhatsApp alerts & 1-tap skip actions.")
     
     add_card(s6, Inches(0.8), Inches(1.8), Inches(6.8), Inches(4.35))
     tb6 = s6.shapes.add_textbox(Inches(1.05), Inches(2.0), Inches(6.3), Inches(3.95))
     tf6 = tb6.text_frame; tf6.word_wrap = True
     
-    p = tf6.paragraphs[0]; p.text = "THE ZERO-WASTE LOGISTICS FLYWHEEL"; p.font.size = Pt(10); p.font.bold = True; p.font.color.rgb = COLOR_AMBER
-    p2 = tf6.add_paragraph(); p2.text = "Predictable Kitchen Production"; p2.font.size = Pt(18); p2.font.bold = True; p2.font.color.rgb = COLOR_TEXT_PRIMARY; p2.space_after = Pt(8)
+    p = tf6.paragraphs[0]; p.text = "ZERO-WASTE DEMAND SYNCHRONIZATION"; p.font.size = Pt(10); p.font.bold = True; p.font.color.rgb = COLOR_AMBER
+    p2 = tf6.add_paragraph(); p2.text = "Predictable Kitchen Production"; p2.font.size = Pt(17); p2.font.bold = True; p2.font.color.rgb = COLOR_TEXT_PRIMARY; p2.space_after = Pt(6)
     
     bullets_s6 = [
         ("8:00 PM WhatsApp Interactive Preview", "Pings employee with tomorrow's scheduled meal and 3 quick-action buttons right on WhatsApp."),
-        ("Live Countdown to 10:00 PM", "In-app ambient countdown timer creates gentle awareness without anxious push notifications."),
-        ("Three Clear 1-Tap Actions", "1) Keep Meal (Confirm), 2) 1-Tap Swap (Rotate dish), 3) Skip & Bank Credit (Protect 100% value)."),
+        ("Live Kitchen Capacity Meter", "Prototype UI displays real-time kitchen capacity (e.g., '84% booked, 16 slots remaining'), creating gentle urgency."),
+        ("Live In-App Countdown to 10:00 PM", "Subtle ambient timer keeps users informed without aggressive spam notifications."),
+        ("Three Clear 1-Tap Actions", "1) Keep Meal (Confirm), 2) 1-Tap Swap (Rotate dish), 3) Skip & Bank Credit (Preserve 100% quota in pack)."),
         ("Kitchen Waste Collapses: 28% → <3%", "Kitchens receive exact bulk manifests 14 hours in advance, allowing wholesale prep with zero stockout.")
     ]
     for b_title, b_desc in bullets_s6:
-        pb = tf6.add_paragraph(); pb.text = f"• {b_title}: "; pb.font.size = Pt(10.5); pb.font.bold = True; pb.font.color.rgb = COLOR_EMERALD; pb.space_after = Pt(1)
-        pd = tf6.add_paragraph(); pd.text = f"   {b_desc}"; pd.font.size = Pt(9.5); pd.font.color.rgb = COLOR_TEXT_SECONDARY; pb.space_after = Pt(5)
+        pb = tf6.add_paragraph(); pb.text = f"• {b_title}: "; pb.font.size = Pt(10); pb.font.bold = True; pb.font.color.rgb = COLOR_EMERALD; pb.space_after = Pt(1)
+        pd = tf6.add_paragraph(); pd.text = f"   {b_desc}"; pd.font.size = Pt(9.2); pd.font.color.rgb = COLOR_TEXT_SECONDARY; pd.space_after = Pt(4)
 
-    # Right Image: image7.png (WhatsApp Prompt & Countdown)
     add_image_safe(s6, "image7.png", Inches(7.85), Inches(1.8), Inches(4.68), Inches(4.35))
     add_bottom_banner(s6, "⏱️ Operational Win: Enforcing the 10 PM cut-off unlocks bulk morning cooking, reducing food prep cost by 18%.")
 
-    # ==================== SLIDE 07: VALUE PROTECTION ====================
+    # ==================== SLIDE 07: VALUE PROTECTION (ENHANCED) ====================
     s7 = add_base(7, "Retention & Trust Architecture",
-                  "Value Protection Guarantee: 100% Rupee Rollover Wallet & Travel Shield",
-                  "Subscription trust is earned through flexibility: missed or skipped meals are never lost or penalized.")
+                  "Value Protection Guarantee: Two-Tier Wallet & Progressive Burn Caps",
+                  "Subscription trust earned through non-perishable value: 100% Rupee Rollover & 1–5 Day Travel Pause slider.")
     
     add_card(s7, Inches(0.8), Inches(1.8), Inches(6.8), Inches(4.35))
     tb7 = s7.shapes.add_textbox(Inches(1.05), Inches(2.0), Inches(6.3), Inches(3.95))
     tf7 = tb7.text_frame; tf7.word_wrap = True
     
     p = tf7.paragraphs[0]; p.text = "ZERO FORFEITURE GUARANTEE"; p.font.size = Pt(10); p.font.bold = True; p.font.color.rgb = COLOR_EMERALD
-    p2 = tf7.add_paragraph(); p2.text = "100% Credit Preservation"; p2.font.size = Pt(18); p2.font.bold = True; p2.font.color.rgb = COLOR_TEXT_PRIMARY; p2.space_after = Pt(8)
+    p2 = tf7.add_paragraph(); p2.text = "Two-Tier Ledger & Burn Controls"; p2.font.size = Pt(17); p2.font.bold = True; p2.font.color.rgb = COLOR_TEXT_PRIMARY; p2.space_after = Pt(6)
     
     bullets_s7 = [
-        ("Visible Plan Horizon & Progress Ring", "Subscribers see exactly how many meals remain in their pass and their active buffer runway."),
-        ("1 to 5 Day Travel Pause Slider", "Traveling for business or vacation? Freeze your entire subscription with 1 tap; validity shifts forward."),
-        ("100% Rupee Rollover Balance", "Any unconsumed meal at pass expiration converts 1:1 into Rupee balance in the user's MealsOn Wallet."),
-        ("Guaranteed Renewal Discount", "Apply accumulated rollover balance for up to 35% off the next pass renewal, driving 60-65% M2 retention.")
+        ("Two-Tier Wallet Ledger", "Explicit separation of Deposited Money (UPI AutoPay/Prepaid) vs Promotional Rollover Credits."),
+        ("Progressive Burn Caps", "Redeem rollover balance up to: 15% on 5-meal pass, 25% on 10-meal pass, and 35% on 20-meal pass on renewal."),
+        ("Interactive 1–5 Day Travel Pause Slider", "Drag slider in prototype freezes subscription instantly; extends validity runway with zero administrative penalty."),
+        ("End-of-Horizon Safety Net", "Any unconsumed meals at horizon end deposit 100% value into MealsOn Balance, valid for 60 days on renewal.")
     ]
     for b_title, b_desc in bullets_s7:
-        pb = tf7.add_paragraph(); pb.text = f"• {b_title}: "; pb.font.size = Pt(10.5); pb.font.bold = True; pb.font.color.rgb = COLOR_ORANGE; pb.space_after = Pt(1)
-        pd = tf7.add_paragraph(); pd.text = f"   {b_desc}"; pd.font.size = Pt(9.5); pd.font.color.rgb = COLOR_TEXT_SECONDARY; pb.space_after = Pt(5)
+        pb = tf7.add_paragraph(); pb.text = f"• {b_title}: "; pb.font.size = Pt(10); pb.font.bold = True; pb.font.color.rgb = COLOR_ORANGE; pb.space_after = Pt(1)
+        pd = tf7.add_paragraph(); pd.text = f"   {b_desc}"; pd.font.size = Pt(9.2); pd.font.color.rgb = COLOR_TEXT_SECONDARY; pd.space_after = Pt(4)
 
-    # Right Image: image10.png (Rollover Wallet & Progress Ring)
     add_image_safe(s7, "image10.png", Inches(7.85), Inches(1.8), Inches(4.68), Inches(4.35))
     add_bottom_banner(s7, "🛡️ Churn Killer: Traditional subscriptions lose 35% of users to forfeiture rage; MealsOn makes value completely non-perishable.")
 
-    # ==================== SLIDE 08: HABIT GAMIFICATION ====================
+    # ==================== SLIDE 08: HABIT GAMIFICATION (ENHANCED) ====================
     s8 = add_base(8, "Engagement & Habit Loops",
-                  "Habit Gamification: The 4/5 Flexible Workweek Rule & Friday Roulette",
-                  "Positive habit reinforcement that accommodates real human imperfection rather than punishing missed days.")
+                  "Habit Gamification: 4/5 Workweek Rule, Living Bonsai & Spin Wheel",
+                  "Positive habit reinforcement featuring an interactive canvas roulette wheel with audio fanfare and real rewards.")
     
     add_card(s8, Inches(0.8), Inches(1.8), Inches(6.8), Inches(4.35))
     tb8 = s8.shapes.add_textbox(Inches(1.05), Inches(2.0), Inches(6.3), Inches(3.95))
     tf8 = tb8.text_frame; tf8.word_wrap = True
     
     p = tf8.paragraphs[0]; p.text = "THE REINFORCEMENT LOOP"; p.font.size = Pt(10); p.font.bold = True; p.font.color.rgb = COLOR_ORANGE
-    p2 = tf8.add_paragraph(); p2.text = "Grow Your Weekly Habit Tree"; p2.font.size = Pt(18); p2.font.bold = True; p2.font.color.rgb = COLOR_TEXT_PRIMARY; p2.space_after = Pt(8)
+    p2 = tf8.add_paragraph(); p2.text = "Living Bonsai & Interactive Roulette"; p2.font.size = Pt(17); p2.font.bold = True; p2.font.color.rgb = COLOR_TEXT_PRIMARY; p2.space_after = Pt(6)
     
     bullets_s8 = [
         ("The 4/5 Flexible Workweek Rule", "Consuming 4 scheduled meals completes the weekly streak; 1 team lunch or client outing never breaks streak."),
-        ("Visual Habit Tree Growth", "Watch the in-app tree sprout leaves from Mon to Thu as each healthy weekday meal is consumed."),
-        ("Friday Lunch Roulette Payoff", "Completing the 4-meal streak unlocks Friday Roulette: 100% digital reward spin (Cheat Treat or Clean Fuel bonus)."),
-        ("Zero Breakage Psychology", "Users look forward to Friday delivery as an earned celebration rather than an automated obligation.")
+        ("5-Stage Living Bonsai Tree", "Prototype visual tree sprouts branches from Mon to Thu as healthy meals are confirmed and eaten."),
+        ("Interactive Canvas Spin Wheel Modal", "Hitting 4 meals unlocks Friday Lunch Roulette: playable wheel modal with sound effects and confetti fanfare."),
+        ("Perks That Reinforce Habit", "Spins win tangible rewards: Artisanal Desserts, Clean Fuel protein shakes, tier upgrades, or wallet cashback.")
     ]
     for b_title, b_desc in bullets_s8:
-        pb = tf8.add_paragraph(); pb.text = f"• {b_title}: "; pb.font.size = Pt(10.5); pb.font.bold = True; pb.font.color.rgb = COLOR_INDIGO; pb.space_after = Pt(1)
-        pd = tf8.add_paragraph(); pd.text = f"   {b_desc}"; pd.font.size = Pt(9.5); pd.font.color.rgb = COLOR_TEXT_SECONDARY; pb.space_after = Pt(5)
+        pb = tf8.add_paragraph(); pb.text = f"• {b_title}: "; pb.font.size = Pt(10); pb.font.bold = True; pb.font.color.rgb = COLOR_INDIGO; pb.space_after = Pt(1)
+        pd = tf8.add_paragraph(); pd.text = f"   {b_desc}"; pd.font.size = Pt(9.2); pd.font.color.rgb = COLOR_TEXT_SECONDARY; pd.space_after = Pt(4)
 
-    # Right Image: image8.png (Habit Tree & Friday Roulette)
     add_image_safe(s8, "image8.png", Inches(7.85), Inches(1.8), Inches(4.68), Inches(4.35))
     add_bottom_banner(s8, "🌱 Engagement Metric: 78% of active pilot subscribers maintain 4-week active habit streaks under flexible scoring.")
 
     # ==================== SLIDE 09: SAVINGS & IMPACT LEDGER ====================
-    # (Elevating Gamma's nearly empty Slide 9 with a high-density 3-pillar dashboard!)
     s9 = add_base(9, "Compound Value Proposition",
                   "Weekly Impact & Savings Ledger: Financial, Time & Eco Dividends",
                   "Quantifying the compounded tangible savings delivered to corporate subscribers every Friday.")
     
-    # 3 Pillar Cards
-    c_w = Inches(3.7)
-    gap = Inches(0.31)
-    
-    # Pillar 1: Financial Savings
     add_card(s9, Inches(0.8), Inches(1.8), c_w, Inches(4.35))
     tb9_1 = s9.shapes.add_textbox(Inches(1.0), Inches(2.0), c_w - Inches(0.4), Inches(3.95))
     tf9_1 = tb9_1.text_frame; tf9_1.word_wrap = True
@@ -403,7 +366,6 @@ def create_deck():
     ]:
         pb = tf9_1.add_paragraph(); pb.text = b; pb.font.size = Pt(9.5); pb.font.color.rgb = COLOR_TEXT_SECONDARY; pb.space_after = Pt(4)
 
-    # Pillar 2: Cognitive Time Dividend
     add_card(s9, Inches(0.8) + c_w + gap, Inches(1.8), c_w, Inches(4.35))
     tb9_2 = s9.shapes.add_textbox(Inches(1.0) + c_w + gap, Inches(2.0), c_w - Inches(0.4), Inches(3.95))
     tf9_2 = tb9_2.text_frame; tf9_2.word_wrap = True
@@ -417,7 +379,6 @@ def create_deck():
     ]:
         pb = tf9_2.add_paragraph(); pb.text = b; pb.font.size = Pt(9.5); pb.font.color.rgb = COLOR_TEXT_SECONDARY; pb.space_after = Pt(4)
 
-    # Pillar 3: Environmental Dividend
     add_card(s9, Inches(0.8) + (c_w + gap)*2, Inches(1.8), c_w, Inches(4.35))
     tb9_3 = s9.shapes.add_textbox(Inches(1.0) + (c_w + gap)*2, Inches(2.0), c_w - Inches(0.4), Inches(3.95))
     tf9_3 = tb9_3.text_frame; tf9_3.word_wrap = True
@@ -455,16 +416,14 @@ def create_deck():
         pb = tf10.add_paragraph(); pb.text = f"• {b_title}: "; pb.font.size = Pt(10.5); pb.font.bold = True; pb.font.color.rgb = COLOR_ORANGE; pb.space_after = Pt(1)
         pd = tf10.add_paragraph(); pd.text = f"   {b_desc}"; pd.font.size = Pt(9.5); pd.font.color.rgb = COLOR_TEXT_SECONDARY; pb.space_after = Pt(5)
 
-    # Right Image: image6.png (Office Pod Delivery Map)
     add_image_safe(s10, "image6.png", Inches(7.85), Inches(1.8), Inches(4.68), Inches(4.35))
     add_bottom_banner(s10, "⚡ Scalability Core: High pod density enables MealsOn to achieve positive unit economics at price points competitors cannot match.")
 
-    # ==================== SLIDE 11: COMPETITIVE STRATEGY (NEW) ====================
+    # ==================== SLIDE 11: COMPETITIVE STRATEGY ====================
     s11 = add_base(11, "Competitive Strategy & Moats",
                    "Incumbent Teardown: Why Zomato Subscriptions Failed & Why MealsOn Wins",
                    "Dissecting the structural flaws of aggregator subscription experiments to build an unassailable moat.")
     
-    # 3 Comparison Columns
     add_card(s11, Inches(0.8), Inches(1.8), c_w, Inches(4.35))
     tb11_1 = s11.shapes.add_textbox(Inches(1.0), Inches(2.0), c_w - Inches(0.4), Inches(3.95))
     tf11_1 = tb11_1.text_frame; tf11_1.word_wrap = True
@@ -506,12 +465,11 @@ def create_deck():
 
     add_bottom_banner(s11, "🛡️ Strategic Moat: Aggregators cannot replicate batched corridor delivery without disrupting their core on-demand driver dispatch models.")
 
-    # ==================== SLIDE 12: UNIT ECONOMICS (NEW) ====================
+    # ==================== SLIDE 12: UNIT ECONOMICS ====================
     s12 = add_base(12, "Financial Feasibility & Unit Economics",
                    "Strategic Unit Economics: Trading Micro-Spontaneity for Retained Margin",
                    "Full margin walk per meal drop: how predictable batch logistics generate a +₹205 weekly surplus per subscriber.")
     
-    # 3 Tier Economic Cards
     add_card(s12, Inches(0.8), Inches(1.8), c_w, Inches(4.35))
     tb12_1 = s12.shapes.add_textbox(Inches(1.0), Inches(2.0), c_w - Inches(0.4), Inches(3.95))
     tf12_1 = tb12_1.text_frame; tf12_1.word_wrap = True
@@ -559,12 +517,11 @@ def create_deck():
 
     add_bottom_banner(s12, "💰 Reinvestment Flywheel: +₹205 weekly surplus per subscriber self-funds Friday rewards (₹40) while retaining healthy net platform profit.")
 
-    # ==================== SLIDE 13: TOWER TRIBE POD CO-OPS (NEW) ====================
+    # ==================== SLIDE 13: TOWER TRIBE POD CO-OPS ====================
     s13 = add_base(13, "B2B2C Viral Growth Engine",
                    "Tower Tribe Pod Co-Ops: Hyper-Local B2B2C Viral Network Effects",
                    "Turning corporate office buildings into viral, self-organizing delivery clusters via a 3-tier milestone ladder.")
     
-    # 3 Milestone Cards
     add_card(s13, Inches(0.8), Inches(1.8), c_w, Inches(4.35))
     tb13_1 = s13.shapes.add_textbox(Inches(1.0), Inches(2.0), c_w - Inches(0.4), Inches(3.95))
     tf13_1 = tb13_1.text_frame; tf13_1.word_wrap = True
@@ -606,12 +563,11 @@ def create_deck():
 
     add_bottom_banner(s13, "🚀 Viral CAC Advantage: Existing subscribers recruit their peers to unlock the next discount tier, slashing Blended CAC by 35%.")
 
-    # ==================== SLIDE 14: KITCHEN OS & LOGISTICS (NEW) ====================
+    # ==================== SLIDE 14: KITCHEN OS & LOGISTICS ====================
     s14 = add_base(14, "Operational Backend & Infrastructure",
                    "Kitchen Partner OS & Courier Wave Logistics Engine",
                    "Synchronizing cloud kitchen prep schedules with batched corridor delivery for clockwork precision.")
     
-    # 3 Workflow Cards
     add_card(s14, Inches(0.8), Inches(1.8), c_w, Inches(4.35))
     tb14_1 = s14.shapes.add_textbox(Inches(1.0), Inches(2.0), c_w - Inches(0.4), Inches(3.95))
     tf14_1 = tb14_1.text_frame; tf14_1.word_wrap = True
@@ -653,12 +609,11 @@ def create_deck():
 
     add_bottom_banner(s14, "⚙️ Operational Rigor: Zero live order chaos—every kitchen step is fully scheduled, pre-allocated, and thermally monitored.")
 
-    # ==================== SLIDE 15: PILOT ROADMAP (NEW) ====================
+    # ==================== SLIDE 15: PILOT ROADMAP ====================
     s15 = add_base(15, "Go-To-Market Execution",
                    "Phased Rollout Plan: Cyber Park Beachhead to Pan-India Metro Scale",
                    "A disciplined, milestone-driven expansion roadmap proving unit economics before scaling geography.")
     
-    # 3 Phase Cards
     add_card(s15, Inches(0.8), Inches(1.8), c_w, Inches(4.35))
     tb15_1 = s15.shapes.add_textbox(Inches(1.0), Inches(2.0), c_w - Inches(0.4), Inches(3.95))
     tf15_1 = tb15_1.text_frame; tf15_1.word_wrap = True
@@ -703,16 +658,14 @@ def create_deck():
 
     add_bottom_banner(s15, "📈 Capital Efficiency: The pilot requires zero heavy capital expenditure—leveraging existing cloud kitchen capacity and corridor riders.")
 
-    # ==================== SLIDE 16: GOVERNANCE & RISK MITIGATION (NEW) ====================
+    # ==================== SLIDE 16: GOVERNANCE & RISK MITIGATION ====================
     s16 = add_base(16, "Risk Governance & Success Scorecard",
                    "Executive Governance: North-Star Metrics & Failure Mode Playbook",
                    "Rigorous KPI tracking and proactive mitigation protocols protecting customer trust and service SLAs.")
     
-    # 2 Wide Columns: Left = Metrics Scorecard, Right = Risk Playbook
     col_w = Inches(5.7)
     gap_col = Inches(0.33)
     
-    # Left Card: Metrics Scorecard
     add_card(s16, Inches(0.8), Inches(1.8), col_w, Inches(4.35))
     tb16_1 = s16.shapes.add_textbox(Inches(1.05), Inches(2.0), col_w - Inches(0.4), Inches(3.95))
     tf16_1 = tb16_1.text_frame; tf16_1.word_wrap = True
@@ -730,7 +683,6 @@ def create_deck():
         pk = tf16_1.add_paragraph(); pk.text = f"• {kname} [{kval}]: "; pk.font.size = Pt(10); pk.font.bold = True; pk.font.color.rgb = COLOR_ORANGE; pk.space_after = Pt(1)
         pd = tf16_1.add_paragraph(); pd.text = f"   {kdesc}"; pd.font.size = Pt(9); pd.font.color.rgb = COLOR_TEXT_SECONDARY; pd.space_after = Pt(3)
 
-    # Right Card: Risk Playbook
     add_card(s16, Inches(0.8) + col_w + gap_col, Inches(1.8), col_w, Inches(4.35))
     tb16_2 = s16.shapes.add_textbox(Inches(1.05) + col_w + gap_col, Inches(2.0), col_w - Inches(0.4), Inches(3.95))
     tf16_2 = tb16_2.text_frame; tf16_2.word_wrap = True
@@ -749,7 +701,6 @@ def create_deck():
 
     add_bottom_banner(s16, "🏆 Product Vision: MealsOn Scheduled Meals transforms corporate lunch into a predictable, zero-waste daily utility.")
 
-    # Save to all distribution paths
     out_paths = [
         os.path.join("public", "presentation", "MealsOn_Master_Deck.pptx"),
         os.path.join("dist", "presentation", "MealsOn_Master_Deck.pptx"),
