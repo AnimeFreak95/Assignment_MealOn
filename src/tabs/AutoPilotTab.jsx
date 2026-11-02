@@ -312,7 +312,7 @@ export default function AutoPilotTab({
       if (paymentMode === 'prepaid') {
         onNotify(
           `${playlist[dayIndex].day} Lunch Skipped 🛡️`,
-          `Meal quota preserved in your pass pack (Runway extended +1 day within buffer).`,
+          `Meal quota preserved in your pass pack (Available until pass expiry).`,
           'success'
         );
       } else {
@@ -1088,7 +1088,7 @@ export default function AutoPilotTab({
                             </span>
                             <span className="text-[10px] font-medium text-emerald-700">
                               {paymentMode === 'prepaid'
-                                ? 'Meal not consumed • Pass runway extended +1 day within 20d buffer.'
+                                ? 'Meal not consumed • Stays in your pass pack until pass expiry.'
                                 : 'Per-meal mandate auto-debit canceled for this day.'}
                             </span>
                           </div>
@@ -1915,7 +1915,7 @@ export default function AutoPilotTab({
                   <ShieldCheck className="w-4 h-4 text-[#047857] shrink-0" />
                   <span className="font-medium">
                     {paymentMode === 'prepaid'
-                      ? 'Meal is NOT consumed. It stays in your pass pack (runway extended +1 day).'
+                      ? 'Meal is NOT consumed. It stays in your pass pack to use before pass expiry.'
                       : '10:00 PM auto-debit canceled. ₹0 charged to your bank.'}
                   </span>
                 </div>

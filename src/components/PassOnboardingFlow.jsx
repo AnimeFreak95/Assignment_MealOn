@@ -1106,7 +1106,7 @@ export default function SubscriptionFTUXFlow({ onCompleteActivation, onOpenIntro
                   What happens when I skip a meal?
                 </h4>
                 <p className="text-xs text-slate-600 mt-1 leading-snug">
-                  Under our Quota Preservation model, your meal is not consumed - it stays in your pass pack and your validity extends +1 day into your buffer. Any unconsumed meals at the end of your validity window convert to wallet balance (valid for 60 days on renewal). For UPI Mandates, the 10 PM debit is canceled (₹0 charged).
+                  Under our Quota Preservation model, your meal is not consumed - it stays in your pass pack to use on any day before your fixed pass validity ends. Any unconsumed meals at the end of your validity window convert automatically to wallet balance (valid for 60 days on renewal). For UPI Mandates, the 10 PM debit is canceled (₹0 charged).
                 </p>
               </div>
 

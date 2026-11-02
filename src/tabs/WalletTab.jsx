@@ -187,7 +187,7 @@ export default function WalletTab({
         <div className="mt-3.5 pt-2.5 border-t border-emerald-800/60 flex items-center justify-between text-[11px] relative z-10">
           <span className="flex items-center text-emerald-200 font-medium">
             <Calendar className="w-3.5 h-3.5 mr-1.5 text-emerald-400" />
-            20-Day Buffer Runway
+            20-Day Fixed Validity Buffer
           </span>
           <span className="font-extrabold text-white bg-white/10 px-2 py-0.5 rounded-md">
             Valid until {passValidityStr}

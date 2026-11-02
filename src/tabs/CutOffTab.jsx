@@ -146,7 +146,7 @@ export default function CutOffTab({
       if (paymentMode === 'prepaid') {
         onNotify(
           'Meal Quota Preserved! 🛡️',
-          'Tomorrow lunch skipped. Meal stays in your pass pack (runway extended +1 day).',
+          'Tomorrow lunch skipped. Meal stays in your pass pack to use before pass expiry.',
           'success'
         );
       } else {
@@ -441,7 +441,7 @@ export default function CutOffTab({
             <div className="flex items-center space-x-2">
               <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
               <span className="font-medium text-slate-700">
-                {paymentMode === 'prepaid' ? 'Meal quota preserved in pass (Runway extended)' : '10:00 PM auto-debit canceled (₹0 charged)'}
+                {paymentMode === 'prepaid' ? 'Meal quota preserved in pass (Available until expiry)' : '10:00 PM auto-debit canceled (₹0 charged)'}
               </span>
             </div>
             {secondsRemaining > 0 && (
@@ -583,7 +583,7 @@ export default function CutOffTab({
                 <ShieldCheck className="w-4 h-4 text-[#047857] shrink-0" />
                 <span className="font-medium">
                   {paymentMode === 'prepaid'
-                    ? 'Meal is NOT consumed. It stays in your pass pack (runway extended +1 day).'
+                    ? 'Meal is NOT consumed. It stays in your pass pack to use before pass expiry.'
                     : '10:00 PM auto-debit canceled. ₹0 charged to your bank.'}
                 </span>
               </div>
