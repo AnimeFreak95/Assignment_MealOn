@@ -903,9 +903,12 @@ export default function StreaksTab({
                   <h2 id="habit-tree-section" className="text-sm font-extrabold text-slate-900 leading-tight">
                     Healthy Week Habit Tree
                   </h2>
-                  <div className="flex items-center gap-1.5 mt-0.5">
+                  <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
                     <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200/70">
                       🌸 4 Meals Bloom
+                    </span>
+                    <span className="text-[10px] font-bold text-teal-800 bg-teal-50 px-1.5 py-0.5 rounded border border-teal-200/70" title="Clean Fuel meals sponsored by EatFit / Epigamia">
+                      🌱 3/4 Clean Fuel
                     </span>
                     <span className="text-[10px] font-semibold text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded">
                       🛡️ 1 Protected Skip
@@ -1036,6 +1039,19 @@ export default function StreaksTab({
                     </button>
                   );
                 })}
+              </div>
+
+              {/* Gentle 1-Line Clean Fuel Incentive (Zero Cognitive Load) */}
+              <div className="mt-3 bg-emerald-50/80 border border-emerald-200/80 rounded-xl px-2.5 py-1.5 flex items-center justify-between text-xs">
+                <div className="flex items-center space-x-1.5 text-slate-700">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                  <span className="text-[10px] leading-tight text-slate-700">
+                    <strong className="text-emerald-950 font-bold">Golden Bloom:</strong> 4 <span className="text-teal-800 font-bold">Clean Fuel</span> meals unlock sponsored Friday rewards!
+                  </span>
+                </div>
+                <span className="text-[9px] font-black text-emerald-800 bg-white px-1.5 py-0.5 rounded-full border border-emerald-200 shrink-0">
+                  3/4 Logged
+                </span>
               </div>
             </div>
           </div>

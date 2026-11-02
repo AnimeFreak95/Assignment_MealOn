@@ -19,17 +19,17 @@ import { MASTER_DISH_CATALOG } from '../data/mockData';
 export const WHEEL_REWARDS = [
   {
     id: 'tier_upgrade',
-    name: 'Chef’s Table Upgrade',
-    tag: 'CULINARY DISCOVERY',
+    name: 'EatFit Clean Fuel Upgrade',
+    tag: 'SPONSORED BY EATFIT',
     badge: 'WORTH ₹90',
-    sliceLabel: 'Tier Upgrade',
+    sliceLabel: 'EatFit Clean',
     emoji: '🥗',
     color: '#10B981', // Emerald
     gradient: 'from-emerald-500 to-teal-600',
     accentBg: 'bg-emerald-50 text-emerald-800 border-emerald-300',
-    headline: '1-Meal Chef’s Table Pass Unlocked! 🥗',
-    subtext: 'Upgrade your next scheduled lunch from Bistro to Chef’s Table (Zen Teriyaki Soba or Signature Craft Bowl) with ₹0 extra surcharge.',
-    perkAction: 'Auto-applied to next Monday lunch',
+    headline: 'EatFit Clean Fuel Bowl Unlocked! 🥗',
+    subtext: 'Sponsored by EatFit • Free upgrade on your next Monday lunch to a Chef’s Table Superfood Bowl with ₹0 extra surcharge.',
+    perkAction: 'Auto-applied to Monday EatFit lunch',
     actionText: 'Apply to Monday Lunch'
   },
   {

@@ -12,6 +12,7 @@ export const MASTER_DISH_CATALOG = [
     category: 'protein',
     isVeg: true,
     tag: 'High Protein',
+    cleanFuelSponsor: 'EatFit',
     image: '🥗',
     desc: 'Charred tandoori paneer cubes, organic tri-color quinoa, bell peppers & mint Greek yogurt dip.'
   },
@@ -27,6 +28,7 @@ export const MASTER_DISH_CATALOG = [
     category: 'protein',
     isVeg: true,
     tag: 'High Protein',
+    cleanFuelSponsor: 'EatFit',
     image: '🍲',
     desc: 'Clay-oven spiced soya chunks on aromatic barnyard millet with pomegranate mint raita.'
   },
@@ -42,6 +44,7 @@ export const MASTER_DISH_CATALOG = [
     category: 'protein',
     isVeg: true,
     tag: 'Clean Fuel',
+    cleanFuelSponsor: 'Epigamia',
     image: '🍱',
     desc: 'Marinated high-fiber smoked tofu, broccoli, edamame and brown basmati rice bowl.'
   },
@@ -132,6 +135,7 @@ export const MASTER_DISH_CATALOG = [
     category: 'protein',
     isVeg: true,
     tag: 'High Protein',
+    cleanFuelSponsor: 'EatFit',
     image: '🥗',
     desc: 'Rosemary grilled firm tofu, bok choy, asparagus, sesame ginger dressing & brown rice.'
   },
@@ -177,6 +181,7 @@ export const MASTER_DISH_CATALOG = [
     category: 'light',
     isVeg: true,
     tag: 'Asian Fusion',
+    cleanFuelSponsor: 'Cult.fit',
     image: '🍜',
     desc: 'Buckwheat Japanese soba noodles, grilled sesame teriyaki tofu cubes, tender edamame pods.'
   },

@@ -960,13 +960,19 @@ export default function AutoPilotTab({
                             {currentMeal.kitchen}
                           </p>
                           {/* Clean Macro Badges on Mobile */}
-                          <div className="flex items-center space-x-1.5 mt-1">
+                          <div className="flex items-center flex-wrap gap-1.5 mt-1">
                             <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200/80 px-1.5 py-0.5 rounded-md flex items-center space-x-0.5">
                               <span>🔥 {currentMeal.protein}g Protein</span>
                             </span>
                             <span className="text-[10px] font-semibold text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded-md">
                               {currentMeal.kcal} kcal
                             </span>
+                            {currentMeal.cleanFuelSponsor && (
+                              <span className="text-[10px] font-bold text-teal-800 bg-teal-50 border border-teal-200/80 px-1.5 py-0.5 rounded-md flex items-center space-x-1" title="Counts toward Golden Habit Bloom">
+                                <span>🌱 Clean Fuel</span>
+                                <span className="text-[9px] font-medium text-teal-600">• {currentMeal.cleanFuelSponsor}</span>
+                              </span>
+                            )}
                           </div>
                         </div>
                       </div>
