@@ -39,12 +39,19 @@ import {
 import { playPop, playSuccessChime, playCelebrationFanfare } from '../utils/audioDelight';
 import HabitSpinWheelModal from '../components/HabitSpinWheelModal';
 
-const AVATARS = [
-  { name: 'Priya S.', initials: 'PS', bg: 'bg-rose-500', role: 'Engineering', orders: 4 },
-  { name: 'Arjun M.', initials: 'AM', bg: 'bg-blue-500', role: 'Design', orders: 3 },
-  { name: 'Tanvi K.', initials: 'TK', bg: 'bg-emerald-500', role: 'Product', orders: 4 },
-  { name: 'Rohan D.', initials: 'RD', bg: 'bg-amber-500', role: 'Analytics', orders: 2 },
-  { name: 'Neha V.', initials: 'NV', bg: 'bg-purple-500', role: 'HR', orders: 3 },
+const ANONYMIZED_CONTRIBUTORS = [
+  { codename: 'Colleague #104', team: 'Engineering', bg: 'bg-indigo-500', orders: 4, icon: '⚡' },
+  { codename: 'Colleague #42', team: 'Design', bg: 'bg-rose-500', orders: 3, icon: '🎨' },
+  { codename: 'Colleague #88', team: 'Product', bg: 'bg-emerald-500', orders: 4, icon: '🚀' },
+  { codename: 'Colleague #19', team: 'Analytics', bg: 'bg-amber-500', orders: 2, icon: '📊' },
+  { codename: 'Colleague #63', team: 'People & HR', bg: 'bg-purple-500', orders: 3, icon: '🌱' },
+];
+
+const DEPARTMENT_LEADERBOARD = [
+  { rank: '1st', name: 'Engineering Pod', orders: 18, share: '43%', badgeBg: 'bg-emerald-50 text-emerald-800 border-emerald-200' },
+  { rank: '2nd', name: 'Product & Design Pod', orders: 14, share: '33%', badgeBg: 'bg-orange-50 text-orange-800 border-orange-200' },
+  { rank: '3rd', name: 'Analytics & Data Pod', orders: 7, share: '17%', badgeBg: 'bg-amber-50 text-amber-800 border-amber-200' },
+  { rank: '4th', name: 'People & Operations', orders: 3, share: '7%', badgeBg: 'bg-slate-100 text-slate-700 border-slate-200' },
 ];
 
 export default function StreaksTab({
@@ -705,7 +712,7 @@ export default function StreaksTab({
                 {showManageParticipation && (
                   <div className="mt-2 p-2.5 bg-slate-50 rounded-xl border border-slate-200 text-left text-xs space-y-2 animate-in fade-in duration-150">
                     <p className="text-slate-600 text-[11px]">
-                      Opting out stops credit claiming and hides your name on the leaderboard. Your tower lunch deliveries will still contribute to the building's collective meter.
+                      Opting out pauses Friday Fuel credit claiming for your account. Individual names are never published on the board; all building activity is aggregated at the team level.
                     </p>
                     <button
                       onClick={() => {
@@ -757,7 +764,7 @@ export default function StreaksTab({
           </section>
 
           {/* ---------------------------------------------------------------------
-              5. TOWER LEADERBOARD (SCROLLABLE, HONORS PRIVACY & PARTICIPATION)
+              5. TOWER LEADERBOARD (AGGREGATED & ANONYMIZED FOR STRICT PRIVACY)
              --------------------------------------------------------------------- */}
           <section
             aria-labelledby="leaderboard-heading"
@@ -766,57 +773,72 @@ export default function StreaksTab({
             <div className="flex items-center justify-between">
               <div>
                 <h2 id="leaderboard-heading" className="text-sm font-extrabold text-slate-900 leading-tight">
-                  Tower B Tribe Leaderboard
+                  Tower B Team Leaderboard
                 </h2>
                 <p className="text-xs text-slate-500 font-medium">
-                  Rankings based on lunches scheduled this workweek
+                  Aggregated weekly orders across Cyber Park Tower B
                 </p>
               </div>
-              <span className="text-[10px] font-extrabold bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full border border-slate-200">
-                23 Members
+              <span className="text-[10px] font-extrabold bg-emerald-50 text-emerald-800 px-2 py-0.5 rounded-full border border-emerald-200 flex items-center space-x-1">
+                <span>🛡️</span>
+                <span>Privacy Shield Active</span>
               </span>
             </div>
 
-            {/* Department Breakdown */}
-            <div className="grid grid-cols-3 gap-2 text-center text-xs">
-              <div className="bg-[#F8FAFC] border border-slate-200/80 p-2.5 rounded-xl">
-                <span className="text-slate-400 block text-[9px] uppercase font-bold">1st Place</span>
-                <span className="font-extrabold text-slate-900 text-xs block">Engineering</span>
-                <span className="text-[11px] text-emerald-600 font-bold block mt-0.5">18 orders</span>
-              </div>
-              <div className="bg-[#F8FAFC] border border-slate-200/80 p-2.5 rounded-xl">
-                <span className="text-slate-400 block text-[9px] uppercase font-bold">2nd Place</span>
-                <span className="font-extrabold text-slate-900 text-xs block">Product</span>
-                <span className="text-[11px] text-[#FF5A1F] font-bold block mt-0.5">14 orders</span>
-              </div>
-              <div className="bg-[#F8FAFC] border border-slate-200/80 p-2.5 rounded-xl">
-                <span className="text-slate-400 block text-[9px] uppercase font-bold">3rd Place</span>
-                <span className="font-extrabold text-slate-900 text-xs block">Analytics</span>
-                <span className="text-[11px] text-amber-600 font-bold block mt-0.5">12 orders</span>
+            {/* Privacy Compliance Banner */}
+            <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-2.5 text-xs text-slate-600 flex items-start space-x-2">
+              <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+              <div className="text-[11px] leading-snug">
+                <strong className="text-slate-800">100% Confidential:</strong> Individual member names, personal meal selections, and specific office days are never displayed publicly. All rankings reflect aggregated team activity.
               </div>
             </div>
 
-            {/* Colleague Member Roster */}
+            {/* Department Standings Table */}
             <div className="space-y-1.5 pt-1">
-              {AVATARS.map((av, idx) => (
+              {DEPARTMENT_LEADERBOARD.map((dept, idx) => (
                 <div
                   key={idx}
-                  className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-100 text-xs"
+                  className="flex items-center justify-between p-2.5 rounded-xl bg-white border border-slate-200 text-xs shadow-2xs"
                 >
                   <div className="flex items-center space-x-2.5">
-                    <div className={`w-7 h-7 rounded-full ${av.bg} text-white flex items-center justify-center text-[10px] font-bold shrink-0`}>
-                      {av.initials}
-                    </div>
+                    <span className="text-xs font-black text-slate-500 w-6 text-center">
+                      {dept.rank}
+                    </span>
                     <div>
-                      <div className="font-extrabold text-slate-900 text-xs">{av.name}</div>
-                      <div className="text-[10px] text-slate-500">{av.role}</div>
+                      <div className="font-extrabold text-slate-900 text-xs">{dept.name}</div>
+                      <div className="text-[10px] text-slate-500">{dept.share} of building volume</div>
                     </div>
                   </div>
-                  <span className="text-xs font-extrabold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200">
-                    {av.orders} lunches
+                  <span className={`text-xs font-extrabold px-2.5 py-1 rounded-md border ${dept.badgeBg}`}>
+                    {dept.orders} lunches
                   </span>
                 </div>
               ))}
+            </div>
+
+            {/* Anonymized Contributor Stream */}
+            <div className="pt-2 border-t border-slate-100 space-y-1.5">
+              <div className="flex items-center justify-between text-[11px] text-slate-500 px-1 font-semibold">
+                <span>Recent Milestone Contributors</span>
+                <span className="text-[10px] text-slate-400">Pseudonymous IDs</span>
+              </div>
+              <div className="grid grid-cols-1 gap-1.5">
+                {ANONYMIZED_CONTRIBUTORS.map((av, idx) => (
+                  <div
+                    key={idx}
+                    className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-slate-50 border border-slate-100 text-[11px]"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <span className="text-xs">{av.icon}</span>
+                      <span className="font-bold text-slate-800">{av.codename}</span>
+                      <span className="text-[10px] text-slate-400">({av.team})</span>
+                    </div>
+                    <span className="font-extrabold text-emerald-700 bg-emerald-50/80 px-2 py-0.5 rounded text-[10px] border border-emerald-200/60">
+                      +{av.orders} lunches
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
           </section>
 
