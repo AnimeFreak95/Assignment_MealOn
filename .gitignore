@@ -8,6 +8,7 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
+dist
 .DS_Store
 *.local
 
@@ -19,6 +20,15 @@ node_modules
 *.njsproj
 *.sln
 *.sw?
+
+# Office lock files
+~$*.pptx
+~$*.docx
+~$*.xlsx
+
+# Python bytecode & cache
+__pycache__/
+*.py[cod]
 
 # Transient payloads and helper dumps
 *payload*.json
