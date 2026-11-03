@@ -8,7 +8,6 @@
 
 ## 📱 Interactive High-Fidelity Prototype
 - **Live Interactive Web Prototype:** [https://animefreak95.github.io/Assignment_MealOn/](https://animefreak95.github.io/Assignment_MealOn/)
-- **12-Slide Strategy Deck:** [View Executive Slides](https://animefreak95.github.io/Assignment_MealOn/slides.html) | [Download PowerPoint Deck (.pptx)](https://animefreak95.github.io/Assignment_MealOn/presentation/MealsOn_Executive_Presentation.pptx)
 - **GitHub Repository:** [AnimeFreak95/Assignment_MealOn (main)](https://github.com/AnimeFreak95/Assignment_MealOn)
 
 ---
